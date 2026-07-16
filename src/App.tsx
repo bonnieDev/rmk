@@ -216,20 +216,41 @@ export default function App() {
           ))}
         </div>
 
-        <section id="about" className="site-panel">
+        <section id="about" className="site-panel site-panel--about">
           <p className="site-label">About</p>
-          <h2 className="site-panel__title">Still writing this part.</h2>
-          <p className="site-panel__body">
-            Portfolio in progress. A fuller about is on the way — design systems,
-            generative work, and original IP under one roof.
-          </p>
+          <h2 className="site-panel__title">Bonnie Remeika</h2>
+          <div className="site-panel__prose">
+            <p>
+              I’m a product designer and systems builder with roots in print,
+              darkrooms, and the web before any of those had a proper curriculum.
+              I’ve spent a career remaking myself at each edge of the field —
+              boutique work, the first mobile web, and years inside regulated
+              product environments.
+            </p>
+            <p>
+              That work is zero-tolerance by design. Live isn’t “close enough” —
+              it has to match what was approved, pixel for pixel. I nitpick at
+              that scale on purpose: in compliance contexts, a wrong state isn’t
+              a polish note, it’s risk. I take the rules seriously because they
+              exist for a reason, and the craft has to be precise enough to honor
+              them.
+            </p>
+            <p>
+              What’s in front of me now is AI-native work: one person in the
+              director’s chair, shipping code, motion, worlds, and products that
+              used to need a crew. There’s still no degree for that. I recognize
+              the room.
+            </p>
+            <p className="site-panel__close">I’m in.</p>
+          </div>
         </section>
 
         <section id="resume" className="site-panel">
           <p className="site-label">Resume</p>
-          <h2 className="site-panel__title">Resume coming soon.</h2>
+          <h2 className="site-panel__title">The long path — soon.</h2>
           <p className="site-panel__body">
-            Portfolio in progress. A downloadable resume will land here shortly.
+            A chaptered story of the work is next: eras, craft, and the formal
+            résumé with names and dates. For now, the short read lives above.
           </p>
         </section>
       </main>

@@ -1,0 +1,47 @@
+/**
+ * RMK design tokens
+ * CSS custom properties are the single source of truth.
+ * Components read these; TS mirrors them for programmatic color picks.
+ */
+:root {
+  /* Surfaces */
+  --rmk-ground: #fff7ee;
+  --rmk-paper: #ffffff;
+  --rmk-ink: #16233b;
+  --rmk-ink-muted: #7b7a86;
+  --rmk-line: #16233b18;
+
+  /* Accents (shared with your case-study palette) */
+  --rmk-tiff: #81d8d0;
+  --rmk-green: #17b26a;
+  --rmk-poppy: #ff7a3d;
+  --rmk-pink: #ff5c8a;
+  --rmk-amber: #f4a72c;
+
+  /* Logo module palette — rotates through remake cycles */
+  --rmk-module-1: var(--rmk-ink);
+  --rmk-module-2: var(--rmk-poppy);
+  --rmk-module-3: var(--rmk-tiff);
+  --rmk-module-4: var(--rmk-pink);
+  --rmk-module-5: var(--rmk-green);
+
+  /* Typography */
+  --rmk-font-display: "Fraunces", Georgia, serif;
+  --rmk-font-body: "Figtree", system-ui, sans-serif;
+  --rmk-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Logo geometry */
+  --rmk-cell-size: clamp(14px, 3.6vw, 26px);
+  --rmk-shadow-x: 5px;
+  --rmk-shadow-y: 5px;
+  --rmk-remake-duration: 220ms;
+  --rmk-remake-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Spacing scale */
+  --rmk-space-1: 4px;
+  --rmk-space-2: 8px;
+  --rmk-space-3: 16px;
+  --rmk-space-4: 24px;
+  --rmk-space-5: 40px;
+  --rmk-space-6: 64px;
+}

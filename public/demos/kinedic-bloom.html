@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kinedic Bloom — Adaptive UI, live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     KINEDIC BLOOM — DEMO LOOP
+     A passive+active adaptive UI, shown adapting in real time.
+     Everything you'd want to tune lives in the CONFIG block below.
+     ============================================================ -->
+<script>
+const CONFIG = {
+  autoplay: true,
+  loop: true,
+  // seconds per beat of each profile
+  timing: { baseline: 2.6, approach: 1.3, observe: 1.6, adapt: 1.7, hold: 2.0, reset: 1.2 },
+
+  // The users Bloom learns, in order. Each drives the panel + telemetry.
+  // state values are multipliers/flags the panel reads as CSS variables.
+  profiles: [
+    {
+      id: "lowvision",
+      label: "low-vision reader",
+      observed: "long dwell on the passage · low scroll velocity · manual magnify tapped once",
+      response: "grow text · open line-height · lift contrast",
+      state: { content: 1.42, control: 1.12, space: 1.25, line: 1.75, letter: 0.0, contrast: 1, calm: 0, simplify: 0 },
+      bloom: ["passage", "heading"],
+      cursor: "dwell"
+    },
+    {
+      id: "motor",
+      label: "imprecise pointer",
+      observed: "high pointer jitter · missed a target by 34px · slow settle time",
+      response: "enlarge controls · widen spacing · fatten hit areas",
+      state: { content: 1.12, control: 1.55, space: 1.7, line: 1.5, letter: 0.0, contrast: 1, calm: 0, simplify: 0 },
+      bloom: ["answers"],
+      cursor: "shaky"
+    },
+    {
+      id: "cognitive",
+      label: "re-reading / high load",
+      observed: "passage re-read twice · back-scrolls · long pauses between actions",
+      response: "calm the type · one thing at a time · dim the noise",
+      state: { content: 1.22, control: 1.18, space: 1.55, line: 1.85, letter: 0.028, contrast: 1, calm: 1, simplify: 1 },
+      bloom: ["passage"],
+      cursor: "reread"
+    }
+  ],
+
+  // Bloom's own paint. Warm, bright, high-legibility — on purpose.
+  palette: {
+    ground:   "#F7F3EC",  // warm paper
+    panel:    "#FFFFFF",
+    ink:      "#241E2B",  // aubergine-charcoal, not flat black
+    petal:    "#F0567A",  // bloom / primary
+    growth:   "#12B981",  // adaptation happening
+    calm:     "#5BC7C0",  // system / observation
+    amber:    "#F4A72C",  // "noticing"
+    mute:     "#8A8395"
+  }
+};
+</script>
+
+<style>
+  :root{
+    --ground:#F7F3EC; --panel:#FFFFFF; --ink:#241E2B;
+    --petal:#F0567A; --growth:#12B981; --calm:#5BC7C0; --amber:#F4A72C; --mute:#8A8395;
+    --edge: color-mix(in srgb, var(--ink) 12%, transparent);
+    --edge-soft: color-mix(in srgb, var(--ink) 7%, transparent);
+
+    /* Live adaptive variables — the panel reads these. Transitions here = the bloom. */
+    --content: 1; --control: 1; --space: 1; --line: 1.5; --letter: 0em; --panel-contrast: 1;
+    --ease: cubic-bezier(.22,.61,.36,1);
+    --bloom-dur: 900ms;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{
+    background:
+      radial-gradient(120% 90% at 82% -10%, color-mix(in srgb,var(--calm) 16%, transparent), transparent 60%),
+      radial-gradient(120% 90% at 10% 110%, color-mix(in srgb,var(--petal) 12%, transparent), transparent 55%),
+      var(--ground);
+    color:var(--ink);
+    font-family:"Figtree",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+    padding:clamp(16px,4vw,48px);
+  }
+
+  .stage{ width:min(980px,100%); }
+
+  /* ---- Masthead ---- */
+  .masthead{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:22px; flex-wrap:wrap; }
+  .wordmark{ display:flex; align-items:center; gap:12px; }
+  .seed{ width:30px; height:30px; flex:none; }
+  .wordmark h1{
+    font-family:"Fraunces",serif; font-weight:500; font-size:26px; margin:0; letter-spacing:-.01em;
+  }
+  .wordmark h1 b{ font-weight:600; }
+  .tag{ font-size:12.5px; color:var(--mute); margin:2px 0 0; letter-spacing:.01em; }
+
+  .learning{ text-align:right; }
+  .learning .eyebrow{
+    font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--mute);
+  }
+  .learning .who{
+    display:inline-flex; align-items:center; gap:8px; margin-top:5px;
+    font-family:"Fraunces",serif; font-size:18px; font-weight:500;
+  }
+  .who .pip{ width:9px; height:9px; border-radius:50%; background:var(--growth); box-shadow:0 0 0 0 color-mix(in srgb,var(--growth) 70%,transparent); }
+  body[data-phase="observe"] .who .pip{ background:var(--amber); animation:pulse 1.1s infinite; }
+  body[data-phase="baseline"] .who .pip{ background:var(--mute); }
+  @keyframes pulse{ 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--amber) 60%,transparent);} 70%{box-shadow:0 0 0 7px transparent;} 100%{box-shadow:0 0 0 0 transparent;} }
+
+  /* ---- The workspace: product panel + telemetry ---- */
+  .work{ display:grid; grid-template-columns: 1.55fr 1fr; gap:20px; align-items:start; }
+  @media (max-width:760px){ .work{ grid-template-columns:1fr; } }
+
+  /* ---- Product panel (the thing being adapted) ---- */
+  .panel-wrap{ position:relative; }
+  .panel{
+    position:relative; background:var(--panel); border:1px solid var(--edge);
+    border-radius:20px; padding:calc(22px * var(--space));
+    box-shadow:0 22px 50px -30px color-mix(in srgb,var(--ink) 55%,transparent);
+    filter:contrast(var(--panel-contrast));
+    transition:padding var(--bloom-dur) var(--ease), filter var(--bloom-dur) var(--ease);
+    overflow:hidden;
+  }
+  .crumb{
+    font-family:"JetBrains Mono",monospace; font-size:calc(10.5px * var(--content));
+    letter-spacing:.12em; text-transform:uppercase; color:var(--petal); margin-bottom:calc(10px * var(--space));
+    transition:font-size var(--bloom-dur) var(--ease), margin var(--bloom-dur) var(--ease);
+  }
+  .lede{
+    font-family:"Fraunces",serif; font-weight:600; line-height:1.1; margin:0 0 calc(12px * var(--space));
+    font-size:calc(27px * var(--content)); letter-spacing:-.01em;
+    transition:font-size var(--bloom-dur) var(--ease), margin var(--bloom-dur) var(--ease);
+  }
+  .passage{
+    font-size:calc(15.5px * var(--content)); line-height:var(--line); letter-spacing:var(--letter);
+    margin:0 0 calc(16px * var(--space)); color:color-mix(in srgb,var(--ink) 88%, transparent); max-width:52ch;
+    transition:font-size var(--bloom-dur) var(--ease), line-height var(--bloom-dur) var(--ease),
+               letter-spacing var(--bloom-dur) var(--ease), margin var(--bloom-dur) var(--ease);
+  }
+
+  .illus{ transition:opacity 700ms var(--ease), max-height 700ms var(--ease), margin 700ms var(--ease); overflow:hidden; }
+  body[data-simplify="1"] .illus{ opacity:0; max-height:0; margin:0; }
+
+  .prompt{
+    font-weight:600; font-size:calc(15px * var(--content)); margin:calc(4px * var(--space)) 0 calc(12px * var(--space));
+    transition:font-size var(--bloom-dur) var(--ease), margin var(--bloom-dur) var(--ease);
+  }
+  .answers{ display:flex; gap:calc(10px * var(--space)); flex-wrap:wrap; }
+  .answer{
+    font-family:inherit; font-weight:600; cursor:pointer; color:var(--ink);
+    background:color-mix(in srgb,var(--calm) 15%, var(--panel));
+    border:1.5px solid color-mix(in srgb,var(--ink) 14%, transparent);
+    border-radius:calc(12px * var(--control));
+    padding:calc(10px * var(--control)) calc(16px * var(--control));
+    font-size:calc(14px * var(--content));
+    transition:all var(--bloom-dur) var(--ease);
+  }
+  .answer:focus-visible{ outline:3px solid var(--petal); outline-offset:2px; }
+  .answer.pick{ background:color-mix(in srgb,var(--growth) 18%, var(--panel)); border-color:var(--growth); }
+
+  .bar{ height:calc(6px * var(--control)); background:var(--edge-soft); border-radius:999px; margin-top:calc(18px * var(--space)); overflow:hidden;
+        transition:height var(--bloom-dur) var(--ease), margin var(--bloom-dur) var(--ease); }
+  .bar > i{ display:block; height:100%; width:42%; background:linear-gradient(90deg,var(--petal),var(--amber)); border-radius:999px; }
+
+  /* active-mode affordances Bloom offers on every component */
+  .afford{
+    position:absolute; top:10px; right:10px; display:flex; gap:6px; opacity:.0; transition:opacity .5s var(--ease);
+  }
+  .panel:hover .afford, body[data-phase="adapt"] .afford{ opacity:.9; }
+  .chip{ width:22px; height:22px; border-radius:7px; display:grid; place-items:center;
+         background:color-mix(in srgb,var(--ink) 6%,transparent); border:1px solid var(--edge); color:var(--mute); }
+  .chip svg{ width:12px; height:12px; }
+  .chip.fire{ color:var(--growth); border-color:var(--growth); background:color-mix(in srgb,var(--growth) 12%,transparent);
+              animation:tap .7s var(--ease); }
+  @keyframes tap{ 0%{transform:scale(1);} 40%{transform:scale(1.25);} 100%{transform:scale(1);} }
+
+  /* the bloom ripple — signature moment when a component adapts */
+  .ripple{ position:absolute; border-radius:18px; pointer-events:none; z-index:5;
+           box-shadow:0 0 0 2px color-mix(in srgb,var(--growth) 60%,transparent);
+           opacity:0; }
+  .ripple.go{ animation:bloom var(--bloom-dur) var(--ease); }
+  @keyframes bloom{
+    0%{ opacity:.9; transform:scale(.98); box-shadow:0 0 0 2px color-mix(in srgb,var(--growth) 70%,transparent);}
+    100%{ opacity:0; transform:scale(1.06); box-shadow:0 0 0 14px transparent;}
+  }
+
+  /* simulated cursor */
+  .cursor{ position:absolute; z-index:9; left:0; top:0; width:22px; height:22px; pointer-events:none;
+           transform:translate(-100px,-100px); transition:transform var(--ease); filter:drop-shadow(0 3px 5px rgba(0,0,0,.25)); }
+  .cursor svg{ width:100%; height:100%; }
+  .cursor.shaky{ animation:jitter .16s infinite; }
+  @keyframes jitter{ 0%{margin:0 0;} 25%{margin:-2px 1px;} 50%{margin:1px -2px;} 75%{margin:-1px -1px;} 100%{margin:1px 1px;} }
+  .miss{ position:absolute; z-index:8; width:16px; height:16px; border-radius:50%; border:2px solid var(--petal); opacity:0; }
+  .miss.go{ animation:missfx .8s var(--ease); }
+  @keyframes missfx{ 0%{opacity:.9; transform:scale(.4);} 100%{opacity:0; transform:scale(2.2);} }
+
+  /* ---- Telemetry rail ---- */
+  .rail{
+    background:color-mix(in srgb,var(--ink) 3%, var(--panel));
+    border:1px solid var(--edge); border-radius:20px; padding:20px; position:sticky; top:20px;
+  }
+  .rail .hd{ font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--mute); }
+  .mode{ display:flex; gap:8px; margin:12px 0 18px; }
+  .mode .m{ flex:1; text-align:center; font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.05em;
+            padding:7px 4px; border-radius:9px; border:1px solid var(--edge); color:var(--mute); }
+  .mode .m.on{ color:var(--ink); border-color:var(--growth); background:color-mix(in srgb,var(--growth) 12%,transparent); }
+
+  .tel{ margin-bottom:16px; }
+  .tel .k{ font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:6px; }
+  .tel.observed .k{ color:var(--amber); }
+  .tel.response .k{ color:var(--growth); }
+  .tel .v{ font-size:13.5px; line-height:1.5; color:color-mix(in srgb,var(--ink) 85%,transparent); min-height:2.6em; }
+  .tel .v.swap{ animation:swap .5s var(--ease); }
+  @keyframes swap{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+  .dots{ display:flex; gap:6px; margin-top:20px; }
+  .dots i{ height:4px; flex:1; border-radius:2px; background:var(--edge); }
+  .dots i.on{ background:var(--petal); }
+
+  /* ---- controls ---- */
+  .controls{ display:flex; align-items:center; gap:10px; margin-top:22px; }
+  .btn{ font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+        border:1px solid var(--edge); background:var(--panel); color:var(--ink); border-radius:999px;
+        padding:9px 15px; cursor:pointer; transition:all .2s var(--ease); }
+  .btn:hover{ border-color:var(--petal); color:var(--petal); }
+  .btn:focus-visible{ outline:3px solid var(--petal); outline-offset:2px; }
+  .hint{ font-size:11.5px; color:var(--mute); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ --bloom-dur:1ms; }
+    .cursor{ display:none; } .ripple,.miss{ display:none; }
+    .who .pip{ animation:none !important; }
+  }
+</style>
+</head>
+<body data-phase="baseline" data-simplify="0">
+  <div class="stage">
+
+    <div class="masthead">
+      <div class="wordmark">
+        <svg class="seed" viewBox="0 0 40 40" aria-hidden="true">
+          <g fill="none" stroke-width="2.4" stroke-linecap="round">
+            <path d="M20 22 C20 12, 12 8, 8 12 C6 20, 14 24, 20 22Z" stroke="#F0567A"/>
+            <path d="M20 22 C20 12, 28 8, 32 12 C34 20, 26 24, 20 22Z" stroke="#F4A72C"/>
+            <path d="M20 22 C14 24, 10 30, 14 34 C22 36, 22 28, 20 22Z" stroke="#5BC7C0"/>
+            <path d="M20 22 C26 24, 30 30, 26 34 C18 36, 18 28, 20 22Z" stroke="#12B981"/>
+          </g>
+          <circle cx="20" cy="22" r="2.6" fill="#241E2B"/>
+        </svg>
+        <div>
+          <h1>Kinedic <b>Bloom</b></h1>
+          <p class="tag">The interface learns the person. No settings menu.</p>
+        </div>
+      </div>
+      <div class="learning">
+        <div class="eyebrow">Bloom is learning</div>
+        <div class="who"><span class="pip"></span><span id="who">a first-time visitor</span></div>
+      </div>
+    </div>
+
+    <div class="work">
+      <!-- PRODUCT PANEL -->
+      <div class="panel-wrap">
+        <div class="panel" id="panel">
+          <div class="afford" aria-hidden="true">
+            <div class="chip" id="chip-mag" title="magnify this component">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="M20 20l-5-5M8 10.5h5M10.5 8v5"/></svg>
+            </div>
+            <div class="chip" title="drag to resize">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3M12 4v16"/></svg>
+            </div>
+          </div>
+
+          <div class="crumb">Kinedic Learn · Lesson 3</div>
+          <h2 class="lede" data-c="heading">Where does the rain go?</h2>
+          <p class="passage" data-c="passage">Water is always on the move. The sun warms puddles, rivers, and the sea until the water turns into an invisible mist that floats up into the sky. High up where it is cold, the mist gathers into clouds — and when a cloud grows heavy enough, the water falls back down as rain. Then the whole trip begins again.</p>
+
+          <div class="illus" data-c="illus" aria-hidden="true">
+            <svg viewBox="0 0 320 90" style="width:100%;height:auto;margin-bottom:14px">
+              <circle cx="40" cy="34" r="16" fill="#F4A72C"/>
+              <g fill="#5BC7C0"><ellipse cx="150" cy="34" rx="34" ry="18"/><ellipse cx="180" cy="30" rx="26" ry="16"/><ellipse cx="120" cy="30" rx="22" ry="14"/></g>
+              <g stroke="#12B981" stroke-width="3" stroke-linecap="round"><path d="M132 56 l-6 14"/><path d="M152 56 l-6 14"/><path d="M172 56 l-6 14"/></g>
+              <path d="M250 70 q10 -22 22 0" fill="none" stroke="#F0567A" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <p class="prompt" data-c="prompt">What turns puddles into mist?</p>
+          <div class="answers" data-c="answers">
+            <button class="answer">The wind</button>
+            <button class="answer" data-correct>The sun's warmth</button>
+            <button class="answer">The moon</button>
+          </div>
+
+          <div class="bar" data-c="bar" aria-hidden="true"><i></i></div>
+
+          <!-- overlays -->
+          <div class="ripple" id="ripple"></div>
+          <div class="miss" id="miss"></div>
+          <div class="cursor" id="cursor" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 3l7 17 2.5-6.5L20 11 4 3z" fill="#241E2B" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- TELEMETRY RAIL -->
+      <aside class="rail" aria-label="What Bloom is doing">
+        <div class="hd">Bloom · live</div>
+        <div class="mode">
+          <div class="m" id="mode-passive">passive · watching</div>
+          <div class="m" id="mode-active">active · adjusting</div>
+        </div>
+        <div class="tel observed"><div class="k">Observed</div><div class="v" id="observed">Nothing yet — just arrived.</div></div>
+        <div class="tel response"><div class="k">Response</div><div class="v" id="response">Holding the default layout.</div></div>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+      </aside>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="playpause">Pause</button>
+      <button class="btn" id="next">Next user ›</button>
+      <span class="hint">Auto-cycling three users · use “Next” to scrub for a screen-grab</span>
+    </div>
+
+  </div>
+
+<script>
+(function(){
+  const P = CONFIG.profiles, T = CONFIG.timing;
+  const el = id => document.getElementById(id);
+  const body = document.body, panel = el('panel');
+  const cursor = el('cursor'), ripple = el('ripple'), miss = el('miss');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // build progress dots
+  const dots = el('dots'); P.forEach(()=>dots.insertAdjacentHTML('beforeend','<i></i>'));
+  const dotEls = [...dots.children];
+
+  const baseState = { content:1, control:1, space:1, line:1.5, letter:0, contrast:1, calm:0, simplify:0 };
+  function applyState(s){
+    panel.style.setProperty('--content', s.content);
+    panel.style.setProperty('--control', s.control);
+    panel.style.setProperty('--space', s.space);
+    panel.style.setProperty('--line', s.line);
+    panel.style.setProperty('--letter', s.letter + 'em');
+    panel.style.setProperty('--panel-contrast', s.contrast);
+    body.dataset.simplify = s.simplify ? '1' : '0';
+  }
+  // set vars on :root too so telemetry-independent bits inherit
+  function applyStateRoot(s){ for(const k in s){ document.documentElement.style.setProperty('--'+k, k==='letter'? s[k]+'em': s[k]); } }
+
+  let runId = 0, playing = CONFIG.autoplay, jumpResolve = null;
+  const sleep = ms => new Promise(res=>{ const id=runId; const t=setTimeout(()=>res(id===runId), ms*1000);
+                                        jumpResolve = ()=>{ clearTimeout(t); res(false); }; });
+
+  function moveCursor(x,y){ cursor.style.transform = `translate(${x}px, ${y}px)`; }
+  function centerOf(sel){
+    const c = panel.querySelector(sel); const pr = panel.getBoundingClientRect(); const r = c.getBoundingClientRect();
+    return { x:r.left-pr.left + r.width/2, y:r.top-pr.top + r.height/2, r };
+  }
+  function bloomOn(sel){
+    if(reduce) return;
+    const pr = panel.getBoundingClientRect(); const t = panel.querySelector(sel); if(!t) return;
+    const r = t.getBoundingClientRect();
+    Object.assign(ripple.style,{ left:(r.left-pr.left-6)+'px', top:(r.top-pr.top-6)+'px', width:(r.width+12)+'px', height:(r.height+12)+'px' });
+    ripple.classList.remove('go'); void ripple.offsetWidth; ripple.classList.add('go');
+  }
+  function fireMagnify(){ const c=el('chip-mag'); c.classList.remove('fire'); void c.offsetWidth; c.classList.add('fire'); }
+  function setText(id, txt){ const n=el(id); n.textContent=txt; n.classList.remove('swap'); void n.offsetWidth; n.classList.add('swap'); }
+
+  const compSel = { passage:'[data-c="passage"]', heading:'[data-c="heading"]', answers:'[data-c="answers"]', prompt:'[data-c="prompt"]' };
+
+  async function runProfile(i){
+    const p = P[i];
+    dotEls.forEach((d,idx)=>d.classList.toggle('on', idx<=i));
+
+    // BASELINE / reset look
+    body.dataset.phase = 'baseline';
+    el('mode-passive').classList.remove('on'); el('mode-active').classList.remove('on');
+    applyState(baseState); applyStateRoot(baseState);
+    setText('who','a first-time visitor');
+    setText('observed','Nothing yet — reading the room.');
+    setText('response','Holding the default layout.');
+    cursor.classList.remove('shaky');
+    moveCursor(40, 30);
+    if(!(await sleep(T.baseline))) return;
+
+    // APPROACH — cursor comes in, passive watching begins
+    body.dataset.phase = 'approach';
+    el('mode-passive').classList.add('on');
+    setText('who', p.label);
+    const tgt = centerOf(compSel[p.bloom[0]] || '.lede');
+    if(p.cursor==='shaky') cursor.classList.add('shaky');
+    moveCursor(tgt.x, tgt.y);
+    if(!(await sleep(T.approach))) return;
+
+    // OBSERVE — show the signal
+    body.dataset.phase = 'observe';
+    setText('observed', p.observed);
+    setText('response', 'thinking…');
+    if(p.cursor==='dwell'){ /* linger */ }
+    if(p.cursor==='reread'){ moveCursor(tgt.x-60, tgt.y+18); await sleep(T.observe*0.4); moveCursor(tgt.x+40, tgt.y-10); }
+    if(p.cursor==='shaky'){
+      // a near-miss on the answers
+      const a = centerOf('[data-c="answers"] .answer:last-child');
+      moveCursor(a.x+26, a.y+18);
+      if(!reduce){ const pr=panel.getBoundingClientRect();
+        Object.assign(miss.style,{left:(a.x+18)+'px',top:(a.y+10)+'px'}); miss.classList.remove('go'); void miss.offsetWidth; miss.classList.add('go'); }
+    }
+    if(!(await sleep(T.observe))) return;
+
+    // ADAPT — the bloom
+    body.dataset.phase = 'adapt';
+    el('mode-active').classList.add('on');
+    setText('response', p.response);
+    applyState(p.state); applyStateRoot(p.state);
+    if(p.id==='lowvision') fireMagnify();
+    p.bloom.forEach((c,idx)=> setTimeout(()=>bloomOn(compSel[c]||'.lede'), idx*260));
+    if(!(await sleep(T.adapt))) return;
+
+    // HOLD — let it breathe / show a correct pick
+    body.dataset.phase = 'hold';
+    const correct = panel.querySelector('[data-correct]');
+    const cc = centerOf('[data-correct]'); cursor.classList.remove('shaky'); moveCursor(cc.x, cc.y);
+    correct.classList.add('pick');
+    if(!(await sleep(T.hold))) return;
+    correct.classList.remove('pick');
+  }
+
+  async function loop(){
+    const id = ++runId;
+    while(id===runId){
+      for(let i=0;i<P.length;i++){
+        if(id!==runId) return;
+        while(!playing && id===runId){ await new Promise(r=>setTimeout(r,120)); }
+        await runProfile(i);
+        if(id!==runId) return;
+        // soft reset between users
+        body.dataset.phase='baseline'; applyState(baseState); applyStateRoot(baseState);
+        if(!(await sleep(T.reset))) { if(id!==runId) return; }
+      }
+      if(!CONFIG.loop) break;
+    }
+  }
+
+  // controls
+  el('playpause').addEventListener('click', function(){
+    playing = !playing; this.textContent = playing ? 'Pause' : 'Play';
+  });
+  el('next').addEventListener('click', function(){
+    // cancel current beat, advance
+    if(jumpResolve) jumpResolve();
+  });
+
+  // kick off
+  applyState(baseState); applyStateRoot(baseState);
+  loop();
+})();
+</script>
+</body>
+</html>

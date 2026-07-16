@@ -1,0 +1,183 @@
+.rmk-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  user-select: none;
+}
+
+/* Compact sticky-header mark */
+.rmk-logo--compact {
+  --rmk-cell-size: 5px;
+}
+
+.rmk-logo--compact .rmk-mark {
+  gap: 6px;
+}
+
+.rmk-logo--compact .rmk-letter {
+  gap: 1px;
+}
+
+.rmk-logo--compact .rmk-cell__fill {
+  transition-duration: 0.35s;
+}
+
+/* --- Controls (optional) --- */
+
+.rmk-logo__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.rmk-logo__seed {
+  background: transparent;
+  border: 1px solid var(--rmk-line);
+  color: var(--rmk-ink);
+  font-family: var(--rmk-font-mono);
+  font-size: 11px;
+  padding: 7px 12px;
+  width: 140px;
+  letter-spacing: 0.08em;
+}
+
+.rmk-logo__btn {
+  background: transparent;
+  border: 1px solid var(--rmk-ink);
+  color: var(--rmk-ink);
+  font-family: var(--rmk-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.rmk-logo__btn:hover {
+  opacity: 1;
+}
+
+.rmk-logo__btn:focus-visible {
+  outline: 2px solid var(--rmk-ink);
+  outline-offset: 2px;
+}
+
+/* --- The mark: three letter grids --- */
+
+.rmk-mark {
+  display: flex;
+  gap: clamp(14px, 3.2vw, 26px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+.rmk-mark:focus-visible {
+  outline: 2px solid var(--rmk-tiff);
+  outline-offset: 10px;
+  border-radius: 4px;
+}
+
+.rmk-letter {
+  display: grid;
+  grid-template-columns: repeat(5, var(--rmk-cell-size));
+  grid-template-rows: repeat(7, var(--rmk-cell-size));
+  gap: clamp(2px, 0.5vw, 3px);
+}
+
+.rmk-cell {
+  width: var(--rmk-cell-size);
+  height: var(--rmk-cell-size);
+}
+
+.rmk-cell--ghost {
+  border: 1px solid var(--rmk-ink);
+  opacity: 0.055;
+  box-sizing: border-box;
+}
+
+.rmk-cell__fill {
+  width: 100%;
+  height: 100%;
+  /* Soft morph — no rise-from-bottom */
+  transition:
+    background-color 0.9s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-radius 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    clip-path 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Hover: long soft color fades so the mark barely competes with the card */
+.rmk-logo--hover .rmk-cell__fill {
+  transition:
+    background-color 1.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-radius 1s cubic-bezier(0.22, 0.61, 0.36, 1),
+    clip-path 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Burst: snappy remake — covers for dead-end card clicks */
+.rmk-logo--burst .rmk-cell__fill,
+.rmk-logo--fast .rmk-cell__fill {
+  transition:
+    background-color 0.12s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-radius 0.12s cubic-bezier(0.22, 0.61, 0.36, 1),
+    clip-path 0.12s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* --- Baseline ticker --- */
+
+.rmk-ticker {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.rmk-ticker__word {
+  margin: 0;
+  font-family: var(--rmk-font-mono);
+  font-size: clamp(13px, 2vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.85em;
+  padding-left: 0.85em;
+  color: var(--rmk-ink);
+}
+
+.rmk-ticker__word span {
+  color: var(--rmk-ink-muted);
+  opacity: 0.55;
+  transition: color 0.4s, opacity 0.4s;
+}
+
+.rmk-ticker__word span.is-active {
+  color: var(--rmk-ink);
+  opacity: 1;
+}
+
+.rmk-ticker__caption {
+  margin: 12px 0 0;
+  font-family: var(--rmk-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--rmk-ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmk-cell__fill {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .rmk-mark {
+    transform: scale(0.88);
+    transform-origin: center top;
+  }
+}

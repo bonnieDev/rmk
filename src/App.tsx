@@ -185,7 +185,7 @@ export default function App() {
         </div>
 
         <div className="site-hero__copy">
-          <p className="site-hero__eyebrow">Bonnie Remeika</p>
+          <p className="site-hero__eyebrow">Bonnie Caroline Remeika</p>
           <h1 className="site-hero__title">
             rmk<em>.systems</em>
           </h1>
@@ -218,7 +218,7 @@ export default function App() {
 
         <section id="about" className="site-panel site-panel--about">
           <p className="site-label">About</p>
-          <h2 className="site-panel__title">Bonnie Remeika</h2>
+          <h2 className="site-panel__title">Bonnie Caroline Remeika</h2>
           <div className="site-panel__prose">
             <p>
               I’m a product designer and systems builder with roots in print,

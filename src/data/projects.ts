@@ -22,6 +22,11 @@ export interface Project {
   cover?: string
   /** Optional live demo (iframe) — e.g. Kinedic Bloom autoplay loop */
   demoEmbed?: string
+  /**
+   * Optional Cloudflare Stream (or similar) iframe src.
+   * Use query params for behavior, e.g. autoplay + muted, no loop.
+   */
+  videoEmbed?: string
 }
 
 /**
@@ -44,6 +49,24 @@ export const projects: Project[] = [
     logoPalette: {
       ink: '#3a2a28',
       accents: ['#ff5c8a', '#fce9be', '#b87a6e', '#6e5578'],
+    },
+  },
+  {
+    id: 'skull-and-beau',
+    title: 'Skull',
+    titleEm: '& Beau',
+    eyebrow: 'Original IP · Character system',
+    premise:
+      'Original character IP, drawn as vectors that render like pixels and stitch like cross-stitch. One source file becomes broadcast animation, screen prints, and soft goods. Also: they’re skeletons, and they’re in love.',
+    role: 'Character design · Vector IP · Multi-format',
+    status: 'Active · film & soft goods',
+    accent: 'poppy',
+    visual: 'cozy',
+    videoEmbed:
+      'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/3c511c1b8adb43f3cc039eef2155933b/iframe?autoplay=true&muted=true&loop=false&controls=false&preload=auto&letterboxColor=transparent',
+    logoPalette: {
+      ink: '#1a1218',
+      accents: ['#ff7a3d', '#fce9be', '#e8d5c4', '#6e5578'],
     },
   },
   {

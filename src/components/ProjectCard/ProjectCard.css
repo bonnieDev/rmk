@@ -72,6 +72,30 @@
   opacity: 0.2;
 }
 
+.project-card__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: #120e14;
+}
+
+.project-card__media--has-video {
+  background: #120e14;
+}
+
+.project-card__media--has-video .project-card__media-glow {
+  opacity: 0.15;
+}
+
+.project-card__media--has-video .project-card__index {
+  color: #fff9;
+  border-color: #ffffff44;
+}
+
 .project-card__media-glow {
   position: absolute;
   inset: 0;
@@ -171,6 +195,10 @@
 }
 
 .project-card--poppy .project-card__eyebrow {
+  color: var(--rmk-poppy);
+}
+
+.project-card--poppy .project-card__title em {
   color: var(--rmk-poppy);
 }
 

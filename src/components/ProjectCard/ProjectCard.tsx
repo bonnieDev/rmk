@@ -25,6 +25,7 @@ export function ProjectCard({
     `project-card__media--${project.visual}`,
     project.cover ? 'project-card__media--has-cover' : '',
     project.demoEmbed ? 'project-card__media--has-demo' : '',
+    project.videoEmbed ? 'project-card__media--has-video' : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -72,6 +73,19 @@ export function ProjectCard({
             src={project.demoEmbed}
             title=""
             loading="lazy"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+        ) : null}
+
+        {project.videoEmbed ? (
+          <iframe
+            className="project-card__video"
+            src={project.videoEmbed}
+            title=""
+            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+            allowFullScreen
+            loading="eager"
             tabIndex={-1}
             aria-hidden="true"
           />

@@ -189,10 +189,10 @@ export default function App() {
           <h1 className="site-hero__title">
             rmk<em>.systems</em>
           </h1>
-          <p className="site-hero__lede">
-            Product design, generative systems, and original worlds —
-            built to be remade in public.
-          </p>
+          <h2 className="site-hero__lede">
+          Enterprise UX Architecture and Generative Design Pipelines and original worlds —
+          built to be remade in public.
+          </h2>
         </div>
       </header>
 

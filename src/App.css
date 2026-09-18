@@ -56,7 +56,9 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--rmk-ground);
+  background: rgba(7, 11, 22, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: var(--rmk-hair) solid var(--rmk-line);
 }
 
@@ -98,7 +100,7 @@
 
 .masthead__word {
   font-family: var(--rmk-font-mono);
-  font-size: 11px;
+  font-size: 12.5px;
   letter-spacing: 0.16em;
   color: var(--rmk-ink);
   white-space: nowrap;
@@ -155,19 +157,71 @@
    ========================================================= */
 
 .site__frame {
+  position: relative;
+  z-index: 1;
   flex: 1;
   width: 100%;
   max-width: var(--rmk-max);
   margin: 0 auto;
   border-left: var(--rmk-hair) solid var(--rmk-line);
   border-right: var(--rmk-hair) solid var(--rmk-line);
+  /* Glass: the orbs behind the page smear through this, which is what reads
+     as brushed pigment rather than a flat panel. */
+  background: var(--rmk-paper);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   background-image: repeating-linear-gradient(
     to right,
     transparent 0,
     transparent calc(100% / 6 - 1px),
-    #14141408 calc(100% / 6 - 1px),
-    #14141408 calc(100% / 6)
+    rgba(255, 255, 255, 0.035) calc(100% / 6 - 1px),
+    rgba(255, 255, 255, 0.035) calc(100% / 6)
   );
+}
+
+/* --- The field: two huge soft orbs under everything --- */
+.site::before,
+.site::after {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  border-radius: 9999px;
+  opacity: 0.3;
+  filter: blur(120px);
+  pointer-events: none;
+}
+
+.site::before {
+  top: -12rem;
+  left: -14rem;
+  width: 34rem;
+  height: 34rem;
+  background: var(--rmk-orb-copper);
+}
+
+.site::after {
+  right: -14rem;
+  bottom: -12rem;
+  width: 38rem;
+  height: 38rem;
+  background: var(--rmk-orb-blue);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .site::before,
+  .site::after {
+    animation: rmk-orb-settle 2.5s ease-in-out both;
+  }
+}
+
+@keyframes rmk-orb-settle {
+  0%,
+  20% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }
 
 @media (max-width: 720px) {
@@ -187,7 +241,7 @@
 }
 
 .hero__mark {
-  --rmk-cell-size: clamp(15px, 3.6vw, 34px);
+  --rmk-mark-max: clamp(260px, 46vw, 560px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -220,7 +274,7 @@
   gap: var(--rmk-space-4);
   padding: clamp(28px, 4vw, 56px) clamp(20px, 2.6vw, 40px);
   border-left: var(--rmk-hair) solid var(--rmk-line);
-  background: var(--rmk-paper);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .manifest {
@@ -244,7 +298,7 @@
 
 .manifest dt {
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: var(--rmk-meta-track);
   text-transform: uppercase;
   color: var(--rmk-ink-faint);
@@ -272,7 +326,7 @@
 
 .discipline__n {
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   color: var(--rmk-ink-faint);
 }
@@ -345,7 +399,7 @@
 
 .prose-grid__spec dt {
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: var(--rmk-meta-track);
   text-transform: uppercase;
   color: var(--rmk-ink-faint);
@@ -471,7 +525,7 @@
   justify-content: space-between;
   border-top: var(--rmk-hair) solid var(--rmk-line);
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: var(--rmk-meta-track);
   text-transform: uppercase;
   color: var(--rmk-ink-faint);

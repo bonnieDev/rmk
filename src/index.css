@@ -17,6 +17,9 @@ body {
 }
 
 body {
+  background:
+    radial-gradient(ellipse at top, var(--rmk-ground-raised), var(--rmk-ground) 70%)
+    fixed;
   font-family: var(--rmk-font-body);
   font-size: 16px;
   line-height: 1.55;
@@ -69,13 +72,13 @@ button {
 }
 
 ::selection {
-  background: var(--rmk-ink);
+  background: var(--rmk-cyan);
   color: var(--rmk-ground);
 }
 
 /* Single focus treatment across the whole system — square, never rounded */
 :where(a, button, [tabindex]):focus-visible {
-  outline: 2px solid var(--rmk-ink);
+  outline: 2px solid var(--rmk-focus);
   outline-offset: 2px;
   border-radius: 0;
 }

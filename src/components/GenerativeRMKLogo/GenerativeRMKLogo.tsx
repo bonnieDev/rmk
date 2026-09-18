@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { defaultLogoPalette, type LogoPalette } from '../../data/projects'
 import {
   BURST_REMAKE_MS,
@@ -17,79 +17,109 @@ import {
   SLOW_REMAKE_MS,
   TICKER,
 } from './engine'
+import {
+  CELL,
+  CELL_GAP,
+  LETTER_GAP,
+  cellGeometry,
+  letterHeight,
+  letterWidth,
+  markWidth,
+} from './geometry'
 import type {
-  CellShape,
   GenerativeRMKLogoProps,
   LetterConfig,
-  LetterKey,
-  LogoCell,
   Phase,
 } from './types'
 import './GenerativeRMKLogo.css'
 
-function cellStyle(shape: CellShape, fill: string): CSSProperties {
-  const style: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    background: fill,
-  }
-
-  if (shape.type === 'circle') {
-    style.borderRadius = '50%'
-  } else if (shape.type === 'round') {
-    const { tl, tr, br, bl } = shape.corners
-    style.borderRadius = `${tl ? '50%' : '0'} ${tr ? '50%' : '0'} ${br ? '50%' : '0'} ${bl ? '50%' : '0'}`
-  } else if (shape.type === 'wedge') {
-    style.clipPath = {
-      tl: 'polygon(100% 0, 100% 100%, 0 100%)',
-      tr: 'polygon(0 0, 100% 100%, 0 100%)',
-      br: 'polygon(0 0, 100% 0, 0 100%)',
-      bl: 'polygon(0 0, 100% 0, 100% 100%)',
-    }[shape.cut]
-  }
-
-  return style
-}
-
-function LetterGrid({
-  letter,
-  cells,
+/**
+ * The mark as one SVG.
+ *
+ * It used to be three CSS grids of <div>s. SVG is required for two reasons:
+ * the glow-paint halo is an SVG filter (a CSS `filter: url()` doesn't render
+ * in Safari), and cells have to be able to animate to arbitrary coordinates
+ * for the scroll morph — grid children can't leave their cells.
+ */
+function MarkCells({
+  config,
   palette,
 }: {
-  letter: LetterKey
-  cells: LogoCell[]
+  config: LetterConfig
   palette: LogoPalette
 }) {
-  const byPos = new Map(cells.map((cell) => [`${cell.r}-${cell.c}`, cell]))
-  const g = GRIDS[letter]
   const accents = palette.accents
+  const nodes: React.ReactNode[] = []
 
-  return (
-    <div className="rmk-letter" aria-hidden="true">
-      {Array.from({ length: ROWS * COLS }, (_, i) => {
-        const r = Math.floor(i / COLS)
-        const c = i % COLS
-        if (g[r][c] !== '1') {
-          return <div key={`${letter}-${i}`} className="rmk-cell rmk-cell--ghost" />
-        }
+  LETTERS.forEach((letter, li) => {
+    const ox = li * (letterWidth(COLS) + LETTER_GAP)
+    const g = GRIDS[letter]
+    const byPos = new Map(config[letter].map((cell) => [`${cell.r}-${cell.c}`, cell]))
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const on = g[r][c] === '1'
+        const x = ox + c * (CELL + CELL_GAP)
+        const y = r * (CELL + CELL_GAP)
+        const key = `${letter}-${r}-${c}`
+
+        if (!on) continue
 
         const cell = byPos.get(`${r}-${c}`)
-        if (!cell) {
-          return <div key={`${letter}-${i}`} className="rmk-cell rmk-cell--ghost" />
-        }
+        if (!cell) continue
 
         const fill =
           cell.accent >= 0 && accents.length
             ? accents[cell.accent % accents.length]
             : palette.ink
 
-        return (
-          <div key={`${letter}-${i}`} className="rmk-cell">
-            <div className="rmk-cell__fill" style={cellStyle(cell.shape, fill)} />
-          </div>
-        )
-      })}
-    </div>
+        const geo = cellGeometry(cell.shape, x, y)
+        if (geo.kind === 'circle') {
+          nodes.push(
+            <circle key={key} cx={x + CELL / 2} cy={y + CELL / 2} r={CELL / 2} fill={fill} />,
+          )
+        } else if (geo.kind === 'path') {
+          nodes.push(<path key={key} d={geo.d} fill={fill} />)
+        } else {
+          nodes.push(<rect key={key} x={x} y={y} width={CELL} height={CELL} fill={fill} />)
+        }
+      }
+    }
+  })
+
+  return <>{nodes}</>
+}
+
+/**
+ * Halo only — the source geometry is merged last and never displaced or
+ * blurred, so every square, circle and wedge keeps a hard edge. Blurring
+ * SourceGraphic rather than SourceAlpha means each cell's halo carries that
+ * cell's own colour.
+ */
+function HaloFilter({ id, strength }: { id: string; strength: number }) {
+  return (
+    <filter
+      id={id}
+      x="-70%"
+      y="-70%"
+      width="240%"
+      height="240%"
+      colorInterpolationFilters="sRGB"
+    >
+      <feGaussianBlur in="SourceGraphic" stdDeviation={2.2 * strength} result="w" />
+      <feComponentTransfer in="w" result="wide">
+        <feFuncA type="linear" slope={0.55} />
+      </feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation={0.7 * strength} result="m" />
+      <feComponentTransfer in="m" result="mid">
+        <feFuncA type="linear" slope={0.7} />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="wide" />
+        <feMergeNode in="mid" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
   )
 }
 
@@ -112,6 +142,7 @@ export function GenerativeRMKLogo({
   )
   const [reducedMotion, setReducedMotion] = useState(false)
 
+  const haloId = `rmk-halo-${useId().replace(/:/g, '')}`
   const stepRef = useRef(0)
   const seedRef = useRef(seed)
   const genRef = useRef(0)
@@ -259,9 +290,19 @@ export function GenerativeRMKLogo({
         title="Click to remake"
         aria-label="RMK generative logo — click to remake"
       >
-        {LETTERS.map((L) => (
-          <LetterGrid key={L} letter={L} cells={config[L]} palette={palette} />
-        ))}
+        <svg
+          className="rmk-mark__svg"
+          viewBox={`0 0 ${markWidth(COLS, LETTERS.length)} ${letterHeight(ROWS)}`}
+          role="presentation"
+          aria-hidden="true"
+        >
+          <defs>
+            <HaloFilter id={haloId} strength={compact ? 0.6 : 1} />
+          </defs>
+          <g filter={`url(#${haloId})`}>
+            <MarkCells config={config} palette={palette} />
+          </g>
+        </svg>
       </button>
 
       {showTicker ? (

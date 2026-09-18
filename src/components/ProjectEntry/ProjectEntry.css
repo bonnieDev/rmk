@@ -17,7 +17,7 @@
   position: absolute;
   bottom: -7px;
   font-family: var(--rmk-font-mono);
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1;
   color: var(--rmk-line-strong);
   pointer-events: none;
@@ -184,7 +184,7 @@
 
 .entry__meta dt {
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: var(--rmk-meta-track);
   text-transform: uppercase;
   color: var(--rmk-ink-faint);
@@ -207,7 +207,7 @@
   display: grid;
   grid-template-columns: 12px minmax(0, 1fr);
   font-family: var(--rmk-font-mono);
-  font-size: 11px;
+  font-size: 12.5px;
   letter-spacing: 0.02em;
   color: var(--rmk-ink-muted);
 }
@@ -344,7 +344,7 @@
   background: var(--rmk-ink);
   color: var(--rmk-ground);
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: var(--rmk-meta-track);
   text-transform: uppercase;
 }
@@ -367,7 +367,7 @@
 
 .entry__brief dt {
   font-family: var(--rmk-font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: var(--rmk-meta-track);
   text-transform: uppercase;
   color: var(--rmk-ink-faint);

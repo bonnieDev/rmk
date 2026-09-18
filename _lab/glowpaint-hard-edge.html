@@ -1,0 +1,44 @@
+<!doctype html><meta charset=utf-8>
+<style>
+ body{margin:0;background:radial-gradient(ellipse at top,#0f1a2e,#070b16 70%);
+   font:11px/1.4 ui-monospace,monospace;color:#f1f5f9;padding:34px 0}
+ .row{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:34px}
+ .cap{letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+ .sub{letter-spacing:.06em;text-transform:none;color:rgba(255,255,255,.32);font-size:10px}
+ svg{overflow:visible}
+</style>
+<div class="row"><p class="cap">A · halo only — geometry untouched</p><p class="sub">blurred copies behind, crisp source on top</p><svg id="a" width="560" height="200" viewBox="0 0 186 78"></svg></div>
+<div class="row"><p class="cap">B · halo + white-hot core edge</p><p class="sub">same, plus a tight white rim inside the shapes</p><svg id="b" width="560" height="200" viewBox="0 0 186 78"></svg></div>
+<div class="row"><p class="cap">C · cyan shapes, deeper bloom</p><p class="sub">shapes tinted, wider haze</p><svg id="c" width="560" height="200" viewBox="0 0 186 78"></svg></div>
+<script>
+const GRIDS={R:['11110','10001','10001','11110','10100','10010','10001'],
+             M:['10001','11011','10101','10001','10001','10001','10001'],
+             K:['10001','10010','10100','11000','10100','10010','10001']};
+const CY='#00D4FF';
+function shapes(){
+  const CELL=10,GAP=1,LGAP=14;let out='';
+  ['R','M','K'].forEach((L,li)=>{const ox=li*(5*(CELL+GAP)+LGAP);
+    GRIDS[L].forEach((row,r)=>[...row].forEach((v,c)=>{if(v!=='1')return;
+      const x=ox+c*(CELL+GAP),y=r*(CELL+GAP),k=(r*5+c+li)%7;
+      if(k===0)out+=`<circle cx="${x+CELL/2}" cy="${y+CELL/2}" r="${CELL/2}"/>`;
+      else if(k===3)out+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="${CELL/2}"/>`;
+      else if(k===5)out+=`<path d="M${x} ${y} H${x+CELL} V${y+CELL} Z"/>`;
+      else out+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}"/>`;}));});
+  return out;
+}
+// Halo filter: NOTHING touches the source geometry. Blurs feed the glow only.
+function halo(id,color,wide,mid,tight){return `
+<filter id="${id}" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+  <feGaussianBlur in="SourceAlpha" stdDeviation="${wide}" result="bw"/>
+  <feFlood flood-color="${color}" flood-opacity="0.45"/><feComposite in2="bw" operator="in" result="gw"/>
+  <feGaussianBlur in="SourceAlpha" stdDeviation="${mid}" result="bm"/>
+  <feFlood flood-color="${color}" flood-opacity="0.9"/><feComposite in2="bm" operator="in" result="gm"/>
+  <feGaussianBlur in="SourceAlpha" stdDeviation="${tight}" result="bt"/>
+  <feFlood flood-color="#FFFFFF" flood-opacity="0.85"/><feComposite in2="bt" operator="in" result="gt"/>
+  <feMerge><feMergeNode in="gw"/><feMergeNode in="gm"/><feMergeNode in="gt"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>`;}
+const S=shapes();
+a.innerHTML=`<defs>${halo('ha',CY,9,3.2,1.1)}</defs><g filter="url(#ha)" fill="#EAF9FF">${S}</g>`;
+b.innerHTML=`<defs>${halo('hb',CY,10,3.6,1.3)}</defs><g filter="url(#hb)" fill="#FFFFFF" stroke="${CY}" stroke-width="0.6">${S}</g>`;
+c.innerHTML=`<defs>${halo('hc',CY,16,5,1.6)}</defs><g filter="url(#hc)" fill="#7FE9FF">${S}</g>`;
+</script>

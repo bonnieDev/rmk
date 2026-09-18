@@ -1,0 +1,62 @@
+<!doctype html><meta charset=utf-8>
+<style>
+:root{--abyss:#070b16;--abyss-raised:#0f1a2e;--copper:#b87333;--blue:#2563eb}
+*{box-sizing:border-box}
+body{margin:0;color:#f1f5f9;font:11px/1.5 ui-monospace,monospace;
+  background:radial-gradient(ellipse at top,var(--abyss-raised),var(--abyss) 70%)}
+.field{position:relative;overflow:hidden;padding:40px 24px 60px}
+.orb{position:absolute;border-radius:9999px;opacity:.30;filter:blur(120px);pointer-events:none}
+.orb--copper{top:-12rem;left:-14rem;width:34rem;height:34rem;background:var(--copper)}
+.orb--blue{right:-14rem;bottom:-12rem;width:38rem;height:38rem;background:var(--blue)}
+.pane{position:relative;max-width:820px;margin:0 auto;border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.05);border-radius:2rem;padding:34px 40px;
+  backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  box-shadow:inset 0 1px 0 0 rgba(255,255,255,.12),0 40px 120px -30px rgba(0,0,0,.7)}
+.lab{letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.42);margin:0 0 6px}
+.row+.row{margin-top:26px;padding-top:26px;border-top:1px solid rgba(255,255,255,.08)}
+svg{overflow:visible;display:block}
+</style>
+<div class="field">
+  <div class="orb orb--copper"></div><div class="orb orb--blue"></div>
+  <div class="pane" id="pane"></div>
+</div>
+<script>
+const GRIDS={R:['11110','10001','10001','11110','10100','10010','10001'],
+             M:['10001','11011','10101','10001','10001','10001','10001'],
+             K:['10001','10010','10100','11000','10100','10010','10001']};
+const BASE='#EAF2FF', ACCENTS=['#00D4FF','#ff8a5c','#ffd36e','#ff6f9c'];
+function shapes(seed){
+  const CELL=10,GAP=1.6,LGAP=14;let out='';let n=seed;
+  const rnd=()=>(n=(n*1664525+1013904223)>>>0)/4294967296;
+  ['R','M','K'].forEach((L,li)=>{const ox=li*(5*(CELL+GAP)+LGAP);
+    GRIDS[L].forEach((row,r)=>[...row].forEach((v,c)=>{if(v!=='1')return;
+      const x=ox+c*(CELL+GAP),y=r*(CELL+GAP);
+      const fill=rnd()<0.22?ACCENTS[Math.floor(rnd()*ACCENTS.length)]:BASE;
+      const k=Math.floor(rnd()*7),at=`fill="${fill}"`;
+      if(k===0)out+=`<circle cx="${x+CELL/2}" cy="${y+CELL/2}" r="${CELL/2}" ${at}/>`;
+      else if(k===3)out+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="${CELL/2}" ${at}/>`;
+      else if(k===5)out+=`<path d="M${x} ${y} H${x+CELL} V${y+CELL} Z" ${at}/>`;
+      else out+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" ${at}/>`;}));});
+  return out;
+}
+const halo=(id,wide,mid,sw,sm)=>`
+<filter id="${id}" x="-70%" y="-70%" width="240%" height="240%" color-interpolation-filters="sRGB">
+  <feGaussianBlur in="SourceGraphic" stdDeviation="${wide}" result="w"/>
+  <feComponentTransfer in="w" result="wide"><feFuncA type="linear" slope="${sw}"/></feComponentTransfer>
+  <feGaussianBlur in="SourceGraphic" stdDeviation="${mid}" result="m"/>
+  <feComponentTransfer in="m" result="mid"><feFuncA type="linear" slope="${sm}"/></feComponentTransfer>
+  <feMerge><feMergeNode in="wide"/><feMergeNode in="mid"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>`;
+const SETS=[
+ ['1 · whisper',  2.2, 0.7, 0.55, 0.7],
+ ['2 · lit',      3.4, 1.0, 0.75, 0.9],
+ ['3 · neon',     5.0, 1.5, 0.95, 1.1],
+ ['4 · flooded',  8.0, 2.6, 1.50, 1.8],
+];
+pane.innerHTML = SETS.map(([name,w,m,sw,sm],i)=>`
+  <div class="row"><p class="lab">${name} &nbsp;·&nbsp; blur ${w} / ${m}</p>
+  <svg viewBox="0 0 196 78" width="100%" height="150">
+    <defs>${halo('h'+i,w,m,sw,sm)}</defs>
+    <g filter="url(#h${i})">${shapes(7+i*13)}</g>
+  </svg></div>`).join('');
+</script>

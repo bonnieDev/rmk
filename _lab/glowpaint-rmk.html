@@ -1,0 +1,59 @@
+<!doctype html><meta charset=utf-8>
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-items:center;
+    background:radial-gradient(ellipse at top,#0f1a2e,#070b16 70%);
+    font:12px/1.4 ui-monospace,monospace;color:#f1f5f9}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:40px;padding:60px}
+  .pane{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);
+    border-radius:2rem;padding:48px 56px;backdrop-filter:blur(24px);
+    box-shadow:inset 0 1px 0 0 rgba(255,255,255,.12), 0 40px 120px -30px rgba(0,0,0,.7)}
+  .cap{letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.45);font-size:11px}
+</style>
+<div class="wrap">
+  <p class="cap">glow paint · rmk mark</p>
+  <div class="pane"><svg id="mark" width="620" height="260" viewBox="0 0 186 78" overflow="visible"></svg></div>
+  <p class="cap">on the raw abyss field</p>
+  <svg id="mark2" width="620" height="260" viewBox="0 0 186 78" overflow="visible"></svg>
+</div>
+<script>
+const GRIDS={R:['11110','10001','10001','11110','10100','10010','10001'],
+             M:['10001','11011','10101','10001','10001','10001','10001'],
+             K:['10001','10010','10100','11000','10100','10010','10001']};
+const COLOR='#00D4FF', CORE='#E5FFFA';
+const FILTER = `
+<filter id="gp" x="-50%" y="-40%" width="200%" height="180%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" seed="7" result="noise"/>
+  <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" result="paint"/>
+  <feTurbulence type="fractalNoise" baseFrequency="0.015 0.35" numOctaves="2" seed="3" result="streaks"/>
+  <feColorMatrix in="streaks" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0.8 0 0 0 0.35" result="pigment"/>
+  <feComposite in="paint" in2="pigment" operator="arithmetic" k1="1" result="brushed"/>
+  <feFlood flood-color="${CORE}" result="coreColor"/>
+  <feComposite in="coreColor" in2="brushed" operator="in" result="coreLayer"/>
+  <feGaussianBlur in="paint" stdDeviation="1.8" result="blurTight"/>
+  <feFlood flood-color="#FFFFFF" flood-opacity="0.8"/><feComposite in2="blurTight" operator="in" result="glowTight"/>
+  <feGaussianBlur in="paint" stdDeviation="9" result="blurMid"/>
+  <feFlood flood-color="${COLOR}"/><feComposite in2="blurMid" operator="in" result="glowMid"/>
+  <feGaussianBlur in="paint" stdDeviation="27" result="blurWide"/>
+  <feFlood flood-color="${COLOR}" flood-opacity="0.4"/><feComposite in2="blurWide" operator="in" result="glowWide"/>
+  <feMerge><feMergeNode in="glowWide"/><feMergeNode in="glowMid"/><feMergeNode in="glowTight"/><feMergeNode in="coreLayer"/></feMerge>
+</filter>`;
+function build(id){
+  const CELL=10, GAP=1, LGAP=14;
+  let cells='';
+  ['R','M','K'].forEach((L,li)=>{
+    const ox=li*(5*(CELL+GAP)+LGAP);
+    GRIDS[L].forEach((row,r)=>[...row].forEach((v,c)=>{
+      if(v!=='1')return;
+      const x=ox+c*(CELL+GAP), y=r*(CELL+GAP);
+      // a few cells get rounded/circular treatment like the real mark
+      const k=(r*5+c+li)%7;
+      if(k===0) cells+=`<circle cx="${x+CELL/2}" cy="${y+CELL/2}" r="${CELL/2}"/>`;
+      else if(k===3) cells+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="${CELL/2}"/>`;
+      else cells+=`<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}"/>`;
+    }));
+  });
+  document.getElementById(id).innerHTML =
+    `<defs>${FILTER}</defs><g filter="url(#gp)" fill="#fff">${cells}</g>`;
+}
+build('mark'); build('mark2');
+</script>

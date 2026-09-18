@@ -1,0 +1,12 @@
+/*
+ * Sits above everything and receives nothing. The UI beneath keeps every
+ * hover, click and focus it had — this layer only ever observes.
+ */
+.annotation-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  /* Chalk over glass reads as light being added, not paint on top. */
+  mix-blend-mode: screen;
+}

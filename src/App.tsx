@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { AnnotationLayer } from './components/AnnotationLayer'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
 import { ProjectEntry } from './components/ProjectEntry'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
@@ -105,6 +106,9 @@ export default function App() {
       <a className="skip-link" href="#main">
         Skip to content
       </a>
+
+      {/* Observes only — never receives pointer events */}
+      <AnnotationLayer />
 
       {/* =====================================================
           MASTHEAD — hairline bar, no pill, no shadow

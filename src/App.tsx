@@ -1,32 +1,85 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
-import { ProjectCard } from './components/ProjectCard'
+import { ProjectEntry } from './components/ProjectEntry'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
 import './App.css'
 
 const NAV = [
+  { id: 'index', label: 'Index' },
   { id: 'about', label: 'About' },
-  { id: 'resume', label: 'Resume' },
+  { id: 'resume', label: 'Record' },
+] as const
+
+/** Hero manifest — the spec sheet that locks to the mark's vertical rules */
+const MANIFEST = [
+  { key: 'Name', value: 'Bonnie Caroline Remeika' },
+  { key: 'Practice', value: 'RMK Systems — independent' },
+  { key: 'Location', value: 'Ravenna, Ohio · US' },
+] as const
+
+const DISCIPLINE = [
+  'Enterprise UX Architecture',
+  'Generative Design Pipelines',
+  'Original Worlds',
+] as const
+
+/**
+ * Career eras, drawn from the practice itself.
+ * Employers and dates live in the full résumé, on request.
+ */
+const RECORD = [
+  {
+    id: 'origin',
+    label: 'Origin',
+    span: 'Pre-curriculum',
+    body: 'Print, darkrooms, and the web before any of those had a proper course of study.',
+  },
+  {
+    id: 'boutique',
+    label: 'Boutique',
+    span: 'Studio work',
+    body: 'Brand systems and identity built end to end for clients, at small-shop velocity.',
+  },
+  {
+    id: 'mobile',
+    label: 'Mobile',
+    span: 'First mobile web',
+    body: 'Front-end delivery when the constraints were severe and the conventions did not exist yet.',
+  },
+  {
+    id: 'regulated',
+    label: 'Regulated',
+    span: 'Enterprise product',
+    body: 'Years inside compliance-bound product environments, where live has to match approved exactly.',
+  },
+  {
+    id: 'ai-native',
+    label: 'AI-native',
+    span: 'Current',
+    body: 'One person in the director’s chair — code, motion, worlds, and products that used to need a crew.',
+  },
 ] as const
 
 export default function App() {
   const [hovered, setHovered] = useState<Project | null>(null)
-  /** Project that triggered the “in progress” notice — drives burst palette */
-  const [clicked, setClicked] = useState<Project | null>(null)
+  const [openIds, setOpenIds] = useState<string[]>([])
   const [logoPinned, setLogoPinned] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [notice, setNotice] = useState<string | null>(null)
   const heroLogoRef = useRef<HTMLDivElement>(null)
-  const menuId = useId()
-  const noticeTitleId = useId()
 
-  // Hover = quiet palette whisper; click (while notice open) = loud remake burst
-  const palette =
-    (notice ? clicked : null)?.logoPalette ??
-    hovered?.logoPalette ??
-    clicked?.logoPalette ??
-    defaultLogoPalette
-  const pace = notice ? 'burst' : hovered ? 'hover' : 'slow'
+  const palette = hovered?.logoPalette ?? defaultLogoPalette
+  const pace = hovered ? 'hover' : 'slow'
+  const allOpen = openIds.length === projects.length
+
+  const toggleEntry = useCallback((id: string) => {
+    setOpenIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
+  }, [])
+
+  const toggleAll = () => setOpenIds(allOpen ? [] : projects.map((p) => p.id))
+
+  const liveCount = useMemo(
+    () => projects.filter((p) => p.status.live).length,
+    [],
+  )
 
   useEffect(() => {
     const el = heroLogoRef.current
@@ -34,257 +87,265 @@ export default function App() {
 
     const observer = new IntersectionObserver(
       ([entry]) => setLogoPinned(!entry.isIntersecting),
-      {
-        root: null,
-        threshold: 0,
-        rootMargin: '-12px 0px 0px 0px',
-      },
+      { root: null, threshold: 0, rootMargin: '-12px 0px 0px 0px' },
     )
 
     observer.observe(el)
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    if (!menuOpen && !notice) return
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setMenuOpen(false)
-        setNotice(null)
-        setClicked(null)
-      }
-    }
-
-    document.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
-    if (menuOpen || notice) document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
-    }
-  }, [menuOpen, notice])
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    setMenuOpen(false)
-  }
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
   const goTo = (id: string) => {
-    setMenuOpen(false)
-    const el = document.getElementById(id)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
-
-  const dismissNotice = () => {
-    setNotice(null)
-    setClicked(null)
-  }
-
-  const openInProgress = (project?: Project) => {
-    const name = project
-      ? `${project.title}${project.titleEm ? ` ${project.titleEm}` : ''}`
-      : 'This page'
-    setClicked(project ?? null)
-    setNotice(
-      `${name} is still being put together. Portfolio in progress — check back soon.`,
-    )
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <div className={`site${logoPinned ? ' site--logo-pinned' : ''}${menuOpen ? ' site--menu-open' : ''}`}>
-      {/* Always-on top chrome: pinned mark + hamburger */}
-      <header className={`site-top${logoPinned ? ' is-pinned' : ''}`}>
-        <div className="site-top__inner">
-          <div className="site-top__left">
+    <div className={`site${logoPinned ? ' site--pinned' : ''}`}>
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+
+      {/* =====================================================
+          MASTHEAD — hairline bar, no pill, no shadow
+          ===================================================== */}
+      <header className="masthead">
+        <div className="masthead__inner">
+          <div className="masthead__left">
             <button
               type="button"
-              className={`site-top__mark${logoPinned ? ' is-visible' : ''}`}
+              className={`masthead__mark${logoPinned ? ' is-visible' : ''}`}
               onClick={scrollToTop}
               tabIndex={logoPinned ? 0 : -1}
               aria-hidden={!logoPinned}
-              aria-label="Back to top — RMK mark"
+              aria-label="Back to top"
             >
-              <GenerativeRMKLogo
-                seed="rmk"
-                palette={palette}
-                pace={pace}
-                compact
-                hideTicker
-              />
+              <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} compact hideTicker />
             </button>
-            <span className={`site-top__word${logoPinned ? ' is-visible' : ''}`}>
-              rmk.systems
-            </span>
+            <span className="masthead__word">rmk.systems</span>
           </div>
 
-          <nav className="site-top__nav" aria-label="Primary">
-            <ul className="site-top__links">
+          <nav className="masthead__nav" aria-label="Primary">
+            <ul>
               {NAV.map((item) => (
                 <li key={item.id}>
-                  <button type="button" className="site-top__link" onClick={() => goTo(item.id)}>
+                  <button type="button" onClick={() => goTo(item.id)}>
                     {item.label}
                   </button>
                 </li>
               ))}
             </ul>
-
-            <button
-              type="button"
-              className={`site-burger${menuOpen ? ' is-open' : ''}`}
-              aria-expanded={menuOpen}
-              aria-controls={menuId}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              onClick={() => setMenuOpen((o) => !o)}
-            >
-              <span className="site-burger__lines" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </span>
-            </button>
           </nav>
+
+          <p className="masthead__state">
+            <span className="masthead__pip" aria-hidden="true" />
+            <span>
+              {liveCount} live · Ravenna OH
+            </span>
+          </p>
         </div>
       </header>
 
-      {/* Mobile drawer */}
-      <div
-        className={`site-drawer-scrim${menuOpen ? ' is-open' : ''}`}
-        onClick={() => setMenuOpen(false)}
-        aria-hidden="true"
-      />
-      <nav
-        id={menuId}
-        className={`site-drawer${menuOpen ? ' is-open' : ''}`}
-        aria-label="Mobile"
-        aria-hidden={!menuOpen}
-      >
-        <p className="site-drawer__eyebrow">rmk.systems</p>
-        <ul className="site-drawer__list">
-          {NAV.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className="site-drawer__link"
-                onClick={() => goTo(item.id)}
-                tabIndex={menuOpen ? 0 : -1}
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <main id="main" className="site__frame">
+        {/* =====================================================
+            HERO — the mark commands the space; the manifest
+            locks to its vertical rules
+            ===================================================== */}
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero__mark" ref={heroLogoRef}>
+            <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} hideTicker />
+            <h1 className="hero__wordmark" id="hero-title">
+              rmk<span aria-hidden="true">.</span>systems
+            </h1>
+          </div>
 
-      <header className="site-hero">
-        <div className="site-hero__logo" ref={heroLogoRef}>
-          <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} />
-        </div>
+          <div className="hero__manifest">
+            <p className="label label--edge">System manifest</p>
 
-        <div className="site-hero__copy">
-          <p className="site-hero__eyebrow">Bonnie Caroline Remeika</p>
-          <h1 className="site-hero__title">
-            rmk<em>.systems</em>
-          </h1>
-          <h2 className="site-hero__lede">
-          Enterprise UX Architecture,Generative Design Pipelines and original worlds —
-          built to be remade in public.
-          </h2>
-        </div>
-      </header>
+            <dl className="manifest">
+              {MANIFEST.map((row) => (
+                <div className="manifest__row" key={row.key}>
+                  <dt>{row.key}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
 
-      <main className="site-main">
-        <div className="site-section-head">
-          <p className="site-label">Selected work</p>
-          <h2 className="site-section-title">Things that keep remaking themselves.</h2>
-        </div>
+              <div className="manifest__row manifest__row--stack">
+                <dt>Discipline</dt>
+                <dd>
+                  <ol className="discipline">
+                    {DISCIPLINE.map((line, i) => (
+                      <li key={line}>
+                        <span className="discipline__n" aria-hidden="true">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        {line}
+                      </li>
+                    ))}
+                  </ol>
+                </dd>
+              </div>
 
-        <div className="project-grid">
-          {projects.map((project, i) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              index={i}
-              active={hovered?.id === project.id}
-              onHoverStart={setHovered}
-              onHoverEnd={() => setHovered(null)}
-              onOpen={openInProgress}
-            />
-          ))}
-        </div>
+              <div className="manifest__row">
+                <dt>Record</dt>
+                <dd>25 years · 8 patents filed</dd>
+              </div>
 
-        <section id="about" className="site-panel site-panel--about">
-          <p className="site-label">About</p>
-          <h2 className="site-panel__title">Bonnie Caroline Remeika</h2>
-          <div className="site-panel__prose">
-            <p>
-              I’m a product designer and systems builder with roots in print,
-              darkrooms, and the web before any of those had a proper curriculum.
-              I’ve spent a career remaking myself at each edge of the field —
-              boutique work, the first mobile web, and years inside regulated
-              product environments.
-            </p>
-            <p>
-              That work is zero-tolerance by design. Live isn’t “close enough” —
-              it has to match what was approved, pixel for pixel. I nitpick at
-              that scale on purpose: in compliance contexts, a wrong state isn’t
-              a polish note, it’s risk. I take the rules seriously because they
-              exist for a reason, and the craft has to be precise enough to honor
-              them.
-            </p>
-            <p>
-              What’s in front of me now is AI-native work: one person in the
-              director’s chair, shipping code, motion, worlds, and products that
-              used to need a crew. There’s still no degree for that. I recognize
-              the room.
-            </p>
-            <p className="site-panel__close">I’m in.</p>
+              <div className="manifest__row">
+                <dt>Index</dt>
+                <dd>
+                  {String(projects.length).padStart(2, '0')} entries ·{' '}
+                  <time dateTime="2026-09">2026.09</time>
+                </dd>
+              </div>
+            </dl>
           </div>
         </section>
 
-        <section id="resume" className="site-panel">
-          <p className="site-label">Resume</p>
-          <h2 className="site-panel__title">The long path — soon.</h2>
-          <p className="site-panel__body">
-            A chaptered story of the work is next: eras, craft, and the formal
-            résumé with names and dates. For now, the short read lives above.
-          </p>
+        {/* =====================================================
+            INDEX — catalog of work
+            ===================================================== */}
+        <section id="index" className="section" aria-labelledby="index-title">
+          <div className="section__head">
+            <p className="label">Index / Selected work</p>
+            <h2 className="section__title" id="index-title">
+              Things that keep remaking themselves.
+            </h2>
+            <div className="section__tools">
+              <p className="section__count">
+                {String(projects.length).padStart(2, '0')} entries
+              </p>
+              <button type="button" className="ghost-btn" onClick={toggleAll}>
+                <span aria-hidden="true">{allOpen ? '−' : '+'}</span>
+                {allOpen ? 'Collapse all' : 'Expand all'}
+              </button>
+            </div>
+          </div>
+
+          <div className="catalog">
+            {projects.map((project, i) => (
+              <ProjectEntry
+                key={project.id}
+                project={project}
+                index={i}
+                open={openIds.includes(project.id)}
+                active={hovered?.id === project.id}
+                onToggle={toggleEntry}
+                onHoverStart={setHovered}
+                onHoverEnd={() => setHovered(null)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* =====================================================
+            ABOUT
+            ===================================================== */}
+        <section id="about" className="section" aria-labelledby="about-title">
+          <div className="section__head">
+            <p className="label">About</p>
+            <h2 className="section__title" id="about-title">
+              Bonnie Caroline Remeika
+            </h2>
+          </div>
+
+          <div className="prose-grid">
+            <dl className="prose-grid__spec">
+              <div>
+                <dt>Role</dt>
+                <dd>Creative technologist · UX/UI</dd>
+              </div>
+              <div>
+                <dt>Base</dt>
+                <dd>Ravenna, Ohio</dd>
+              </div>
+              <div>
+                <dt>Depth</dt>
+                <dd>Brand · Front-end · Motion · Audio · Full-stack</dd>
+              </div>
+            </dl>
+
+            <div className="prose">
+              <p>
+                I’m a product designer and systems builder with roots in print,
+                darkrooms, and the web before any of those had a proper curriculum.
+                I’ve spent a career remaking myself at each edge of the field —
+                boutique work, the first mobile web, and years inside regulated
+                product environments.
+              </p>
+              <p>
+                That work is zero-tolerance by design. Live isn’t “close enough” —
+                it has to match what was approved, pixel for pixel. I nitpick at
+                that scale on purpose: in compliance contexts, a wrong state isn’t
+                a polish note, it’s risk. I take the rules seriously because they
+                exist for a reason, and the craft has to be precise enough to honor
+                them.
+              </p>
+              <p>
+                What’s in front of me now is AI-native work: one person in the
+                director’s chair, shipping code, motion, worlds, and products that
+                used to need a crew. There’s still no degree for that. I recognize
+                the room.
+              </p>
+              <p className="prose__close">I’m in.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* =====================================================
+            RECORD — era index, not a dead "coming soon"
+            ===================================================== */}
+        <section id="resume" className="section" aria-labelledby="record-title">
+          <div className="section__head">
+            <p className="label">Record</p>
+            <h2 className="section__title" id="record-title">
+              The long path, in eras.
+            </h2>
+            <div className="section__tools">
+              <p className="section__count">
+                {String(RECORD.length).padStart(2, '0')} eras
+              </p>
+            </div>
+          </div>
+
+          <ol className="record">
+            {RECORD.map((era, i) => (
+              <li className="record__row" key={era.id}>
+                <p className="record__n">
+                  {String(i + 1).padStart(2, '0')}
+                  <span aria-hidden="true"> / </span>
+                  <span className="record__label">{era.label}</span>
+                </p>
+                <p className="record__span">{era.span}</p>
+                <p className="record__body">{era.body}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="record__foot">
+            <p className="record__note">
+              Full résumé — names, dates, and scope — available on request.
+            </p>
+            <a
+              className="ghost-btn"
+              href="https://www.linkedin.com/in/bonniefire"
+              rel="me noreferrer"
+              target="_blank"
+            >
+              <span aria-hidden="true">→</span>
+              LinkedIn
+            </a>
+          </div>
         </section>
       </main>
 
       <footer className="site-foot">
-        <span>rmk.systems</span>
-        <span>Portfolio in progress · 2026</span>
+        <p>rmk.systems</p>
+        <p>Ravenna, Ohio</p>
+        <p>
+          <time dateTime="2026">© 2026</time> Bonnie Caroline Remeika
+        </p>
       </footer>
-
-      {notice ? (
-        <div
-          className="site-notice"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={noticeTitleId}
-        >
-          <button
-            type="button"
-            className="site-notice__scrim"
-            aria-label="Dismiss"
-            onClick={dismissNotice}
-          />
-          <div className="site-notice__card">
-            <p className="site-notice__eyebrow">Heads up</p>
-            <h2 id={noticeTitleId} className="site-notice__title">
-              Portfolio in progress
-            </h2>
-            <p className="site-notice__body">{notice}</p>
-            <button type="button" className="site-notice__btn" onClick={dismissNotice}>
-              Got it
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

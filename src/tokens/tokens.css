@@ -1,47 +1,87 @@
 /**
- * RMK design tokens
+ * RMK design tokens — technical specification system
  * CSS custom properties are the single source of truth.
  * Components read these; TS mirrors them for programmatic color picks.
  */
 :root {
-  /* Surfaces */
-  --rmk-ground: #fff7ee;
-  --rmk-paper: #ffffff;
-  --rmk-ink: #16233b;
-  --rmk-ink-muted: #7b7a86;
-  --rmk-line: #16233b18;
+  /* --- Canvas: technical drafting parchment --- */
+  --rmk-ground: #f4f2ec;
+  --rmk-paper: #faf9f5;
+  --rmk-ground-deep: #eae7df;
 
-  /* Accents (shared with your case-study palette) */
-  --rmk-tiff: #81d8d0;
-  --rmk-green: #17b26a;
-  --rmk-poppy: #ff7a3d;
-  --rmk-pink: #ff5c8a;
-  --rmk-amber: #f4a72c;
+  /* --- Ink: carbon / graphite --- */
+  --rmk-ink: #141414;
+  --rmk-ink-2: #1f1f1f;
+  --rmk-ink-muted: #6a6a63;
+  --rmk-ink-faint: #9b9b93;
+
+  /* --- Structure: hairline rules. The grid is the design. --- */
+  --rmk-line: #e2e2df;
+  --rmk-line-strong: #c9c8c2;
+  --rmk-hair: 1px;
+
+  /*
+   * --- Accents: the four hues of the mark. Functional use only ---
+   * Status pips, live indicators, active hover states. Never decoration.
+   * `-deep` variants carry text-legible contrast on parchment.
+   */
+  --rmk-yellow: #f4a72c;
+  --rmk-yellow-deep: #9a6300;
+  --rmk-coral: #ff7a3d;
+  --rmk-coral-deep: #c2410c;
+  --rmk-cyan: #81d8d0;
+  --rmk-cyan-deep: #0f766e;
+  --rmk-magenta: #ff5c8a;
+  --rmk-magenta-deep: #b32455;
+
+  /*
+   * --- Muted mark palette ---
+   * Same four hues, roughly half the saturation. The logo remakes itself
+   * constantly in the corner of the eye, so it gets the quiet set; the
+   * vivid accents above stay reserved for status, where brightness means
+   * something.
+   */
+  --rmk-yellow-mute: #c7a56b;
+  --rmk-coral-mute: #cf8863;
+  --rmk-cyan-mute: #8ec2be;
+  --rmk-magenta-mute: #d27f95;
 
   /* Logo module palette — rotates through remake cycles */
   --rmk-module-1: var(--rmk-ink);
-  --rmk-module-2: var(--rmk-poppy);
-  --rmk-module-3: var(--rmk-tiff);
-  --rmk-module-4: var(--rmk-pink);
-  --rmk-module-5: var(--rmk-green);
+  --rmk-module-2: var(--rmk-coral-mute);
+  --rmk-module-3: var(--rmk-cyan-mute);
+  --rmk-module-4: var(--rmk-magenta-mute);
+  --rmk-module-5: var(--rmk-yellow-mute);
 
-  /* Typography */
-  --rmk-font-display: "Fraunces", Georgia, serif;
-  --rmk-font-body: "Figtree", system-ui, sans-serif;
-  --rmk-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Ghost grid behind the mark — breathes between these two values */
+  --rmk-ghost-low: 0.035;
+  --rmk-ghost-high: 0.09;
+  --rmk-ghost-breath: 9s;
 
-  /* Logo geometry */
+  /* --- Typography: geometric grotesque + industrial mono. No serifs. --- */
+  --rmk-font-display: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --rmk-font-body: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --rmk-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Mono metadata voice — used verbatim across labels, ticks, tags */
+  --rmk-meta-size: 10px;
+  --rmk-meta-track: 0.18em;
+
+  /* --- Logo geometry --- */
   --rmk-cell-size: clamp(14px, 3.6vw, 26px);
-  --rmk-shadow-x: 5px;
-  --rmk-shadow-y: 5px;
   --rmk-remake-duration: 220ms;
   --rmk-remake-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  /* Spacing scale */
+  /* --- Layout frame --- */
+  --rmk-max: 1380px;
+  --rmk-gutter: clamp(16px, 3.4vw, 36px);
+
+  /* --- Spacing scale --- */
   --rmk-space-1: 4px;
   --rmk-space-2: 8px;
   --rmk-space-3: 16px;
   --rmk-space-4: 24px;
   --rmk-space-5: 40px;
   --rmk-space-6: 64px;
+  --rmk-space-7: 96px;
 }

@@ -1,24 +1,45 @@
-export type ProjectAccent = 'pink' | 'tiff' | 'poppy' | 'green' | 'amber'
+/** The four accent hues of the mark. Status + live state only — never decoration. */
+export type ProjectAccent = 'yellow' | 'coral' | 'cyan' | 'magenta'
 
-/** Colors the RMK mark adopts when this card is hovered */
+/** Colors the RMK mark adopts when this entry is hovered or opened */
 export interface LogoPalette {
   ink: string
   accents: string[]
+}
+
+/** Structured micro-case-brief. Replaces the old dead-end modal. */
+export interface ProjectBrief {
+  /** The technical problem the work exists to solve */
+  problem: string
+  /** How it is actually built — the pipeline, in prose */
+  pipeline: string
+  /** Where it stands right now */
+  milestone: string
+}
+
+export interface ProjectStatus {
+  label: string
+  accent: ProjectAccent
+  /** Pulsing pip — reserved for work that is actively running */
+  live?: boolean
 }
 
 export interface Project {
   id: string
   title: string
   titleEm?: string
-  eyebrow: string
-  premise: string
+  /** Catalog classification, e.g. ORIGINAL IP — rendered as `01 / ORIGINAL IP` */
+  category: string
+  tagline: string
   role: string
-  status: string
-  accent: ProjectAccent
-  /** CSS visual treatment for the card media area (fallback / underlay) */
-  visual: 'cozy' | 'jewel' | 'bloom' | 'frost'
+  /** Pipeline / tools, rendered as a delimited technical chain */
+  pipeline: string[]
+  status: ProjectStatus
+  /** Machine-readable year for <time datetime> */
+  year: string
+  brief: ProjectBrief
   logoPalette: LogoPalette
-  /** Optional still cover image under the media chrome */
+  /** Optional still cover image, shown in the expanded drawer */
   cover?: string
   /** Optional live demo (iframe) — e.g. Kinedic Bloom autoplay loop */
   demoEmbed?: string
@@ -29,99 +50,138 @@ export interface Project {
   videoEmbed?: string
 }
 
+const CARBON = '#141414'
+
 /**
- * Portfolio index — edit this list to reshuffle, rename, or stub work.
- * Full case studies live as HTML prototypes outside the React app for now.
+ * Muted mark palette — the same four hues at roughly half saturation.
+ * The mark remakes itself continuously, so it stays quiet; the vivid
+ * accents in tokens.css are reserved for status, where color carries meaning.
+ */
+const MARK = {
+  yellow: '#c7a56b',
+  coral: '#cf8863',
+  cyan: '#8ec2be',
+  magenta: '#d27f95',
+} as const
+
+/**
+ * Portfolio index — edit this list to reshuffle, rename, or extend the catalog.
+ * Order here drives the printed index numbers (01, 02, 03 …).
  */
 export const projects: Project[] = [
   {
     id: 'kitty-n-pip',
     title: 'Kitty',
     titleEm: '& Pip',
-    eyebrow: 'Original IP · In production',
-    premise:
+    category: 'ORIGINAL IP',
+    tagline:
       'A silent, all-ages series about two tiny friends who find the forgotten objects of the human world — one adorable misunderstanding at a time.',
     role: 'Character design · AI video · Brand',
-    status: 'In production · 2026',
-    accent: 'pink',
-    visual: 'cozy',
-    cover: '/projects/kitty-n-pip/cover.jpg',
-    logoPalette: {
-      ink: '#3a2a28',
-      accents: ['#ff5c8a', '#fce9be', '#b87a6e', '#6e5578'],
+    pipeline: ['Character sheets', 'Generative video', 'Edit + grade', 'Series bible'],
+    status: { label: 'In production', accent: 'coral', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Episodic character animation normally needs a crew per minute of screen time. The series had to hold a consistent cast across many shorts without one — silent comedy leaves nowhere for continuity errors to hide.',
+      pipeline:
+        'Locked character sheets drive generative video passes, which are cut and graded to a house look. The bible fixes silhouette, palette and prop language up front so every downstream shot inherits the same rules.',
+      milestone:
+        'Cast and visual language locked; shorts in production against the bible.',
     },
+    cover: '/projects/kitty-n-pip/cover.jpg',
+    logoPalette: { ink: CARBON, accents: [MARK.magenta, MARK.yellow, MARK.coral] },
   },
   {
     id: 'skull-and-beau',
     title: 'Skull',
     titleEm: '& Beau',
-    eyebrow: 'Original IP · Character system',
-    premise:
+    category: 'CHARACTER SYSTEM',
+    tagline:
       'Original character IP, drawn as vectors that render like pixels and stitch like cross-stitch. One source file becomes broadcast animation, screen prints, and soft goods. Also: they’re skeletons, and they’re in love.',
     role: 'Character design · Vector IP · Multi-format',
-    status: 'Active · film & soft goods',
-    accent: 'poppy',
-    visual: 'cozy',
+    pipeline: ['Vector source', 'Grid-locked render', 'Broadcast + print', 'Soft goods'],
+    status: { label: 'Active', accent: 'yellow' },
+    year: '2026',
+    brief: {
+      problem:
+        'Characters that ship to broadcast, screen print and embroidery usually get redrawn for each destination, and drift apart in the process. One artwork had to survive every output without a redraw.',
+      pipeline:
+        'The source is vector built on a fixed cell grid, so it rasterizes cleanly as pixel art, separates directly for screen print, and maps one-to-one onto stitch counts. Animation runs off the same file rather than a copy.',
+      milestone:
+        'Source system proven across film and soft goods from a single master.',
+    },
     videoEmbed:
       'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/3c511c1b8adb43f3cc039eef2155933b/iframe?autoplay=true&muted=true&loop=false&controls=false&preload=auto&letterboxColor=transparent',
-    logoPalette: {
-      ink: '#1a1218',
-      accents: ['#ff7a3d', '#fce9be', '#e8d5c4', '#6e5578'],
-    },
+    logoPalette: { ink: CARBON, accents: [MARK.coral, MARK.yellow, MARK.magenta] },
   },
   {
     id: 'aether-command',
     title: 'Aether',
     titleEm: 'Command',
-    eyebrow: 'Self-directed · Research intelligence',
-    premise:
+    category: 'SYSTEM ARCHITECTURE',
+    tagline:
       'A research interface for reasoning with AI across 12,000+ years of genetic and migration data — the person controls what the model can see.',
     role: 'Product design · Front-end · AI',
-    status: 'In active use · patent filed',
-    accent: 'tiff',
-    visual: 'jewel',
-    logoPalette: {
-      ink: '#141d38',
-      accents: ['#81d8d0', '#ff5c8a', '#3a2a5a', '#155e63'],
+    pipeline: ['Next.js', 'deck.gl globe', 'Supabase', 'Agentic crew'],
+    status: { label: 'In use · patent filed', accent: 'cyan', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Archaeogenetic data is too large to read and too sparse to trust blindly. Handing an entire corpus to a model produces confident nonsense; the researcher needs to decide what enters the context window, and to see that decision on screen.',
+      pipeline:
+        'Ancient DNA samples render on a deck.gl globe filtered by a time scrubber, so the visible set is the queried set. A crew of voiced agents narrates guided investigations over that scope, with each claim tied back to the samples on screen.',
+      milestone:
+        'In active research use. Guided investigation shipped end to end; patent filed on the interaction model.',
     },
+    logoPalette: { ink: CARBON, accents: [MARK.cyan, MARK.yellow, MARK.magenta] },
   },
   {
     id: 'kinedic-bloom',
     title: 'Kinedic',
     titleEm: 'Bloom',
-    eyebrow: 'Adaptive UI · Live demo',
-    premise:
+    category: 'INTERACTION SYSTEM',
+    tagline:
       'A passive+active adaptive interface that blooms in real time — reading dwell, motor noise, and cognitive load, then reshaping the surface.',
     role: 'Interaction design · Systems',
-    status: 'Prototype · demo loop',
-    accent: 'green',
-    visual: 'bloom',
-    demoEmbed: '/demos/kinedic-bloom.html',
-    logoPalette: {
-      ink: '#241e2b',
-      accents: ['#f0567a', '#12b981', '#5bc7c0', '#f4a72c'],
+    pipeline: ['Input telemetry', 'Load model', 'Adaptive layout', 'Live demo loop'],
+    status: { label: 'Prototype', accent: 'magenta', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Accessibility settings ask people to declare needs in advance, once, in a settings panel — which is exactly when they know least about them. Need changes by the hour: fatigue, tremor, distraction, context.',
+      pipeline:
+        'The surface reads dwell time, pointer jitter and correction rate as continuous signals rather than a stored profile, then reshapes target size, density and pacing in place. No declaration, no mode switch.',
+      milestone:
+        'Working prototype with a live demo loop; patent proposal drafted.',
     },
+    demoEmbed: '/demos/kinedic-bloom.html',
+    logoPalette: { ink: CARBON, accents: [MARK.magenta, MARK.cyan, MARK.yellow] },
   },
   {
     id: 'frostbyte',
     title: 'Frost',
     titleEm: 'Byte',
-    eyebrow: 'Narrative IP · Mythic framework',
-    premise:
+    category: 'NARRATIVE SYSTEM',
+    tagline:
       'A programmer torn into a strange world as Frostbyte — broadcast, memory, and purpose braided through hermetic structure and live transmission.',
     role: 'Worldbuilding · Story systems',
-    status: 'In development',
-    accent: 'amber',
-    visual: 'frost',
-    logoPalette: {
-      ink: '#0c1526',
-      accents: ['#a8d8ff', '#81d8d0', '#2a4a6a', '#f4a72c'],
+    pipeline: ['Structural framework', 'Voice + transmission', 'Serialized release'],
+    status: { label: 'In development', accent: 'yellow' },
+    year: '2026',
+    brief: {
+      problem:
+        'A world told in fragments across broadcast, text and transmission falls apart without a structure underneath it. Continuity cannot be held in the author’s head once the release is serialized.',
+      pipeline:
+        'A fixed structural framework governs the canon — kernels of the world set in advance, with a documented method for reconciling each new fragment against what is already established before it ships.',
+      milestone:
+        'Framework and voice established; chapters drafting against the structure.',
     },
+    logoPalette: { ink: CARBON, accents: [MARK.yellow, MARK.cyan, MARK.coral] },
   },
 ]
 
-/** Quiet default while no card is hovered */
+/** Quiet default while nothing is hovered — carbon with a single warm tick */
 export const defaultLogoPalette: LogoPalette = {
-  ink: '#16233b',
-  accents: ['#ff7a3d', '#81d8d0', '#ff5c8a'],
+  ink: CARBON,
+  accents: [MARK.coral, MARK.cyan, MARK.yellow],
 }

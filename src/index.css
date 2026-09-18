@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 html,
 body {
   margin: 0;
@@ -14,13 +18,94 @@ body {
 
 body {
   font-family: var(--rmk-font-body);
-  font-size: 17px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.55;
   color: var(--rmk-ink);
   background: var(--rmk-ground);
+  /* Tabular figures everywhere — this is a spec sheet, numbers must align */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100svh;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--rmk-ink);
+  color: var(--rmk-ground);
+}
+
+/* Single focus treatment across the whole system — square, never rounded */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--rmk-ink);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+/* Skip link — visible only on keyboard focus */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--rmk-ink);
+  color: var(--rmk-ground);
+  font-family: var(--rmk-font-mono);
+  font-size: var(--rmk-meta-size);
+  letter-spacing: var(--rmk-meta-track);
+  text-transform: uppercase;
+  padding: 12px 18px;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

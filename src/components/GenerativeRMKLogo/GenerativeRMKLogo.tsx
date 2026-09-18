@@ -41,8 +41,11 @@ import './GenerativeRMKLogo.css'
  * in Safari), and cells have to be able to animate to arbitrary coordinates
  * for the scroll morph — grid children can't leave their cells.
  */
-/** Bonnie's father's line about the family name. */
-const TAGLINE = 'MAKE REMAKE. REVERSE ENGINEER THE WORLD.'
+/**
+ * Where the name comes from: make → remake → remaker → Remeika. The ticker
+ * above spells the first three out of MKRMKMKR; this lands the last step.
+ */
+const TAGLINE = 'MAKE · REMAKE · REMAKER · REMEIKA'
 
 function MarkCells({
   config,

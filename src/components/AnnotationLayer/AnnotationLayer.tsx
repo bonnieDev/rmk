@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { buildChalk, type Chalk } from './chalk'
 import {
   ACCENT_KINDS,
   buildMark,
@@ -28,9 +29,7 @@ const MAX_MICRO = 14
 const MAX_ACCENT = 5
 
 interface LiveMark {
-  strokes: Pt[][]
-  lengths: number[][]
-  totals: number[]
+  chalk: Chalk
   born: number
   drawMs: number
   lifeMs: number
@@ -38,22 +37,6 @@ interface LiveMark {
   color: string
   drift: Pt
   accent: boolean
-}
-
-function measure(strokes: Pt[][]) {
-  const lengths: number[][] = []
-  const totals: number[] = []
-  for (const s of strokes) {
-    const cum: number[] = [0]
-    let t = 0
-    for (let i = 1; i < s.length; i++) {
-      t += Math.hypot(s[i][0] - s[i - 1][0], s[i][1] - s[i - 1][1])
-      cum.push(t)
-    }
-    lengths.push(cum)
-    totals.push(t || 1)
-  }
-  return { lengths, totals }
 }
 
 export default function AnnotationLayer() {
@@ -95,16 +78,14 @@ export default function AnnotationLayer() {
       if (count >= (accent ? MAX_ACCENT : MAX_MICRO)) return
 
       const { strokes } = buildMark(kind, x, y, dir)
-      const { lengths, totals } = measure(strokes)
+      const width = accent ? rand(1.9, 2.6) : rand(1.4, 2.0)
       list.push({
-        strokes,
-        lengths,
-        totals,
+        chalk: buildChalk(strokes, width),
         born: performance.now(),
         // fast hand notation — accents get a touch more room to travel
         drawMs: reduced ? 1 : accent ? rand(220, 380) : rand(110, 210),
         lifeMs: reduced ? rand(420, 700) : accent ? rand(900, 1500) : rand(520, 980),
-        width: accent ? rand(1.15, 1.7) : rand(0.8, 1.25),
+        width,
         color: Math.random() < 0.06 ? WARM : pick(COLORS),
         drift: reduced ? [0, 0] : [rand(-5, 5), rand(-9, 3) + dir * 3],
         accent,
@@ -136,41 +117,21 @@ export default function AnnotationLayer() {
 
         ctx.save()
         ctx.translate(dx, dy)
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        ctx.strokeStyle = m.color
+        ctx.fillStyle = m.color
 
-        for (let s = 0; s < m.strokes.length; s++) {
-          const pts = m.strokes[s]
-          const cum = m.lengths[s]
-          const total = m.totals[s]
-          const target = total * drawT
-
+        const target = m.chalk.total * drawT
+        for (const bucket of m.chalk.buckets) {
+          ctx.globalAlpha = bucket.alpha * alpha
           ctx.beginPath()
-          ctx.moveTo(pts[0][0], pts[0][1])
-          for (let p = 1; p < pts.length; p++) {
-            if (cum[p] <= target) {
-              ctx.lineTo(pts[p][0], pts[p][1])
-            } else {
-              // partial segment so the stroke tip lands mid-span, not on a vertex
-              const prev = cum[p - 1]
-              const f = (target - prev) / (cum[p] - prev || 1)
-              ctx.lineTo(
-                pts[p - 1][0] + (pts[p][0] - pts[p - 1][0]) * f,
-                pts[p - 1][1] + (pts[p][1] - pts[p - 1][1]) * f,
-              )
-              break
-            }
+          for (const g of bucket.dabs) {
+            // dabs ascend in `d`, so the first one past the tip ends the bucket
+            if (g.d > target) break
+            ctx.moveTo(g.x + g.r, g.y)
+            ctx.arc(g.x, g.y, g.r, 0, Math.PI * 2)
           }
-
-          // soft chalk bloom, then the crisp line over it
-          ctx.globalAlpha = alpha * 0.22
-          ctx.lineWidth = m.width * 4.5
-          ctx.stroke()
-          ctx.globalAlpha = alpha * 0.95
-          ctx.lineWidth = m.width
-          ctx.stroke()
+          ctx.fill()
         }
+
         ctx.restore()
       }
 

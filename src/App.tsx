@@ -153,7 +153,7 @@ export default function App() {
             ===================================================== */}
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__mark" ref={heroLogoRef}>
-            <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} hideTicker />
+            <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} />
             <h1 className="hero__wordmark" id="hero-title">
               rmk<span aria-hidden="true">.</span>systems
             </h1>

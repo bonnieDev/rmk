@@ -27,9 +27,9 @@ export const PHASES = {
 } as const
 
 /** Idle breath — slow enough to not pull focus from the page */
-export const SLOW_REMAKE_MS = 5200
+export const SLOW_REMAKE_MS = 3200
 /** Card hover — nearly idle; only a quiet recolor tick */
-export const HOVER_REMAKE_MS = 4600
+export const HOVER_REMAKE_MS = 1200
 /** Card click / “in progress” — flashy remake to steal focus from the dead end */
 export const BURST_REMAKE_MS = 150
 /** @deprecated use BURST_REMAKE_MS */

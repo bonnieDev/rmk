@@ -59,10 +59,13 @@ const BASE = '#eaf2ff'
  * fill, and stay quiet despite being saturated.
  */
 const MARK = {
-  yellow: '#ffc94d',
-  coral: '#ff7a45',
+  /* Pulled from the field itself: the cyan accent, plus lifted versions of the
+     blue and copper orbs behind the glass. The mark reads as lit BY the page
+     rather than dropped on top of it. */
   cyan: '#00d4ff',
-  magenta: '#ff5c8a',
+  blue: '#6aa8ff',
+  copper: '#e0a06a',
+  pale: '#b9d4f2',
 } as const
 
 /**
@@ -90,7 +93,7 @@ export const projects: Project[] = [
         'Cast and visual language locked; shorts in production against the bible.',
     },
     cover: '/projects/kitty-n-pip/cover.jpg',
-    logoPalette: { ink: BASE, accents: [MARK.magenta, MARK.yellow, MARK.coral] },
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {
     id: 'skull-and-beau',
@@ -113,7 +116,7 @@ export const projects: Project[] = [
     },
     videoEmbed:
       'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/3c511c1b8adb43f3cc039eef2155933b/iframe?autoplay=true&muted=true&loop=false&controls=false&preload=auto&letterboxColor=transparent',
-    logoPalette: { ink: BASE, accents: [MARK.coral, MARK.yellow, MARK.magenta] },
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {
     id: 'aether-command',
@@ -134,7 +137,7 @@ export const projects: Project[] = [
       milestone:
         'In active research use. Guided investigation shipped end to end; patent filed on the interaction model.',
     },
-    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.yellow, MARK.magenta] },
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
   },
   {
     id: 'kinedic-bloom',
@@ -156,7 +159,7 @@ export const projects: Project[] = [
         'Working prototype with a live demo loop; patent proposal drafted.',
     },
     demoEmbed: '/demos/kinedic-bloom.html',
-    logoPalette: { ink: BASE, accents: [MARK.magenta, MARK.cyan, MARK.yellow] },
+    logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
   },
   {
     id: 'frostbyte',
@@ -177,12 +180,12 @@ export const projects: Project[] = [
       milestone:
         'Framework and voice established; chapters drafting against the structure.',
     },
-    logoPalette: { ink: BASE, accents: [MARK.yellow, MARK.cyan, MARK.coral] },
+    logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },
   },
 ]
 
 /** Quiet default while nothing is hovered — carbon with a single warm tick */
 export const defaultLogoPalette: LogoPalette = {
   ink: BASE,
-  accents: [MARK.coral, MARK.cyan, MARK.yellow],
+  accents: [MARK.cyan, MARK.blue, MARK.copper],
 }

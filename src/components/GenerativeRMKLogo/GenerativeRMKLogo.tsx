@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { defaultLogoPalette, type LogoPalette } from '../../data/projects'
 import {
   BURST_REMAKE_MS,
@@ -41,6 +41,9 @@ import './GenerativeRMKLogo.css'
  * in Safari), and cells have to be able to animate to arbitrary coordinates
  * for the scroll morph — grid children can't leave their cells.
  */
+/** Bonnie's father's line about the family name. */
+const TAGLINE = 'MAKE REMAKE. REVERSE ENGINEER THE WORLD.'
+
 function MarkCells({
   config,
   palette,
@@ -90,39 +93,6 @@ function MarkCells({
   return <>{nodes}</>
 }
 
-/**
- * Halo only — the source geometry is merged last and never displaced or
- * blurred, so every square, circle and wedge keeps a hard edge. Blurring
- * SourceGraphic rather than SourceAlpha means each cell's halo carries that
- * cell's own colour.
- */
-function HaloFilter({ id, strength }: { id: string; strength: number }) {
-  return (
-    <filter
-      id={id}
-      x="-70%"
-      y="-70%"
-      width="240%"
-      height="240%"
-      colorInterpolationFilters="sRGB"
-    >
-      <feGaussianBlur in="SourceGraphic" stdDeviation={2.2 * strength} result="w" />
-      <feComponentTransfer in="w" result="wide">
-        <feFuncA type="linear" slope={0.55} />
-      </feComponentTransfer>
-      <feGaussianBlur in="SourceGraphic" stdDeviation={0.7 * strength} result="m" />
-      <feComponentTransfer in="m" result="mid">
-        <feFuncA type="linear" slope={0.7} />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode in="wide" />
-        <feMergeNode in="mid" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-  )
-}
-
 export function GenerativeRMKLogo({
   seed = 'kinedic',
   paused = false,
@@ -142,7 +112,6 @@ export function GenerativeRMKLogo({
   )
   const [reducedMotion, setReducedMotion] = useState(false)
 
-  const haloId = `rmk-halo-${useId().replace(/:/g, '')}`
   const stepRef = useRef(0)
   const seedRef = useRef(seed)
   const genRef = useRef(0)
@@ -296,10 +265,7 @@ export function GenerativeRMKLogo({
           role="presentation"
           aria-hidden="true"
         >
-          <defs>
-            <HaloFilter id={haloId} strength={compact ? 0.6 : 1} />
-          </defs>
-          <g filter={`url(#${haloId})`}>
+          <g className="rmk-mark__cells" key={gen}>
             <MarkCells config={config} palette={palette} />
           </g>
         </svg>
@@ -307,6 +273,8 @@ export function GenerativeRMKLogo({
 
       {showTicker ? (
         <div className="rmk-ticker">
+          {/* MKRMKMK — the active window slides across it to spell
+              MK / RMK / MKR, which is where MAKE · REMAKE · MAKER comes from. */}
           <p className="rmk-ticker__word" aria-hidden="true">
             {TICKER.map((ch, i) => {
               const active = i >= range[0] && i <= range[1]
@@ -317,9 +285,24 @@ export function GenerativeRMKLogo({
               )
             })}
           </p>
-          <p className="rmk-ticker__caption">
-            {PHASES[phase].word} · seed {seedRef.current} · gen{' '}
-            {String(gen).padStart(3, '0')}
+
+          {/*
+            Every letter is in the DOM from the start and only its opacity
+            rises, so the line reads as typing itself in without any layout
+            shift — and without a screen reader announcing it character by
+            character. The whole phrase is one label.
+          */}
+          <p className="rmk-ticker__line" aria-label={TAGLINE}>
+            {TAGLINE.split('').map((ch, i) => (
+              <span
+                key={i}
+                aria-hidden="true"
+                style={{ animationDelay: `${i * 26}ms` }}
+                className={ch === ' ' ? 'is-space' : undefined}
+              >
+                {ch === ' ' ? '\u00a0' : ch}
+              </span>
+            ))}
           </p>
         </div>
       ) : null}

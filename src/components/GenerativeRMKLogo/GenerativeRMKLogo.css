@@ -85,8 +85,32 @@
 .rmk-mark__svg circle,
 .rmk-mark__svg path {
   transition:
-    fill 0.9s cubic-bezier(0.22, 0.61, 0.36, 1),
-    d 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+    fill 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/*
+ * Sheen: each shape lands a touch bright and settles. The group is keyed on
+ * the generation, so a remake restarts the run; the stagger is by index, which
+ * reads as a wipe across the mark rather than every cell flashing at once.
+ */
+.rmk-mark__cells > * {
+  animation: rmk-sheen 560ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes rmk-sheen {
+  0% {
+    opacity: 0.45;
+    filter: brightness(2.1);
+  }
+  45% {
+    opacity: 1;
+    filter: brightness(1.35);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
 }
 
 .rmk-logo--hover .rmk-mark__svg :is(rect, circle, path) {
@@ -103,46 +127,71 @@
   max-width: var(--rmk-mark-compact-max, 104px);
 }
 
-/* --- Baseline ticker --- */
+/* --- Baseline ticker: MKRMKMK + the line under it --- */
 
 .rmk-ticker {
-  margin-top: 32px;
-  text-align: center;
+  margin-top: 26px;
 }
 
 .rmk-ticker__word {
   margin: 0;
   font-family: var(--rmk-font-mono);
-  font-size: clamp(13px, 2vw, 15px);
+  font-size: clamp(13px, 1.6vw, 16px);
   font-weight: 700;
-  letter-spacing: 0.85em;
-  padding-left: 0.85em;
+  letter-spacing: 0.7em;
+  padding-left: 0.7em;
   color: var(--rmk-ink);
 }
 
 .rmk-ticker__word span {
-  color: var(--rmk-ink-muted);
-  opacity: 0.55;
-  transition: color 0.4s, opacity 0.4s;
+  color: var(--rmk-ink-faint);
+  transition: color 0.45s ease;
 }
 
 .rmk-ticker__word span.is-active {
-  color: var(--rmk-ink);
-  opacity: 1;
+  color: var(--rmk-cyan-deep);
 }
 
-.rmk-ticker__caption {
+.rmk-ticker__line {
   margin: 12px 0 0;
   font-family: var(--rmk-font-mono);
   font-size: 12px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  letter-spacing: 0.2em;
   color: var(--rmk-ink-muted);
+}
+
+/* Each letter holds its space and only fades up — no reflow, no jitter. */
+.rmk-ticker__line span {
+  opacity: 0.12;
+  animation: rmk-letter-in 420ms ease-out forwards;
+}
+
+.rmk-ticker__line span.is-space {
+  animation: none;
+  opacity: 1;
+}
+
+@keyframes rmk-letter-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hovering the work speeds the mark up and re-runs the line. */
+.rmk-logo--hover .rmk-ticker__line span {
+  animation-duration: 260ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rmk-mark__svg :is(rect, circle, path) {
     transition: none !important;
+  }
+
+  .rmk-mark__cells > *,
+  .rmk-ticker__line span {
+    animation: none !important;
+    opacity: 1;
+    filter: none;
   }
 }
 

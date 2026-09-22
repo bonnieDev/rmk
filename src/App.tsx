@@ -272,7 +272,8 @@ export default function App() {
             <div className="prose">
               <p>
                 I’m a product designer and systems builder with roots in print,
-                darkrooms, and the web before any of those had a proper curriculum.
+                darkrooms, and the early web — the first two I was taught, the
+                last one nobody was teaching yet.
                 I’ve spent a career remaking myself at each edge of the field —
                 boutique work, the first mobile web, and years inside regulated
                 product environments.

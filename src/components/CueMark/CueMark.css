@@ -1,0 +1,135 @@
+/**
+ * The cue mark.
+ *
+ * Sizing is a single custom property so a consumer sets one number. The stroke
+ * is non-scaling, so the mark stays a crisp hairline at every size instead of
+ * going soft as it shrinks — the same reason the rest of the interface uses
+ * --rmk-hair rather than a scaled border.
+ */
+.cue {
+  --cue-size: 14px;
+  /* index.css resets svg to display:block, which drops an inline cue onto its
+     own line. Overridden here rather than in the reset — everything else on
+     the site does want block SVGs. */
+  display: inline-block;
+  width: var(--cue-size);
+  height: var(--cue-size);
+  flex: none;
+  overflow: visible;
+  fill: none;
+  stroke-linecap: round;
+  transition:
+    transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.3s ease;
+}
+
+.cue__ring,
+.cue__seam {
+  stroke: currentColor;
+  stroke-width: var(--rmk-hair);
+}
+
+/* The seam reads as the far end of the splice, so it sits back a little. */
+.cue__seam {
+  opacity: 0.45;
+}
+
+/* The one accent on the mark. */
+.cue__tick {
+  stroke: var(--rmk-cyan);
+  stroke-width: var(--rmk-hair);
+}
+
+/* ---------------------------------------------------------------
+   Inline placements — the mark sits with mono metadata, so it
+   inherits that colour and rides the cap height.
+   --------------------------------------------------------------- */
+
+.cue--label {
+  --cue-size: 12px;
+  margin-left: 0.7em;
+  color: var(--rmk-ink-faint);
+  vertical-align: -0.12em;
+}
+
+/* On the expand control the mark is the state: it tightens a quarter turn when
+   the catalog is open, so the glyph reports the same thing the label does. */
+.cue--tool {
+  --cue-size: 13px;
+  margin-right: 0.15em;
+  color: var(--rmk-ink-muted);
+}
+
+.ghost-btn:hover .cue--tool,
+.ghost-btn:focus-visible .cue--tool {
+  transform: rotate(18deg);
+  color: var(--rmk-ink);
+}
+
+.ghost-btn[aria-expanded='true'] .cue--tool {
+  transform: rotate(90deg);
+}
+
+/* Entry hover: one cue, on the one entry under the pointer. */
+.cue--entry {
+  --cue-size: 0.3em;
+  margin-left: 0.34em;
+  /* Rides the cap height of a 54px display title, not its baseline. */
+  vertical-align: 0.42em;
+  color: var(--rmk-ink-faint);
+  opacity: 0;
+  transform: rotate(-14deg) scale(0.86);
+}
+
+.entry.is-active .cue--entry {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+/* ---------------------------------------------------------------
+   The changeover — fixed in the corner of the frame, briefly.
+   --------------------------------------------------------------- */
+
+.cue-changeover {
+  position: fixed;
+  top: clamp(56px, 7vh, 88px);
+  right: clamp(14px, 2vw, 30px);
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity 0.26s ease,
+    transform 0.46s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.cue-changeover .cue {
+  --cue-size: 17px;
+  color: var(--rmk-ink-2);
+}
+
+.cue-changeover.is-cued {
+  opacity: 0.85;
+  transform: scale(1) rotate(6deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue,
+  .cue-changeover {
+    transition: none;
+  }
+
+  /* State still reads — it just arrives rather than travels. */
+  .cue-changeover.is-cued {
+    transform: none;
+  }
+
+  .cue--entry {
+    transform: none;
+  }
+
+  .ghost-btn:hover .cue--tool,
+  .ghost-btn:focus-visible .cue--tool {
+    transform: none;
+  }
+}

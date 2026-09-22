@@ -1,5 +1,6 @@
 import { useId, type FocusEvent } from 'react'
 import type { Project } from '../../data/projects'
+import { CueMark } from '../CueMark'
 import './ProjectEntry.css'
 
 interface ProjectEntryProps {
@@ -75,6 +76,9 @@ export function ProjectEntry({
                 <em>{project.titleEm}</em>
               </>
             ) : null}
+            {/* Marks the frame under the pointer. Only ever one at a time,
+                because only one entry is hovered. */}
+            <CueMark className="cue--entry" />
           </h3>
           <p className="entry__tagline">{project.tagline}</p>
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnnotationLayer } from './components/AnnotationLayer'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
+import { ChangeoverCue, CueMark } from './components/CueMark'
 import { ProjectEntry } from './components/ProjectEntry'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
 import './App.css'
@@ -109,6 +110,8 @@ export default function App() {
 
       {/* Observes only — never receives pointer events */}
       <AnnotationLayer />
+      {/* The cue in its original job: corner of the frame, on a reel change. */}
+      <ChangeoverCue />
 
       {/* =====================================================
           MASTHEAD — hairline bar, no pill, no shadow
@@ -211,7 +214,10 @@ export default function App() {
             ===================================================== */}
         <section id="index" className="section" aria-labelledby="index-title">
           <div className="section__head">
-            <p className="label">Index / Selected work</p>
+            <p className="label">
+              Index / Selected work
+              <CueMark className="cue--label" />
+            </p>
             <h2 className="section__title" id="index-title">
               Things that keep remaking themselves.
             </h2>
@@ -219,7 +225,15 @@ export default function App() {
               <p className="section__count">
                 {String(projects.length).padStart(2, '0')} entries
               </p>
-              <button type="button" className="ghost-btn" onClick={toggleAll}>
+              <button
+                type="button"
+                className="ghost-btn"
+                aria-expanded={allOpen}
+                onClick={toggleAll}
+              >
+                {/* The cue is the state here: it tightens a quarter turn when
+                    the catalog is open, reporting what the label reports. */}
+                <CueMark className="cue--tool" />
                 <span aria-hidden="true">{allOpen ? '−' : '+'}</span>
                 {allOpen ? 'Collapse all' : 'Expand all'}
               </button>

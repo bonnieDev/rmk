@@ -74,26 +74,25 @@ const MARK = {
  */
 export const projects: Project[] = [
   {
-    id: 'kitty-n-pip',
-    title: 'Kitty',
-    titleEm: '& Pip',
-    category: 'ORIGINAL IP',
+    id: 'aether-command',
+    title: 'Aether',
+    titleEm: 'Command',
+    category: 'SYSTEM ARCHITECTURE',
     tagline:
-      'A silent, all-ages series about two tiny friends who find the forgotten objects of the human world — one adorable misunderstanding at a time.',
-    role: 'Character design · AI video · Brand',
-    pipeline: ['Character sheets', 'Generative video', 'Edit + grade', 'Series bible'],
-    status: { label: 'In production', accent: 'coral', live: true },
+      'A research interface for reasoning with AI across 12,000+ years of genetic and migration data — the person controls what the model can see.',
+    role: 'Product design · Front-end · AI',
+    pipeline: ['Next.js', 'deck.gl globe', 'Supabase', 'Agentic crew'],
+    status: { label: 'In use · patent filed', accent: 'cyan', live: true },
     year: '2026',
     brief: {
       problem:
-        'Episodic character animation normally needs a crew per minute of screen time. The series had to hold a consistent cast across many shorts without one — silent comedy leaves nowhere for continuity errors to hide.',
+        'Archaeogenetic data is too large to read and too sparse to trust blindly. Handing an entire corpus to a model produces confident nonsense; the researcher needs to decide what enters the context window, and to see that decision on screen.',
       pipeline:
-        'Locked character sheets drive generative video passes, which are cut and graded to a house look. The bible fixes silhouette, palette and prop language up front so every downstream shot inherits the same rules.',
+        'Ancient DNA samples render on a deck.gl globe filtered by a time scrubber, so the visible set is the queried set. A crew of voiced agents narrates guided investigations over that scope, with each claim tied back to the samples on screen.',
       milestone:
-        'Cast and visual language locked; shorts in production against the bible.',
+        'In active research use. Guided investigation shipped end to end; patent filed on the interaction model.',
     },
-    cover: '/projects/kitty-n-pip/cover.jpg',
-    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
   },
   {
     id: 'skull-and-beau',
@@ -119,25 +118,25 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {
-    id: 'aether-command',
-    title: 'Aether',
-    titleEm: 'Command',
-    category: 'SYSTEM ARCHITECTURE',
+    id: 'lil-swaps',
+    title: 'lil',
+    titleEm: 'swaps',
+    category: 'BEHAVIOR SYSTEM',
     tagline:
-      'A research interface for reasoning with AI across 12,000+ years of genetic and migration data — the person controls what the model can see.',
-    role: 'Product design · Front-end · AI',
-    pipeline: ['Next.js', 'deck.gl globe', 'Supabase', 'Agentic crew'],
-    status: { label: 'In use · patent filed', accent: 'cyan', live: true },
+      'A collectible-card game built on current environmental research — every card is a change someone actually made, ranked by how much it measurably cut.',
+    role: 'Product design · Front-end · WebGL',
+    pipeline: ['React + Vite', 'WebGL card shaders', 'Research sweep', 'Voiced announcer'],
+    status: { label: 'Playable build', accent: 'coral', live: true },
     year: '2026',
     brief: {
       problem:
-        'Archaeogenetic data is too large to read and too sparse to trust blindly. Handing an entire corpus to a model produces confident nonsense; the researcher needs to decide what enters the context window, and to see that decision on screen.',
+        'Environmental advice fails in both directions: too shallow to act on, or too dependent on evidence that moves faster than anyone can follow. And acting produces no feedback — you change a habit and nothing visibly happens, so nothing sticks.',
       pipeline:
-        'Ancient DNA samples render on a deck.gl globe filtered by a time scrubber, so the visible set is the queried set. A crew of voiced agents narrates guided investigations over that scope, with each claim tied back to the samples on screen.',
+        'A research sweep distills current findings into ten ranked offenders, each carrying sourced reasoning and realistic alternatives priced in absolute footprint points. Committing one is a game action: the choice becomes a collectible whose rarity is earned by the measured reduction, dealt in WebGL with the card flip, the cut and the announcer all landing on a single frame.',
       milestone:
-        'In active research use. Guided investigation shipped end to end; patent filed on the interaction model.',
+        'Learn → Swap → Collect playable end to end. Share, Ripple and Return designed and specified, not yet built.',
     },
-    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.cyan] },
   },
   {
     id: 'kinedic-bloom',
@@ -181,6 +180,28 @@ export const projects: Project[] = [
         'Framework and voice established; chapters drafting against the structure.',
     },
     logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },
+  },
+  {
+    id: 'kitty-n-pip',
+    title: 'Kitty',
+    titleEm: '& Pip',
+    category: 'ORIGINAL IP',
+    tagline:
+      'A silent, all-ages series about two tiny friends who find the forgotten objects of the human world — one adorable misunderstanding at a time.',
+    role: 'Character design · AI video · Brand',
+    pipeline: ['Character sheets', 'Generative video', 'Edit + grade', 'Series bible'],
+    status: { label: 'In production', accent: 'coral', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Episodic character animation normally needs a crew per minute of screen time. The series had to hold a consistent cast across many shorts without one — silent comedy leaves nowhere for continuity errors to hide.',
+      pipeline:
+        'Locked character sheets drive generative video passes, which are cut and graded to a house look. The bible fixes silhouette, palette and prop language up front so every downstream shot inherits the same rules.',
+      milestone:
+        'Cast and visual language locked; shorts in production against the bible.',
+    },
+    cover: '/projects/kitty-n-pip/cover.jpg',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
 ]
 

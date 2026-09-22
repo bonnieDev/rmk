@@ -1,13 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { buildChalk, type Chalk } from './chalk'
-import {
-  ACCENT_KINDS,
-  buildMark,
-  pick,
-  rand,
-  type MarkKind,
-  type Pt,
-} from './marks'
+import { buildMark, pick, rand, type MarkFit, type MarkKind, type Pt } from './marks'
 import './AnnotationLayer.css'
 
 /**
@@ -25,8 +18,32 @@ import './AnnotationLayer.css'
 const COLORS = ['#e8f6ff', '#9be8ff', '#5fd3c8', '#b9e6ff'] as const
 const WARM = '#e0a06a'
 
-const MAX_MICRO = 14
-const MAX_ACCENT = 5
+const MAX_MICRO = 6
+/**
+ * Pointing is scarce on purpose. Two marks on screen at once are not pointing
+ * at anything — they are decoration that happens to be near something.
+ */
+const MAX_POINT = 1
+/** How long the pointer has to actually rest on a thing before it is a target. */
+const DWELL_MS = 520
+/** A target will not be pointed at twice inside this window. */
+const REPOINT_MS = 9000
+
+/**
+ * What each kind of target deserves. This is the whole vocabulary of "hey,
+ * look at this" — a ring for a small status object, an underline under actual
+ * words, a bracket holding a real block, a locator on a single point.
+ */
+const POINT_AT: { selector: string; kind: MarkKind }[] = [
+  { selector: '.entry__status', kind: 'ring' },
+  { selector: '.entry__num', kind: 'locator' },
+  { selector: '.entry__toggle', kind: 'underline' },
+  { selector: '.ghost-btn', kind: 'underline' },
+  { selector: '.entry__title', kind: 'underline' },
+  { selector: '.rmk-mark', kind: 'locator' },
+  { selector: '.entry__cover, .entry__media', kind: 'bracket' },
+  { selector: '.entry', kind: 'bracket' },
+]
 
 interface LiveMark {
   chalk: Chalk
@@ -72,22 +89,32 @@ export default function AnnotationLayer() {
 
     // ---- spawning -------------------------------------------------------
 
-    function spawn(kind: MarkKind, x: number, y: number, dir: number, accent: boolean) {
+    function spawn(
+      kind: MarkKind,
+      x: number,
+      y: number,
+      dir: number,
+      accent: boolean,
+      fit?: MarkFit,
+    ) {
       const list = marksRef.current
       const count = list.filter((m) => m.accent === accent).length
-      if (count >= (accent ? MAX_ACCENT : MAX_MICRO)) return
+      if (count >= (accent ? MAX_POINT : MAX_MICRO)) return
 
-      const { strokes } = buildMark(kind, x, y, dir)
+      const { strokes } = buildMark(kind, x, y, dir, fit)
       const width = accent ? rand(1.9, 2.6) : rand(1.4, 2.0)
       list.push({
         chalk: buildChalk(strokes, width),
         born: performance.now(),
         // fast hand notation — accents get a touch more room to travel
-        drawMs: reduced ? 1 : accent ? rand(220, 380) : rand(110, 210),
-        lifeMs: reduced ? rand(420, 700) : accent ? rand(900, 1500) : rand(520, 980),
+        drawMs: reduced ? 1 : accent ? rand(300, 460) : rand(110, 210),
+        // A point is held: long enough to be read as a statement rather than
+        // a flicker. Ambient chatter stays brief.
+        lifeMs: reduced ? rand(420, 700) : accent ? rand(1500, 2200) : rand(520, 980),
         width,
         color: Math.random() < 0.06 ? WARM : pick(COLORS),
-        drift: reduced ? [0, 0] : [rand(-5, 5), rand(-9, 3) + dir * 3],
+        // A point does not wander off the thing it is pointing at.
+        drift: reduced || accent ? [0, 0] : [rand(-5, 5), rand(-9, 3) + dir * 3],
         accent,
       })
       start()
@@ -155,45 +182,158 @@ export default function AnnotationLayer() {
 
     let lastScrollY = window.scrollY
     let scrollGate = 0
+
+    /**
+     * The empty column beside the content, if there is one.
+     *
+     * Ambient chatter belongs in the margin — the rule that separates it from
+     * pointing is that it never lands on anything. On a narrow screen there is
+     * no margin, so there is no chatter.
+     */
+    function gutter(): [number, number] | null {
+      const content = document.querySelector('.entry, .section')
+      if (!content) return null
+      const r = content.getBoundingClientRect()
+      const left = r.left - 12
+      const right = w - (r.right + 12)
+      if (left < 48 && right < 48) return null
+      return left > right ? [8, r.left - 12] : [r.right + 12, w - 8]
+    }
+
     const onScroll = () => {
       const now = performance.now()
       const y = window.scrollY
       const delta = y - lastScrollY
       lastScrollY = y
       if (Math.abs(delta) < 4) return
-      if (now - scrollGate < (reduced ? 620 : 150)) return
+      if (now - scrollGate < (reduced ? 1400 : 620)) return
+      const band = gutter()
+      if (!band) return
       scrollGate = now
 
       const dir = delta > 0 ? 1 : -1
-      const [px] = pointerRef.current
-      // cluster around the pointer when we have one, otherwise the reading column
-      const x = px > 0 ? px + rand(-160, 160) : rand(w * 0.2, w * 0.8)
-      const y0 = rand(h * 0.2, h * 0.85)
-      // scrolling up is lighter than scrolling down
-      const kind: MarkKind = dir > 0 ? pick(['tick', 'drag', 'tick', 'arrowhead']) : pick(['tick', 'underline'])
-      spawn(kind, x, y0, dir, false)
+      const kind: MarkKind = dir > 0 ? pick(['tick', 'drag', 'tick']) : pick(['tick', 'underline'])
+      spawn(kind, rand(band[0], band[1]), rand(h * 0.2, h * 0.85), dir, false)
+    }
+
+    // ---- pointing -------------------------------------------------------
+
+    /**
+     * The true box of an element's first line of text.
+     *
+     * An element's own rect is the whole block, so underlining it draws a rule
+     * the width of the column rather than the width of the words. A Range over
+     * its contents returns what was actually typeset.
+     */
+    function firstLineRect(el: Element): { left: number; right: number; bottom: number } | null {
+      const range = document.createRange()
+      range.selectNodeContents(el)
+      const rects = Array.from(range.getClientRects()).filter((r) => r.width > 0)
+      if (!rects.length) return null
+      // A title split across spans yields one rect per span, so rects[0] is the
+      // first *word group*, not the first line. Union everything sharing that
+      // line's baseline, or the mark underlines half a title and stops.
+      const first = rects[0]
+      let left = first.left
+      let right = first.right
+      let bottom = first.bottom
+      for (const r of rects) {
+        if (Math.abs(r.top - first.top) > first.height * 0.5) continue
+        left = Math.min(left, r.left)
+        right = Math.max(right, r.right)
+        bottom = Math.max(bottom, r.bottom)
+      }
+      return { left, right, bottom }
+    }
+
+    /** Where a mark has to be, and how big, to actually be about this element. */
+    function aim(el: Element, kind: MarkKind): { x: number; y: number; fit: MarkFit } | null {
+      const r = el.getBoundingClientRect()
+      if (!r.width || !r.height) return null
+
+      switch (kind) {
+        case 'underline': {
+          const line = firstLineRect(el) ?? { left: r.left, right: r.right, bottom: r.bottom }
+          const w = Math.min(line.right - line.left, 320)
+          // Sits under the baseline, never through the words: a rule crossing
+          // text costs contrast on the text, which is not a trade worth making.
+          return { x: line.left + w / 2, y: Math.min(line.bottom + 6, h - 6), fit: { w } }
+        }
+        case 'ring':
+        case 'arc': {
+          // Only worth circling something small enough to be circled.
+          if (r.width > 180 || r.height > 120) return null
+          return {
+            x: r.left + r.width / 2,
+            y: r.top + r.height / 2,
+            fit: { r: Math.hypot(r.width, r.height) / 2 + 9 },
+          }
+        }
+        case 'locator': {
+          return {
+            x: r.left + r.width / 2,
+            y: r.top + r.height / 2,
+            fit: { r: Math.max(r.width, r.height) / 2 + 4 },
+          }
+        }
+        case 'bracket':
+        default: {
+          const height = Math.min(r.height, 220)
+          return { x: Math.max(10, r.left - 14), y: r.top + height / 2, fit: { h: height } }
+        }
+      }
+    }
+
+    const pointedAt = new WeakMap<Element, number>()
+
+    /** One considered mark, on a real target, sized to it. */
+    function point(el: Element) {
+      const now = performance.now()
+      const last = pointedAt.get(el)
+      if (last != null && now - last < REPOINT_MS) return
+      if (marksRef.current.some((m) => m.accent)) return
+
+      const rule = POINT_AT.find((entry) => el.matches(entry.selector))
+      if (!rule) return
+      const aimed = aim(el, rule.kind)
+      if (!aimed) return
+      const r = el.getBoundingClientRect()
+      if (r.bottom < 40 || r.top > h - 20) return
+
+      pointedAt.set(el, now)
+      spawn(rule.kind, aimed.x, aimed.y, 1, true, aimed.fit)
+    }
+
+    /** The most specific thing under the pointer that is worth pointing at. */
+    function targetFrom(node: Element | null): Element | null {
+      for (const rule of POINT_AT) {
+        const hit = node?.closest?.(rule.selector)
+        if (hit) return hit
+      }
+      return null
+    }
+
+    // Dwell, not pass-through. Sweeping the pointer across the page used to
+    // spray a mark off every element it crossed; pointing means the pointer
+    // came to rest on something first.
+    let dwellTimer: number | null = null
+    let dwellTarget: Element | null = null
+
+    const onPointerOver = (e: PointerEvent) => {
+      const el = targetFrom(e.target as Element | null)
+      if (el === dwellTarget) return
+      dwellTarget = el
+      if (dwellTimer != null) window.clearTimeout(dwellTimer)
+      if (!el) return
+      dwellTimer = window.setTimeout(() => {
+        if (dwellTarget === el) point(el)
+      }, DWELL_MS)
     }
 
     const onPointerDown = (e: PointerEvent) => {
-      spawn(pick(ACCENT_KINDS), e.clientX, e.clientY, 1, true)
-      if (!reduced) spawn('tick', e.clientX + rand(-18, 18), e.clientY + rand(-16, 16), 1, false)
-    }
-
-    // Hover: only on things that matter, and only once per element per pass.
-    const HOVER_SELECTOR = '.entry, .ghost-btn, .entry__toggle, .masthead__nav button, .rmk-mark'
-    const recentHover = new WeakSet<Element>()
-    const onPointerOver = (e: PointerEvent) => {
-      const el = (e.target as Element | null)?.closest?.(HOVER_SELECTOR)
-      if (!el || recentHover.has(el)) return
-      recentHover.add(el)
-      window.setTimeout(() => recentHover.delete(el), 2600)
-
-      const r = el.getBoundingClientRect()
-      if (r.bottom < 0 || r.top > h) return
-      const kind: MarkKind = pick(['underline', 'bracket', 'locator'])
-      const x = kind === 'bracket' ? r.left + rand(-6, 10) : r.left + Math.min(r.width, 220) * rand(0.15, 0.6)
-      const y = kind === 'underline' ? Math.min(r.bottom - 4, h - 8) : r.top + Math.min(r.height, 180) * 0.5
-      spawn(kind, x, y, 1, kind === 'locator')
+      // A click is already a decision — point at what was chosen.
+      const el = targetFrom(e.target as Element | null)
+      if (el) point(el)
     }
 
     window.addEventListener('pointermove', onPointerMove, { passive: true })
@@ -201,18 +341,18 @@ export default function AnnotationLayer() {
     window.addEventListener('pointerdown', onPointerDown, { passive: true })
     window.addEventListener('pointerover', onPointerOver, { passive: true })
 
-    // Section reveal: a single guiding annotation as a block arrives.
+    // Section reveal: one considered mark as a block arrives, aimed at the
+    // block itself rather than dropped somewhere near its corner.
     const seen = new WeakSet<Element>()
     const io = new IntersectionObserver(
       (entries) => {
         for (const en of entries) {
           if (!en.isIntersecting || seen.has(en.target)) continue
           seen.add(en.target)
-          const r = en.boundingClientRect
-          spawn(pick(['bracket', 'arc', 'locator']), r.left + rand(6, 40), r.top + rand(20, 70), 1, true)
+          point(en.target)
         }
       },
-      { threshold: 0.25 },
+      { threshold: 0.35 },
     )
     document.querySelectorAll('.section, .entry').forEach((el) => io.observe(el))
 

@@ -72,7 +72,28 @@ export interface MarkShape {
   strokes: Pt[][]
 }
 
-export function buildMark(kind: MarkKind, x: number, y: number, dir: number): MarkShape {
+/**
+ * Measured geometry from a real target.
+ *
+ * Without this every generator invents its own size, which is exactly what
+ * makes a mark read as decoration: an underline that isn't the width of the
+ * words is not underlining them. When `fit` is supplied the mark is the size
+ * of the thing it is pointing at; when it isn't, the old hand-sized randomness
+ * stands in.
+ */
+export interface MarkFit {
+  w?: number
+  h?: number
+  r?: number
+}
+
+export function buildMark(
+  kind: MarkKind,
+  x: number,
+  y: number,
+  dir: number,
+  fit?: MarkFit,
+): MarkShape {
   const d = dir >= 0 ? 1 : -1
 
   switch (kind) {
@@ -95,14 +116,15 @@ export function buildMark(kind: MarkKind, x: number, y: number, dir: number): Ma
     }
 
     case 'underline': {
-      const w = rand(58, 124)
+      const w = fit?.w ?? rand(58, 124)
       return { strokes: [jitter(curve([x - w / 2, y], [x + w / 2, y], rand(1.5, 8.1), 12), 1.2)] }
     }
 
     case 'bracket': {
-      const h = rand(42, 74)
-      const w = rand(11, 18)
-      const s = pick([1, -1])
+      const h = fit?.h ?? rand(42, 74)
+      const w = fit ? Math.min(18, Math.max(9, h * 0.16)) : rand(11, 18)
+      // A fitted bracket always opens toward the content it is holding.
+      const s = fit ? 1 : pick([1, -1])
       return {
         strokes: [
           jitter(
@@ -119,13 +141,13 @@ export function buildMark(kind: MarkKind, x: number, y: number, dir: number): Ma
     }
 
     case 'arc': {
-      const r = rand(28, 56)
+      const r = fit?.r ?? rand(28, 56)
       const from = rand(0, Math.PI * 2)
       return { strokes: [jitter(arcPts(x, y, r, from, from + rand(0.8, 3.78)), 1.2)] }
     }
 
     case 'ring': {
-      const r = rand(22, 40)
+      const r = fit?.r ?? rand(22, 40)
       const from = rand(0, Math.PI * 2)
       // deliberately not closed — a hand overshoots or leaves a gap
       return { strokes: [jitter(arcPts(x, y, r, from, from + rand(5.1, 10.98), 26), 1.0)] }
@@ -148,8 +170,8 @@ export function buildMark(kind: MarkKind, x: number, y: number, dir: number): Ma
     }
 
     case 'locator': {
-      const g = rand(9, 15)
-      const l = rand(13, 22)
+      const g = fit?.r ? fit.r + rand(3, 7) : rand(9, 15)
+      const l = fit?.r ? Math.max(10, fit.r * 0.8) : rand(13, 22)
       return {
         strokes: [
           jitter([[x - g - l, y], [x - g, y]], 1.26),

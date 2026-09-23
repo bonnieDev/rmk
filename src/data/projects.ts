@@ -138,6 +138,28 @@ export const projects: Project[] = [
     },
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.cyan] },
   },
+{
+    id: 'listening-room',
+    title: 'Listening',
+    titleEm: 'Room',
+    category: 'SCORE SYSTEM',
+    tagline:
+      'An original score for a map, where nobody picks the track \u2014 the year you are looking at and the place you are looking at pick it for you.',
+    role: 'Composition \u00b7 Systems \u00b7 Front-end',
+    pipeline: ['Score manifest', 'Time \u00d7 place resolver', 'Two-deck crossfade', 'Live audition room'],
+    status: { label: 'Playable', accent: 'magenta', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'A soundtrack keyed to time alone cannot answer a map. At 800 CE the Rhine, Baghdad and the Orkhon are all true at once, and a timeline has no way to say which one is on screen \u2014 so the score either picks one civilisation and is wrong about the others, or plays nothing.',
+      pipeline:
+        'Every track declares a year window and, where it belongs to a people rather than a period, a home ground. Time decides what is possible; place decides which of the possible, and a track playing outside the ground it names is penalised rather than merely unrewarded. One track claims no moment at all and plays when nothing specific does. The player runs two decks so the handover is a crossfade rather than a cut.',
+      milestone:
+        'Eight tracks resolving by time and place, running inside the source application; the audition room publishes the manifest so the selection logic is legible without it.',
+    },
+    demoEmbed: '/demos/listening-room.html',
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.copper] },
+  },
   {
     id: 'kinedic-bloom',
     title: 'Kinedic',

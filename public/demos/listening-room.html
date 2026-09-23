@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Listening Room — Aether Command score</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#070b16; --raised:#0f1a2e; --ink:#eaf2ff; --ink2:#cfe0f5;
+    --muted:#a3b6d0; --faint:#7d93b0; --line:rgba(255,255,255,.10);
+    --cyan:#00d4ff; --copper:#e0a06a; --mono:"JetBrains Mono",ui-monospace,monospace;
+    --display:"Space Grotesk",system-ui,sans-serif;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--display);
+       padding:clamp(18px,3vw,34px);min-height:100vh}
+  h1{font-size:clamp(19px,2.4vw,26px);font-weight:500;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{margin:0 0 4px;color:var(--ink2);font-size:14px;line-height:1.55;max-width:66ch}
+  .meta{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+        color:var(--faint);margin:0 0 22px}
+
+  /* Non-linear by necessity: Toba sits at −74,000 and the Abbasids at 800.
+     A linear axis makes everything after the Neolithic a single pixel, which
+     is the same problem the source application's own timeline has. */
+  /* Gantt layout: names live in a fixed column, bars carry only extent.
+     Titles inside the bars could not survive a narrow frame — a 300-year
+     window is 40px wide in a 16:10 embed, and no font size fixes that. */
+  .track-area{display:grid;grid-template-columns:clamp(140px,24%,200px) minmax(0,1fr);
+              gap:5px 12px;align-items:stretch}
+  .col-head{}
+  .rows{display:contents}
+  /* Rows size to their content and the grid keeps label and bar aligned, so a
+     long title wraps instead of being clipped. Chasing a column width that
+     fits every name at every embed size is a losing game. */
+  .r-label{display:flex;flex-direction:column;justify-content:center;
+           min-height:30px;padding:3px 0;overflow:hidden}
+  .r-name{font-size:12.5px;font-weight:500;line-height:1.2;
+          overflow-wrap:break-word}
+  .r-note{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--faint);
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .r-track{position:relative;min-height:30px;padding:3px 0}
+  .axis{position:relative;height:20px;border-bottom:1px solid var(--line);margin-bottom:2px}
+  .tick{position:absolute;transform:translateX(-50%);font-family:var(--mono);
+        font-size:10px;letter-spacing:.1em;color:var(--faint);white-space:nowrap;bottom:4px}
+  .tick::after{content:"";position:absolute;left:50%;bottom:-6px;width:1px;height:5px;background:var(--line)}
+  .break{position:absolute;bottom:0;width:1px;height:14px;background:var(--copper);opacity:.55}
+
+  .lanes{position:relative;padding:10px 0 4px}
+
+  .bar{position:absolute;top:3px;bottom:3px;border:1px solid var(--line);border-radius:3px;
+       background:linear-gradient(180deg,rgba(0,212,255,.10),rgba(0,212,255,.03));
+       cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;
+       transition:background .18s,border-color .18s}
+  .bar:hover{background:rgba(0,212,255,.16);border-color:rgba(0,212,255,.45)}
+  .bar:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .bar[aria-pressed="true"]{background:rgba(0,212,255,.22);border-color:var(--cyan)}
+  .bar.bed{background:linear-gradient(180deg,rgba(224,160,106,.10),rgba(224,160,106,.03));}
+  .bar.bed:hover{background:rgba(224,160,106,.16);border-color:rgba(224,160,106,.5)}
+  .bar.bed[aria-pressed="true"]{background:rgba(224,160,106,.22);border-color:var(--copper)}
+
+
+  .b-place{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--ink2);
+           white-space:nowrap;overflow:hidden;padding:0 6px}
+
+  .now{margin-top:20px;border-top:1px solid var(--line);padding-top:14px;
+       display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .play{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+        padding:9px 16px;border:1px solid rgba(0,212,255,.45);background:rgba(0,212,255,.10);
+        color:var(--ink);border-radius:3px;cursor:pointer}
+  .play:hover{background:rgba(0,212,255,.2)}
+  .play:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .now-title{font-size:14px}
+  .now-note{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+  .note{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);
+        font-family:var(--mono);font-size:11px;line-height:1.7;color:var(--faint);max-width:78ch}
+  .note b{color:var(--ink2);font-weight:500}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+  <h1>Listening Room</h1>
+  <p class="sub">Original score written for <b>Aether Command</b>, an archaeogenetic mapping
+     application. In the source application no one chooses a track: position on the timeline
+     and the globe's location select it, and the player crossfades between them.</p>
+  <p class="meta">Score manifest · <span id="count"></span> tracks · select any to audition</p>
+
+  <div class="track-area">
+    <div class="col-head"></div>
+    <div class="axis" id="axis"></div>
+    <div class="rows" id="rows"></div>
+  </div>
+
+  <div class="now">
+    <button class="play" id="toggle" aria-pressed="false">▶ Play</button>
+    <span>
+      <span class="now-title" id="nowTitle">Nothing selected</span><br>
+      <span class="now-note" id="nowNote">Pick a track from the timeline</span>
+    </span>
+  </div>
+
+  <p class="note">
+    <b>How selection works.</b> Every track declares a year window and, where it belongs to a
+    people rather than a period, a home ground. Time decides what is possible; place decides
+    which of the possible — at 800&nbsp;CE the Rhine, Baghdad and the Orkhon each get a
+    different track. A track that names a place and is playing somewhere else is wrong however
+    strong its century, so a mismatch is penalised rather than merely unrewarded.<br><br>
+    <b>The bed.</b> One track claims no moment in particular and plays only when nothing
+    specific does — which is most of a 12,000-year timeline. Without it the score is silent
+    between its islands, and silence reads as broken rather than as restraint.<br><br>
+    <b>The axis is non-linear</b>, and has to be: Toba sits at −74,000 and the Abbasids at 800.
+    On a linear axis everything after the Neolithic is one pixel wide.<br><br>
+    <b>Made with generative audio tools</b>, directed and edited by me. What is on display here
+    is the selection architecture.
+  </p>
+
+<script>
+const TRACKS = [
+  {
+    "id": "under_the_floorboards",
+    "title": "Under the Floorboards",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Under_The_Floorboards.mp3",
+    "slot": "bed",
+    "note": "What is buried, everywhere",
+    "startYear": -75000,
+    "endYear": 2026,
+    "bed": true,
+    "bbox": null,
+    "cultures": null
+  },
+  {
+    "id": "toba",
+    "title": "Toba Catastrophe Theory",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Tobacatastrophetheory.mp3",
+    "slot": "deep_past",
+    "note": "Toba — the bottleneck",
+    "startYear": -74000,
+    "endYear": -60000,
+    "peakStartYear": -72000,
+    "peakEndYear": -66000,
+    "bed": false,
+    "bbox": null,
+    "cultures": null
+  },
+  {
+    "id": "ink_and_sand",
+    "title": "Ink and Sand",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Ink_and_Sand.mp3",
+    "slot": "baghdad",
+    "note": "Al-Khwarizmi — the House of Wisdom",
+    "startYear": 700,
+    "endYear": 1300,
+    "peakStartYear": 780,
+    "peakEndYear": 1050,
+    "bed": false,
+    "bbox": [
+      38,
+      28,
+      52,
+      38
+    ],
+    "cultures": null
+  },
+  {
+    "id": "geometry_of_power",
+    "title": "Geometry of Power",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Geometry_Of_Power.mp3",
+    "slot": "archetype",
+    "note": "The Watcher — the mythos layer",
+    "startYear": -10000,
+    "endYear": 2026,
+    "bed": false,
+    "bbox": null,
+    "cultures": [
+      "aetherArchetypeNode"
+    ]
+  },
+  {
+    "id": "where_heavy_winds_wait",
+    "title": "Where Heavy Winds Wait",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Where_Heavy_Winds_Wait.mp3",
+    "slot": "frankish",
+    "note": "Merovech — the founder, and the sea that made him",
+    "startYear": 380,
+    "endYear": 900,
+    "peakStartYear": 480,
+    "peakEndYear": 751,
+    "bed": false,
+    "bbox": [
+      -5,
+      42,
+      18,
+      54
+    ],
+    "cultures": [
+      "dynasticHistoricalLineage",
+      "danubianCarpathianByzantineHub"
+    ]
+  },
+  {
+    "id": "sakka_uul",
+    "title": "Sakka Uul",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Sakka_Uul.mp3",
+    "slot": "steppe",
+    "note": "Khatuns — the steppe corridor",
+    "startYear": 400,
+    "endYear": 1400,
+    "peakStartYear": 900,
+    "peakEndYear": 1300,
+    "bed": false,
+    "bbox": null,
+    "cultures": null
+  },
+  {
+    "id": "paint_the_map_red",
+    "title": "Paint the Map Red",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/Paint_the_Map_Red.mp3",
+    "slot": "steppe",
+    "note": "Conquest and expansion",
+    "startYear": 400,
+    "endYear": 1400,
+    "peakStartYear": 900,
+    "peakEndYear": 1300,
+    "bed": false,
+    "bbox": null,
+    "cultures": null
+  },
+  {
+    "id": "the_ledger_bleeds",
+    "title": "The Ledger Bleeds",
+    "src": "https://pub-37de27a49e7f425fb0a8b581c2d6d83f.r2.dev/The_Ledger_Bleeds.mp3",
+    "slot": "trade",
+    "note": "The amber ledger — trade and its records",
+    "startYear": -2000,
+    "endYear": 800,
+    "peakStartYear": -1400,
+    "peakEndYear": 200,
+    "bed": false,
+    "bbox": null,
+    "cultures": null
+  }
+];
+const PREFERRED = {
+  "steppe": "sakka_uul",
+  "trade": "the_ledger_bleeds",
+  "frankish": "where_heavy_winds_wait",
+  "archetype": "geometry_of_power",
+  "bed": "under_the_floorboards",
+  "deep_past": "toba",
+  "baghdad": "ink_and_sand"
+};
+
+/* Three segments, allocated by where the data actually is rather than by how
+   much time each spans. A single pivot still crushed everything: -10,000 to
+   -3,000 is seven millennia with nothing in it, and it was eating a third of
+   the width while the Bronze-Age-to-medieval band — where every track but one
+   lives — got squeezed against the right edge. */
+const SEGMENTS = [
+  { from: -75000, to: -10000, width: 0.18 },  // deep past: Toba
+  { from: -10000, to:  -3000, width: 0.14 },  // the quiet stretch
+  { from:  -3000, to:   2100, width: 0.68 },  // where the score lives
+];
+function x(year){
+  const y = Math.max(SEGMENTS[0].from, Math.min(2100, year));
+  let acc = 0;
+  for (const s of SEGMENTS){
+    if (y <= s.to) return (acc + ((y - s.from) / (s.to - s.from)) * s.width) * 100;
+    acc += s.width;
+  }
+  return 100;
+}
+const fmtYear = y => y < 0 ? Math.abs(y).toLocaleString() + " BCE" : y + " CE";
+
+const axis = document.getElementById('axis');
+[-74000,-10000,-3000,-1000,0,1000,2000].forEach(y=>{
+  const t=document.createElement('span'); t.className='tick';
+  t.style.left=x(y)+'%'; t.textContent=fmtYear(y); axis.appendChild(t);
+});
+// Mark where the scale changes — an axis that lies about its own spacing
+// without saying so is worse than a linear one.
+[-10000,-3000].forEach(y=>{
+  const b=document.createElement('span'); b.className='break';
+  b.style.left=x(y)+'%'; b.title='scale changes here'; axis.appendChild(b);
+});
+
+const rowsEl=document.getElementById('rows');
+let currentId=null;
+const audio=new Audio(); audio.preload='none';
+const toggle=document.getElementById('toggle');
+const nowTitle=document.getElementById('nowTitle');
+const nowNote=document.getElementById('nowNote');
+
+function place(t){
+  if(t.bed) return 'EVERYWHERE';
+  if(t.bbox) return `${Math.abs(t.bbox[0])}\u00b0${t.bbox[0]<0?'W':'E'}\u2013${Math.abs(t.bbox[2])}\u00b0E`;
+  if(t.cultures) return t.cultures[0].replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase();
+  return '';
+}
+
+// Widest window first: the bed and the mythos layer are the backdrop the
+// specific tracks sit against, so they read better above them.
+TRACKS.slice()
+  .sort((a,b)=>(b.endYear-b.startYear)-(a.endYear-a.startYear))
+  .forEach(t=>{
+    const label=document.createElement('div');
+    label.className='r-label';
+    label.innerHTML=`<span class="r-name">${t.title}</span><span class="r-note">${t.note}</span>`;
+    rowsEl.appendChild(label);
+
+    const row=document.createElement('div'); row.className='r-track';
+    const b=document.createElement('button');
+    b.className='bar'+(t.bed?' bed':'');
+    b.style.left=x(t.startYear)+'%';
+    b.style.width=Math.max(x(t.endYear)-x(t.startYear),4)+'%';
+    b.setAttribute('aria-pressed','false');
+    b.setAttribute('aria-label',
+      `${t.title}. ${t.note}. ${fmtYear(t.startYear)} to ${fmtYear(t.endYear)}. Play.`);
+    b.dataset.id=t.id;
+    b.title=`${t.title} \u2014 ${fmtYear(t.startYear)} to ${fmtYear(t.endYear)} \u2014 ${t.note}`;
+    const pl=place(t);
+    if(pl) b.innerHTML=`<span class="b-place">${pl}</span>`;
+    b.addEventListener('click',()=>select(t));
+    row.appendChild(b);
+    rowsEl.appendChild(row);
+  });
+
+function select(t){
+  currentId=t.id;
+  document.querySelectorAll('.bar').forEach(el=>
+    el.setAttribute('aria-pressed', String(el.dataset.id===t.id)));
+  audio.src=t.src;
+  nowTitle.textContent=t.title;
+  nowNote.textContent=`${t.note} · ${fmtYear(t.startYear)} – ${fmtYear(t.endYear)}`;
+  audio.play().then(()=>toggle.setAttribute('aria-pressed','true')).catch(()=>{});
+  toggle.textContent='❚❚ Pause';
+}
+toggle.addEventListener('click',()=>{
+  if(!currentId){ select(TRACKS[0]); return; }
+  if(audio.paused){ audio.play(); toggle.textContent='❚❚ Pause'; toggle.setAttribute('aria-pressed','true'); }
+  else { audio.pause(); toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false'); }
+});
+audio.addEventListener('ended',()=>{ toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false'); });
+document.getElementById('count').textContent=TRACKS.length;
+</script>
+</body>
+</html>

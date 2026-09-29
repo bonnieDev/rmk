@@ -356,7 +356,7 @@ export default function App() {
               </a>
               <a
                 className="ghost-btn"
-                href="https://www.linkedin.com/in/bonniefire"
+                href="https://www.linkedin.com/in/rmksystems"
                 rel="me noreferrer"
                 target="_blank"
               >

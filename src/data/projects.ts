@@ -276,14 +276,14 @@ export const projects: Project[] = [
     },
     stills: [
       {
-        src: '/projects/bunny-anarchy/hero.jpg',
-        caption: 'Hero · Reggie’s headspin',
-        alt: 'The Bunny Anarchy homepage hero: the word BUNNY in soft white fur above ANARCHY in hot pink, hand-lettered stickers scattered around it, and Reggie the origami unicorn upside down on his horn on the WOT sticker.',
-      },
-      {
         src: '/projects/bunny-anarchy/game.jpg',
         caption: 'Bunny Anarcade',
         alt: 'The Bunny Anarcade game: a pink voxel rabbit on a platform as a cap falls toward it, with Reggie in his pen in the corner laughing in a HA HA HA speech bubble.',
+      },
+      {
+        src: '/projects/bunny-anarchy/hero.jpg',
+        caption: 'Hero · Reggie’s headspin',
+        alt: 'The Bunny Anarchy homepage hero: the word BUNNY in soft white fur above ANARCHY in hot pink, hand-lettered stickers scattered around it, and Reggie the origami unicorn upside down on his horn on the WOT sticker.',
       },
     ],
     site: { href: 'https://bunnyanarchy.co', label: 'bunnyanarchy.co' },

@@ -344,21 +344,32 @@ export default function App() {
             <p className="record__note">
               Full résumé — names, dates, and scope — available on request.
             </p>
-            <a
-              className="ghost-btn"
-              href="https://www.linkedin.com/in/bonniefire"
-              rel="me noreferrer"
-              target="_blank"
-            >
-              <span aria-hidden="true">→</span>
-              LinkedIn
-            </a>
+            <div className="record__links">
+              <a
+                className="ghost-btn"
+                href="https://cirkitree.xyz/"
+                rel="me noreferrer"
+                target="_blank"
+              >
+                <span aria-hidden="true">→</span>
+                Cirkitree index
+              </a>
+              <a
+                className="ghost-btn"
+                href="https://www.linkedin.com/in/bonniefire"
+                rel="me noreferrer"
+                target="_blank"
+              >
+                <span aria-hidden="true">→</span>
+                LinkedIn
+              </a>
+            </div>
           </div>
         </section>
       </main>
 
       <footer className="site-foot">
-        <p>rmk.systems</p>
+        <p>rmk.systems · <a href="https://cirkitree.xyz/" rel="me noreferrer" target="_blank">cirkitree.xyz</a></p>
         <p>Ravenna, Ohio</p>
         <p>
           <time dateTime="2026">© 2026</time> Bonnie Caroline Remeika

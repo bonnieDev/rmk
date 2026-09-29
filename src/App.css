@@ -510,6 +510,12 @@
   color: var(--rmk-ink-2);
 }
 
+.record__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rmk-space-2, 10px);
+}
+
 .record__foot {
   display: flex;
   flex-wrap: wrap;
@@ -634,4 +640,10 @@
     grid-row: auto;
     margin-top: var(--rmk-space-2);
   }
+}
+
+.site-foot a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
 }

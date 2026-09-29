@@ -1,4 +1,4 @@
-import { useId, type FocusEvent } from 'react'
+import { useId, useState, type FocusEvent } from 'react'
 import type { Project } from '../../data/projects'
 import { CueMark } from '../CueMark'
 import './ProjectEntry.css'
@@ -30,7 +30,10 @@ export function ProjectEntry({
   const drawerId = useId()
   const titleId = useId()
   const fullTitle = `${project.title}${project.titleEm ? ` ${project.titleEm}` : ''}`
-  const hasMedia = Boolean(project.videoEmbed || project.demoEmbed || project.cover)
+  const stills = project.stills ?? []
+  const [stillIndex, setStillIndex] = useState(0)
+  const still = stills[stillIndex]
+  const hasMedia = Boolean(project.videoEmbed || project.demoEmbed || project.cover || stills.length)
 
   return (
     <article
@@ -151,6 +154,13 @@ export function ProjectEntry({
                     title={`${fullTitle} — live demo`}
                     loading="lazy"
                   />
+                ) : still ? (
+                  <img
+                    className="entry__cover entry__cover--still"
+                    src={still.src}
+                    alt={still.alt}
+                    decoding="async"
+                  />
                 ) : project.cover ? (
                   <img
                     className="entry__cover"
@@ -160,12 +170,30 @@ export function ProjectEntry({
                     decoding="async"
                   />
                 ) : null}
-                <figcaption className="entry__media-cap">
+                {!project.videoEmbed && !project.demoEmbed && stills.length > 1 ? (
+                  <div className="entry__stills" role="group" aria-label={`${fullTitle} stills`}>
+                    {stills.map((s, i) => (
+                      <button
+                        key={s.src}
+                        type="button"
+                        className="entry__still-thumb"
+                        aria-pressed={i === stillIndex}
+                        aria-label={`Show still ${i + 1}: ${s.caption}`}
+                        onClick={() => setStillIndex(i)}
+                      >
+                        <img src={s.src} alt="" loading="lazy" decoding="async" />
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                <figcaption className={`entry__media-cap${stills.length > 1 && !project.videoEmbed && !project.demoEmbed ? ' entry__media-cap--top' : ''}`}>
                   {project.videoEmbed
                     ? 'Motion sample'
                     : project.demoEmbed
                       ? 'Live demo · running'
-                      : 'Still'}
+                      : still
+                        ? `Still ${stillIndex + 1}/${stills.length} · ${still.caption}`
+                        : 'Still'}
                 </figcaption>
               </figure>
             ) : null}

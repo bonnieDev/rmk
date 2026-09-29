@@ -457,3 +457,69 @@
     animation: none;
   }
 }
+
+/* --- Stills gallery: main image + hairline thumbnail strip. Thumbnails
+   swap the main still in place — no lightbox, no dead end. --- */
+.entry__cover--still {
+  /* Screen captures are ~16:9.3; show them whole rather than cropping. */
+  aspect-ratio: 1440 / 836;
+  object-fit: contain;
+}
+
+.entry__media-cap--top {
+  /* With a thumbnail strip along the bottom, the caption moves to the
+     image's top edge so it never sits on the thumbnails. */
+  top: 0;
+  bottom: auto;
+}
+
+.entry__stills {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  border-top: var(--rmk-hair) solid var(--rmk-line);
+}
+
+.entry__media {
+  --entry-stills-h: 64px;
+}
+
+.entry__still-thumb {
+  display: block;
+  height: var(--entry-stills-h);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-right: var(--rmk-hair) solid var(--rmk-line);
+  background: var(--rmk-ink);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 160ms ease;
+}
+
+.entry__still-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.entry__still-thumb:hover,
+.entry__still-thumb[aria-pressed='true'] {
+  opacity: 1;
+}
+
+.entry__still-thumb[aria-pressed='true'] {
+  box-shadow: inset 0 -2px 0 var(--rmk-cyan);
+}
+
+.entry__still-thumb:focus-visible {
+  outline: 2px solid var(--rmk-focus);
+  outline-offset: -2px;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry__still-thumb {
+    transition: none;
+  }
+}

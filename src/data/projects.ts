@@ -17,6 +17,15 @@ export interface ProjectBrief {
   milestone: string
 }
 
+/** One still in a project's gallery */
+export interface ProjectStill {
+  src: string
+  /** Describes what the image shows — read aloud by screen readers */
+  alt: string
+  /** Short label for the caption bar */
+  caption: string
+}
+
 export interface ProjectStatus {
   label: string
   accent: ProjectAccent
@@ -41,6 +50,8 @@ export interface Project {
   logoPalette: LogoPalette
   /** Optional still cover image, shown in the expanded drawer */
   cover?: string
+  /** Optional set of stills — first is shown, thumbnails swap it in place */
+  stills?: ProjectStill[]
   /** Optional live demo (iframe) — e.g. Kinedic Bloom autoplay loop */
   demoEmbed?: string
   /**
@@ -92,6 +103,23 @@ export const projects: Project[] = [
       milestone:
         'In active research use. Guided investigation shipped end to end; patent filed on the interaction model.',
     },
+    stills: [
+      {
+        src: '/projects/aether-command/ghost-still-2.jpg',
+        caption: 'Globe · 14,753 nodes',
+        alt: 'The Aether Command globe: 14,753 ancient DNA samples glow as colored nodes over the night side of the Earth, trade-route arcs orbit it, and the command sidebar and time scrubber frame the view.',
+      },
+      {
+        src: '/projects/aether-command/ghost-still-3.jpg',
+        caption: 'Flashlight · two lit areas',
+        alt: 'Flashlight mode: the globe is dimmed except two lit circles that reveal clusters of ancient DNA samples around the Black Sea and the Levant, with a signal-threshold note and the flash search panel open.',
+      },
+      {
+        src: '/projects/aether-command/ghost-still-1.jpg',
+        caption: 'Entry screen',
+        alt: 'The Ghost Crown entry screen: the Ghost Crown wordmark, a quote in English and Lithuanian over a blurred golden crown, and the Aether Command sign-in panel.',
+      },
+    ],
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
   },
   {

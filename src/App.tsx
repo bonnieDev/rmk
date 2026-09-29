@@ -213,13 +213,12 @@ export default function App() {
             INDEX — catalog of work
             ===================================================== */}
         <section id="index" className="section" aria-labelledby="index-title">
-          <div className="section__head">
-            <p className="label">
+          {/* Compact head: the label IS the heading here — the catalog rows
+              below carry the weight, so no display line above them. */}
+          <div className="section__head section__head--compact">
+            <h2 className="label" id="index-title">
               Index / Selected work
               <CueMark className="cue--label" />
-            </p>
-            <h2 className="section__title" id="index-title">
-              Things that keep remaking themselves.
             </h2>
             <div className="section__tools">
               <p className="section__count">

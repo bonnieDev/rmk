@@ -364,6 +364,23 @@
   grid-row: 1;
 }
 
+/* Index head: label-only, so it takes a strip of height, not a hero band. */
+.section__head--compact {
+  align-items: center;
+  padding-top: clamp(20px, 2.4vw, 32px);
+  padding-bottom: clamp(14px, 1.6vw, 20px);
+}
+
+.section__head--compact h2.label {
+  margin: 0;
+  font-weight: 400;
+}
+
+.section__head--compact .section__tools {
+  grid-row: 1;
+  align-self: center;
+}
+
 .section__tools {
   grid-column: 2;
   grid-row: 1 / 3;
@@ -611,5 +628,10 @@
     grid-column: 1;
     grid-row: auto;
     margin-top: var(--rmk-space-3);
+  }
+
+  .section__head--compact .section__tools {
+    grid-row: auto;
+    margin-top: var(--rmk-space-2);
   }
 }

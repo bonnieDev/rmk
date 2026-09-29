@@ -59,6 +59,8 @@ export interface Project {
    * Use query params for behavior, e.g. autoplay + muted, no loop.
    */
   videoEmbed?: string
+  /** Optional live site, shown as the last row of the brief */
+  site?: { href: string; label: string }
 }
 
 /* Mark base — carbon is invisible on the abyss field, so the mark reads light */
@@ -251,6 +253,40 @@ export const projects: Project[] = [
         'Cast and visual language locked; shorts in production against the bible.',
     },
     cover: '/projects/kitty-n-pip/cover.jpg',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
+  },
+  {
+    id: 'bunny-anarchy',
+    title: 'Bunny',
+    titleEm: 'Anarchy',
+    category: 'ORIGINAL IP',
+    tagline:
+      'Fashion, art and controlled chaos built around one idea: empowerment does not have a dress code.',
+    role: 'Brand · Character design · Front-end',
+    pipeline: ['Shopify storefront', 'Character IP', 'React Three Fiber arcade', 'SVG + DOM motion'],
+    status: { label: 'Live · in progress', accent: 'coral', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'A merch storefront is usually a grid of products. The brand needed the site itself to carry the attitude, with characters that react to the visitor, without burying the shop or slowing the page.',
+      pipeline:
+        'A single static page with Shopify buy buttons. The Bunny Anarcade, a catch-the-drop game in React Three Fiber, loads only when someone presses play and hands the page back to the shop on exit. Reggie, the origami unicorn, runs on his own state machine and only hears named game events, so his art can be replaced without touching gameplay. The fur on the headline is an SVG filter over live text.',
+      milestone:
+        'Live. The game and Reggie’s reactions ship with placeholder art; final character drawings are in progress.',
+    },
+    stills: [
+      {
+        src: '/projects/bunny-anarchy/hero.jpg',
+        caption: 'Hero · Reggie’s headspin',
+        alt: 'The Bunny Anarchy homepage hero: the word BUNNY in soft white fur above ANARCHY in hot pink, hand-lettered stickers scattered around it, and Reggie the origami unicorn upside down on his horn on the WOT sticker.',
+      },
+      {
+        src: '/projects/bunny-anarchy/game.jpg',
+        caption: 'Bunny Anarcade',
+        alt: 'The Bunny Anarcade game: a pink voxel rabbit on a platform as a cap falls toward it, with Reggie in his pen in the corner laughing in a HA HA HA speech bubble.',
+      },
+    ],
+    site: { href: 'https://bunnyanarchy.co', label: 'bunnyanarchy.co' },
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
 ]

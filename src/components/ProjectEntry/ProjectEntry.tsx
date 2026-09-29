@@ -211,6 +211,18 @@ export function ProjectEntry({
                 <dt>Milestone</dt>
                 <dd>{project.brief.milestone}</dd>
               </div>
+              {project.site ? (
+                <div className="entry__brief-row">
+                  <dt>Visit</dt>
+                  <dd>
+                    <a className="entry__site" href={project.site.href} target="_blank" rel="noopener noreferrer">
+                      {project.site.label}
+                      <span aria-hidden="true"> ↗</span>
+                      <span className="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </div>
         ) : null}

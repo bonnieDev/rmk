@@ -381,6 +381,17 @@
   color: var(--rmk-ink-2);
 }
 
+.entry__site {
+  color: var(--rmk-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rmk-line);
+  text-underline-offset: 0.25em;
+}
+
+.entry__site:hover {
+  text-decoration-color: currentColor;
+}
+
 /* =========================================================
    RESPONSIVE — the grid folds, the hairlines stay
    ========================================================= */

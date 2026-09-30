@@ -64,7 +64,8 @@ const RECORD = [
 
 export default function App() {
   const [hovered, setHovered] = useState<Project | null>(null)
-  const [openIds, setOpenIds] = useState<string[]>([])
+  // Aether opens on load so the first thing a visitor sees includes real stills.
+  const [openIds, setOpenIds] = useState<string[]>(['aether-command'])
   const [logoPinned, setLogoPinned] = useState(false)
   const heroLogoRef = useRef<HTMLDivElement>(null)
 

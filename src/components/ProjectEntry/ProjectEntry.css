@@ -534,3 +534,10 @@
     transition: none;
   }
 }
+
+/* Aether's stills are night-side globe captures; a black mat reads as part
+   of the image instead of a white letterbox around it. */
+#work-aether-command .entry__media,
+#work-aether-command .entry__still-thumb {
+  background: #000;
+}

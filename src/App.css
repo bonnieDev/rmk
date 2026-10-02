@@ -204,11 +204,13 @@
   background: var(--rmk-orb-copper);
 }
 
+/* The blue runs the height of the right edge, so the margin beside the
+   manifest is lit the way the copper lights the left one. */
 .site::after {
-  right: -14rem;
+  right: -16rem;
+  top: 4rem;
   bottom: -12rem;
-  width: 38rem;
-  height: 38rem;
+  width: 34rem;
   background: var(--rmk-orb-blue);
 }
 

@@ -1,17 +1,38 @@
 /*
- * Chalk on the glass, down and to the right of the mark. Quiet on purpose:
- * it is a margin note beside the logo, not a second logo.
+ * Etched into the glass, down and to the right of the mark. It crosses into
+ * the logo's space on purpose; it stays quiet so it reads as a mark, not noise.
  */
 .chalk-attractor {
   position: absolute;
   right: clamp(8px, 2vw, 28px);
   bottom: clamp(8px, 2vw, 24px);
-  width: clamp(150px, 19vw, 260px);
+  width: clamp(170px, 21vw, 290px);
   aspect-ratio: 4 / 3;
   pointer-events: none;
-  opacity: 0.7;
-  /* a faint halo, like chalk dust catching light on the glass */
-  filter: drop-shadow(0 0 2px rgba(155, 232, 255, 0.35));
-  /* Chalk over glass reads as light being added, not paint on top. */
+}
+
+.chalk-attractor canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Light from beneath the glass: blurred, and sitting just below the cut. */
+.chalk-attractor__glow {
+  filter: blur(5px);
+  transform: translateY(4px);
+  mix-blend-mode: screen;
+}
+
+/* The cut. Lit from above, a groove's upper wall falls into shadow and its
+   lower wall catches the light: a dark hairline above, a bright one below. */
+.chalk-attractor__etch {
+  filter:
+    drop-shadow(0 0.8px 0 rgba(232, 246, 255, 0.35))
+    drop-shadow(0 -0.8px 0 rgba(0, 0, 0, 0.55));
+}
+
+.chalk-attractor__tip {
   mix-blend-mode: screen;
 }

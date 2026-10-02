@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnnotationLayer } from './components/AnnotationLayer'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
 import { ChangeoverCue, CueMark } from './components/CueMark'
+import { ChalkAttractor } from './components/ChalkAttractor'
 import { ProjectEntry } from './components/ProjectEntry'
 // Shape field background — switched off for now; restore this and <ShapeField /> below to bring it back.
 // import { ShapeField } from './components/ShapeField'
@@ -168,6 +169,7 @@ export default function App() {
             <h1 className="hero__wordmark" id="hero-title">
               rmk<span aria-hidden="true">.</span>systems
             </h1>
+            <ChalkAttractor />
           </div>
 
           <div className="hero__manifest">

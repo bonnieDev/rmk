@@ -247,6 +247,8 @@
 
 .hero__mark {
   --rmk-mark-max: clamp(260px, 46vw, 560px);
+  /* anchors the chalk attractor in its bottom-right corner */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

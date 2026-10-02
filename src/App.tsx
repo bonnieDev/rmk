@@ -29,7 +29,7 @@ const DISCIPLINE = [
 
 /**
  * Career eras, drawn from the practice itself.
- * Employers and dates live in the full résumé, on request.
+ * Employers and dates live in the full résumé, linked below the list.
  */
 const RECORD = [
   {
@@ -346,9 +346,18 @@ export default function App() {
 
           <div className="record__foot">
             <p className="record__note">
-              Full résumé — names, dates, and scope — available on request.
+              Full résumé — names, dates, and scope.
             </p>
             <div className="record__links">
+              <a
+                className="ghost-btn"
+                href="/bonnie-remeika-resume.pdf"
+                target="_blank"
+                rel="noopener"
+              >
+                <span aria-hidden="true">→</span>
+                Résumé (PDF)
+              </a>
               <a
                 className="ghost-btn"
                 href="https://cirkitree.xyz/"

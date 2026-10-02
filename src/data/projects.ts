@@ -179,6 +179,28 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {
+    id: 'digital-decoder',
+    title: 'The Digital',
+    titleEm: 'Decoder',
+    category: 'EXPLAINER DESIGN',
+    tagline:
+      'Tech literacy in plain English, set as a newspaper you can play with. Issue No. 1 makes quantum computing’s threat to encryption land without a technical background.',
+    role: 'Writing · Editorial design · Front-end',
+    pipeline: ['Plain-language script', 'Editorial layout', 'Interactive cipher', 'Classical vs. quantum race'],
+    status: { label: 'Issue No. 1', accent: 'yellow' },
+    year: '2026',
+    brief: {
+      problem:
+        'Quantum computing’s threat to encryption is usually explained in jargon, which loses exactly the people who most need to understand it. The piece had to make the idea land for a reader with no technical background, without scaring them.',
+      pipeline:
+        'It starts from something familiar, a Cracker Jack decoder ring, and builds from there. Two interactions carry the argument: drag the ring to encode and decode a message with a real Caesar cipher, then drag a slider to watch the gap between a classical and a quantum computer grow with key length. One self-contained page, set as a vintage broadsheet.',
+      milestone:
+        'Issue No. 1, “The Digital Decoder Ring,” is complete. More tech-literacy issues to follow.',
+    },
+    demoEmbed: '/demos/digital-decoder-ring.html',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.blue] },
+  },
+  {
     id: 'skull-and-beau',
     title: 'Skull',
     titleEm: '& Beau',

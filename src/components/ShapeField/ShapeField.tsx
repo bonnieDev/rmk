@@ -1,37 +1,59 @@
 import { useEffect, useRef } from 'react'
 import './ShapeField.css'
 
-/** Grid pitch in CSS px — roughly a logo cell, scaled up for the page. */
-const PITCH = 56
-const SIZE = 22
-/** Peak opacity of a lit cell. Keep this whisper-quiet; it sits under text. */
-const PEAK = 0.12
-/** Share of cells lit at any moment. */
-const DENSITY = 0.12
-const COLORS = ['#00d4ff', '#6aa8ff', '#e0a06a', '#b9d4f2']
+/** Grid pitch and cell size in CSS px — the logo's cell/gap rhythm, scaled up. */
+const PITCH = 34
+const SIZE = 20
+/** Resting opacity of every cell. Whisper-quiet; the grid sits under text. */
+const ALPHA = 0.05
+/** How long one cell takes to crossfade into its next shape (ms). */
+const MORPH_MS = 2800
+/** How often a new cell starts changing (ms). Lower = busier field. */
+const SPAWN_MS = 140
+const BASE_COLOR = '#b9d4f2'
+const ACCENTS = ['#00d4ff', '#6aa8ff', '#e0a06a']
+/** Share of morphs that take an accent hue instead of the pale base. */
+const ACCENT_CHANCE = 0.25
+
 type Shape = 'square' | 'circle' | 'round' | 'wedge'
 const SHAPES: Shape[] = ['square', 'circle', 'round', 'wedge']
+
+interface Look {
+  shape: Shape
+  rot: number
+  color: string
+}
 
 interface Cell {
   x: number
   y: number
-  shape: Shape
-  rot: number
-  color: string
-  /** when this cell's current breath started, and how long it lasts (ms) */
+  look: Look
+  /** set while morphing */
+  next?: Look
   start: number
-  dur: number
 }
 
 const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)]
+const SQUARE: Look = { shape: 'square', rot: 0, color: BASE_COLOR }
 
-function drawShape(ctx: CanvasRenderingContext2D, c: Cell) {
+function randomLook(prev: Look): Look {
+  let shape = pick(SHAPES)
+  if (shape === prev.shape) shape = pick(SHAPES)
+  return {
+    shape,
+    rot: (Math.floor(Math.random() * 4) * Math.PI) / 2,
+    color: Math.random() < ACCENT_CHANCE ? pick(ACCENTS) : BASE_COLOR,
+  }
+}
+
+function drawLook(ctx: CanvasRenderingContext2D, x: number, y: number, look: Look, alpha: number) {
   const h = SIZE / 2
   ctx.save()
-  ctx.translate(c.x, c.y)
-  ctx.rotate(c.rot)
+  ctx.globalAlpha = alpha
+  ctx.translate(x, y)
+  ctx.rotate(look.rot)
   ctx.beginPath()
-  switch (c.shape) {
+  switch (look.shape) {
     case 'circle':
       ctx.arc(0, 0, h, 0, Math.PI * 2)
       break
@@ -48,15 +70,16 @@ function drawShape(ctx: CanvasRenderingContext2D, c: Cell) {
       ctx.rect(-h, -h, SIZE, SIZE)
   }
   ctx.closePath()
-  ctx.fillStyle = c.color
+  ctx.fillStyle = look.color
   ctx.fill()
   ctx.restore()
 }
 
 /**
- * Faint drafting-grid field of logo cells that breathe in and out behind
- * the page. Decorative only: aria-hidden, no pointer events, and static
- * under reduced motion.
+ * Full-screen field of logo cells. It starts as a plain grid of squares;
+ * random cells slowly crossfade into other mark shapes. Only cells that are
+ * mid-change get redrawn each frame. Decorative: aria-hidden, no pointer
+ * events, and a still grid under reduced motion.
  */
 export function ShapeField() {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -68,21 +91,11 @@ export function ShapeField() {
 
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let cells: Cell[] = []
+    const morphing = new Set<Cell>()
     let raf = 0
+    let lastSpawn = 0
 
-    const newCell = (x: number, y: number, now: number, fresh: boolean): Cell => {
-      const dur = 6000 + Math.random() * 7000
-      return {
-        x,
-        y,
-        shape: pick(SHAPES),
-        rot: (Math.floor(Math.random() * 4) * Math.PI) / 2,
-        color: pick(COLORS),
-        dur,
-        // Stagger the first cycle so the field doesn't pulse in unison.
-        start: fresh ? now - Math.random() * dur : now + Math.random() * 4000,
-      }
-    }
+    const clearCell = (c: Cell) => ctx.clearRect(c.x - PITCH / 2, c.y - PITCH / 2, PITCH, PITCH)
 
     const layout = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -91,35 +104,42 @@ export function ShapeField() {
       canvas.width = w * dpr
       canvas.height = h * dpr
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      const now = performance.now()
+      // Keep what's already changed if the window just resized a little.
+      const old = new Map(cells.map((c) => [`${c.x},${c.y}`, c.look]))
       cells = []
-      for (let y = PITCH / 2; y < h + PITCH; y += PITCH) {
-        for (let x = PITCH / 2; x < w + PITCH; x += PITCH) {
-          if (Math.random() < DENSITY) cells.push(newCell(x, y, now, true))
+      morphing.clear()
+      for (let y = PITCH / 2; y < h + PITCH / 2; y += PITCH) {
+        for (let x = PITCH / 2; x < w + PITCH / 2; x += PITCH) {
+          const cell = { x, y, look: old.get(`${x},${y}`) ?? SQUARE, start: 0 }
+          cells.push(cell)
+          drawLook(ctx, x, y, cell.look, ALPHA)
         }
-      }
-      if (still) {
-        ctx.clearRect(0, 0, w, h)
-        ctx.globalAlpha = PEAK * 0.6
-        cells.forEach((c) => drawShape(ctx, c))
       }
     }
 
     const frame = (now: number) => {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight)
-      for (let i = 0; i < cells.length; i++) {
-        const c = cells[i]
-        const t = (now - c.start) / c.dur
-        if (t >= 1) {
-          // Breath finished: reappear as a new shape somewhere else.
-          const x = PITCH / 2 + Math.floor(Math.random() * (window.innerWidth / PITCH + 1)) * PITCH
-          const y = PITCH / 2 + Math.floor(Math.random() * (window.innerHeight / PITCH + 1)) * PITCH
-          cells[i] = newCell(x, y, now, false)
-          continue
+      if (now - lastSpawn > SPAWN_MS && cells.length) {
+        lastSpawn = now
+        const c = pick(cells)
+        if (!morphing.has(c)) {
+          c.next = randomLook(c.look)
+          c.start = now
+          morphing.add(c)
         }
-        if (t <= 0) continue
-        ctx.globalAlpha = PEAK * Math.sin(Math.PI * t) ** 2
-        drawShape(ctx, c)
+      }
+      for (const c of morphing) {
+        const t = Math.min((now - c.start) / MORPH_MS, 1)
+        const e = t * t * (3 - 2 * t)
+        clearCell(c)
+        drawLook(ctx, c.x, c.y, c.look, ALPHA * (1 - e))
+        drawLook(ctx, c.x, c.y, c.next!, ALPHA * e)
+        if (t >= 1) {
+          c.look = c.next!
+          c.next = undefined
+          morphing.delete(c)
+          clearCell(c)
+          drawLook(ctx, c.x, c.y, c.look, ALPHA)
+        }
       }
       raf = requestAnimationFrame(frame)
     }

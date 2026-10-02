@@ -3,7 +3,8 @@ import { AnnotationLayer } from './components/AnnotationLayer'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
 import { ChangeoverCue, CueMark } from './components/CueMark'
 import { ProjectEntry } from './components/ProjectEntry'
-import { ShapeField } from './components/ShapeField'
+// Shape field background — switched off for now; restore this and <ShapeField /> below to bring it back.
+// import { ShapeField } from './components/ShapeField'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
 import './App.css'
 
@@ -106,7 +107,7 @@ export default function App() {
 
   return (
     <div className={`site${logoPinned ? ' site--pinned' : ''}`}>
-      <ShapeField />
+      {/* <ShapeField /> */}
       <a className="skip-link" href="#main">
         Skip to content
       </a>

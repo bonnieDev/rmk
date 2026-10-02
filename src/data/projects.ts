@@ -59,6 +59,12 @@ export interface Project {
    * Use query params for behavior, e.g. autoplay + muted, no loop.
    */
   videoEmbed?: string
+  /** The video has its own soundtrack: it loops muted, with a sound toggle */
+  videoSound?: boolean
+  /** Credit shown in the video's caption, e.g. the composer */
+  videoCredit?: string
+  /** Still shown in the player before the video starts, e.g. '/bombaStill.jpg' */
+  videoPoster?: string
   /** Optional live site, shown as the last row of the brief */
   site?: { href: string; label: string }
 }
@@ -123,6 +129,54 @@ export const projects: Project[] = [
       },
     ],
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
+  },
+  {
+    id: 'kinedic-drop',
+    title: 'Kinedic',
+    titleEm: 'Drop',
+    category: 'BRAND MOTION',
+    tagline:
+      'A mark that arrives instead of appearing: one drop falls, the page ripples, and the logo rises out of the impact. Vectors and code, no video.',
+    role: 'Brand · Motion · Front-end',
+    pipeline: ['Vector mark', 'CSS keyframes', 'SVG displacement ripple', 'Next.js'],
+    status: { label: 'Live', accent: 'cyan', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'A logo that fades in says nothing about the brand. Kinedic is about potential energy becoming kinetic, so the mark had to arrive that way: held, released, and felt across the whole page.',
+      pipeline:
+        'One four-second timeline in CSS. The drop shifts from copper to blue as it falls, a flash and two rings fire on impact, and the mark, wordmark and tagline rise in sequence. The ripple is an SVG displacement filter over the live page, grown frame by frame from a map drawn once to a canvas, then removed once the wave has passed. Visitors who prefer reduced motion get the finished mark.',
+      milestone:
+        'Complete. Plays when opened; the replay control runs it again.',
+    },
+    demoEmbed: '/demos/kinedic-drop/index.html',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
+  },
+  {
+    id: 'cher-bomba',
+    title: 'Cher',
+    titleEm: 'Bomba',
+    category: 'MOTION',
+    tagline:
+      'A cherry, a bomb, and one very big lift. A short for Bunny Anarchy: funny, cute, and a little unruly, set to an original song by Moia.',
+    role: 'Motion design · Edit',
+    pipeline: ['Generated footage', 'After Effects', 'Original score · Moia'],
+    status: { label: '700+ views on LinkedIn', accent: 'coral' },
+    year: '2026',
+    brief: {
+      problem:
+        'Bunny Anarchy runs on attitude, and attitude does not survive being explained. The piece had to land the brand’s voice in motion, with no copy to lean on.',
+      pipeline:
+        'Generated clips cut, composited and timed in After Effects, set to an original song composed by Moia.',
+      milestone:
+        'Released on LinkedIn, where it passed 700 views.',
+    },
+    videoEmbed:
+      'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/f3991de4540fffbfd31b4914480526b7/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent',
+    videoSound: true,
+    videoPoster: '/bombaStill.jpg',
+    videoCredit: 'Music · Moia',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {
     id: 'skull-and-beau',

@@ -1,6 +1,7 @@
 import { useId, useState, type FocusEvent } from 'react'
 import type { Project } from '../../data/projects'
 import { CueMark } from '../CueMark'
+import { StreamVideo } from './StreamVideo'
 import './ProjectEntry.css'
 
 interface ProjectEntryProps {
@@ -139,13 +140,11 @@ export function ProjectEntry({
             {hasMedia ? (
               <figure className="entry__media">
                 {project.videoEmbed ? (
-                  <iframe
-                    className="entry__frame"
+                  <StreamVideo
                     src={project.videoEmbed}
                     title={`${fullTitle} — motion sample`}
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                    allowFullScreen
-                    loading="lazy"
+                    sound={project.videoSound}
+                    poster={project.videoPoster}
                   />
                 ) : project.demoEmbed ? (
                   <iframe
@@ -188,7 +187,7 @@ export function ProjectEntry({
                 ) : null}
                 <figcaption className={`entry__media-cap${stills.length > 1 && !project.videoEmbed && !project.demoEmbed ? ' entry__media-cap--top' : ''}`}>
                   {project.videoEmbed
-                    ? 'Motion sample'
+                    ? `Motion sample${project.videoCredit ? ` · ${project.videoCredit}` : ''}`
                     : project.demoEmbed
                       ? 'Live demo · running'
                       : still

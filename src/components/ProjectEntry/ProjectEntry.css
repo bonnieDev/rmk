@@ -541,3 +541,32 @@
 #work-aether-command .entry__still-thumb {
   background: #000;
 }
+
+/* Sound toggle for videos with their own soundtrack — dressed like the
+   caption, in the opposite corner. */
+.entry__sound {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  background: var(--rmk-ink);
+  color: var(--rmk-ground);
+  font-family: var(--rmk-font-mono);
+  font-size: 12px;
+  letter-spacing: var(--rmk-meta-track);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.entry__sound[aria-pressed='true'] {
+  box-shadow: inset 0 -2px 0 var(--rmk-coral);
+}
+
+.entry__sound:focus-visible {
+  outline: 2px solid var(--rmk-focus);
+  outline-offset: -2px;
+}

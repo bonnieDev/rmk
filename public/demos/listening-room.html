@@ -327,7 +327,14 @@ TRACKS.slice()
     rowsEl.appendChild(row);
   });
 
+// Reports to the portfolio's Google Analytics when shown inside rmk.systems
+// (this page is same-origin there). Does nothing when opened on its own.
+function rmkTrack(event, params){
+  try { if (window.parent !== window && window.parent.gtag)
+    window.parent.gtag('event', event, Object.assign({ demo: 'listening-room' }, params || {})); } catch (e) {}
+}
 function select(t){
+  rmkTrack('song_play', { song_title: t.title });
   currentId=t.id;
   document.querySelectorAll('.bar').forEach(el=>
     el.setAttribute('aria-pressed', String(el.dataset.id===t.id)));
@@ -342,7 +349,8 @@ toggle.addEventListener('click',()=>{
   if(audio.paused){ audio.play(); toggle.textContent='❚❚ Pause'; toggle.setAttribute('aria-pressed','true'); }
   else { audio.pause(); toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false'); }
 });
-audio.addEventListener('ended',()=>{ toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false'); });
+audio.addEventListener('ended',()=>{ toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false');
+  const t=TRACKS.find(x=>x.id===currentId); if(t) rmkTrack('song_complete', { song_title: t.title }); });
 document.getElementById('count').textContent=TRACKS.length;
 </script>
 </body>

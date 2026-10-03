@@ -5,7 +5,9 @@ import { track } from '../../analytics'
 interface StreamPlayer {
   muted: boolean
   currentTime: number
+  duration: number
   play: () => Promise<void> | void
+  addEventListener: (type: string, listener: () => void) => void
 }
 
 declare global {
@@ -59,7 +61,21 @@ export function StreamVideo({ src, title, sound = false, poster }: StreamVideoPr
       .then(() => {
         const frame = frameRef.current
         if (cancelled || !frame || !window.Stream) return
-        playerRef.current = window.Stream(frame)
+        const player = window.Stream(frame)
+        playerRef.current = player
+        // How far people listen, once the sound is on: 25 / 50 / 75 / 100%,
+        // each reported once. A muted autoplay loop isn't watching.
+        const reached = new Set<number>()
+        player.addEventListener('timeupdate', () => {
+          if (player.muted || !player.duration) return
+          const pct = (player.currentTime / player.duration) * 100
+          for (const mark of [25, 50, 75, 100]) {
+            if (pct >= mark - 1 && !reached.has(mark)) {
+              reached.add(mark)
+              track('video_progress', { video: title, percent: mark })
+            }
+          }
+        })
         setReady(true)
       })
       // No SDK, no toggle: the video still plays, silently.
@@ -67,7 +83,7 @@ export function StreamVideo({ src, title, sound = false, poster }: StreamVideoPr
     return () => {
       cancelled = true
     }
-  }, [sound])
+  }, [sound, title])
 
   const toggleSound = () => {
     const player = playerRef.current

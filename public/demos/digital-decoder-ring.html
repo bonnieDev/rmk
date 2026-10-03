@@ -1243,6 +1243,20 @@ function startRace() {
 
 // Init race
 resetRace();
+
+// Reports to the portfolio's Google Analytics when shown inside rmk.systems
+// (this page is same-origin there). Does nothing when opened on its own.
+function rmkTrack(event, params){
+  try { if (window.parent !== window && window.parent.gtag)
+    window.parent.gtag('event', event, Object.assign({ demo: 'digital-decoder' }, params || {})); } catch (e) {}
+}
+// Each kind of interaction is reported once per visit.
+const rmkDone = new Set();
+function rmkOnce(action){ if (rmkDone.has(action)) return; rmkDone.add(action); rmkTrack('demo_interact', { action }); }
+canvas.addEventListener('mousedown', () => rmkOnce('ring_drag'));
+canvas.addEventListener('touchstart', () => rmkOnce('ring_drag'), { passive: true });
+document.getElementById('msgInput').addEventListener('input', () => rmkOnce('type_message'));
+document.getElementById('crackBtn').addEventListener('click', () => rmkOnce('race'));
 </script>
 </body>
 </html>

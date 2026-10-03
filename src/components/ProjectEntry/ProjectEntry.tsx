@@ -2,6 +2,7 @@ import { useId, useState, type FocusEvent } from 'react'
 import type { Project } from '../../data/projects'
 import { CueMark } from '../CueMark'
 import { StreamVideo } from './StreamVideo'
+import { track } from '../../analytics'
 import './ProjectEntry.css'
 
 interface ProjectEntryProps {
@@ -91,7 +92,12 @@ export function ProjectEntry({
             className="entry__toggle"
             aria-expanded={open}
             aria-controls={drawerId}
-            onClick={() => onToggle(project.id)}
+            onClick={() => {
+              if (!open) {
+                track('project_open', { project: fullTitle, position: index + 1 })
+              }
+              onToggle(project.id)
+            }}
           >
             <span className="entry__toggle-glyph" aria-hidden="true">
               {open ? '−' : '+'}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { track } from '../../analytics'
 
 /** The slice of the Cloudflare Stream player API used here */
 interface StreamPlayer {
@@ -73,6 +74,7 @@ export function StreamVideo({ src, title, sound = false, poster }: StreamVideoPr
     if (!player) return
     if (muted) {
       // Turning the sound on starts the song from the top.
+      track('video_sound_on', { video: title })
       player.currentTime = 0
       player.muted = false
       void player.play()

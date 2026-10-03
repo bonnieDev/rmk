@@ -7,6 +7,7 @@ import { ProjectEntry } from './components/ProjectEntry'
 // Shape field background — switched off for now; restore this and <ShapeField /> below to bring it back.
 // import { ShapeField } from './components/ShapeField'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
+import { track } from './analytics'
 import './App.css'
 
 const NAV = [
@@ -80,7 +81,10 @@ export default function App() {
     setOpenIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
   }, [])
 
-  const toggleAll = () => setOpenIds(allOpen ? [] : projects.map((p) => p.id))
+  const toggleAll = () => {
+    if (!allOpen) track('expand_all')
+    setOpenIds(allOpen ? [] : projects.map((p) => p.id))
+  }
 
   const liveCount = useMemo(
     () => projects.filter((p) => p.status.live).length,
@@ -103,6 +107,7 @@ export default function App() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
   const goTo = (id: string) => {
+    track('nav_click', { section: id })
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -356,6 +361,7 @@ export default function App() {
                 href="/bonnie-remeika-resume.pdf"
                 target="_blank"
                 rel="noopener"
+                onClick={() => track('resume_open')}
               >
                 <span aria-hidden="true">→</span>
                 Résumé (PDF)

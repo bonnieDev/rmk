@@ -319,6 +319,18 @@
   color: var(--rmk-ink);
 }
 
+/* The email in the manifest: underlined like the catalog's site links */
+.manifest__link {
+  color: var(--rmk-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rmk-line);
+  text-underline-offset: 0.25em;
+}
+
+.manifest__link:hover {
+  text-decoration-color: currentColor;
+}
+
 .discipline {
   display: flex;
   flex-direction: column;

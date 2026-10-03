@@ -101,7 +101,7 @@ export const projects: Project[] = [
       'A research interface for reasoning with AI across 12,000+ years of genetic and migration data — the person controls what the model can see.',
     role: 'Product design · Front-end · AI',
     pipeline: ['Next.js', 'deck.gl globe', 'Supabase', 'Agentic crew'],
-    status: { label: 'In use · patent filed', accent: 'cyan', live: true },
+    status: { label: 'In use · patent pending', accent: 'cyan', live: true },
     year: '2026',
     brief: {
       problem:
@@ -109,7 +109,7 @@ export const projects: Project[] = [
       pipeline:
         'Ancient DNA samples render on a deck.gl globe filtered by a time scrubber, so the visible set is the queried set. A crew of voiced agents narrates guided investigations over that scope, with each claim tied back to the samples on screen.',
       milestone:
-        'In active research use. Guided investigation shipped end to end; patent filed on the interaction model.',
+        'In active research use. Guided investigation shipped end to end; provisional patent filed on the interaction model.',
     },
     stills: [
       {
@@ -318,7 +318,7 @@ export const projects: Project[] = [
       'A silent, all-ages series about two tiny friends who find the forgotten objects of the human world — one adorable misunderstanding at a time.',
     role: 'Character design · AI video · Brand',
     pipeline: ['Character sheets', 'Generative video', 'Edit + grade', 'Series bible'],
-    status: { label: 'In production', accent: 'coral', live: true },
+    status: { label: 'In production', accent: 'coral' },
     year: '2026',
     brief: {
       problem:

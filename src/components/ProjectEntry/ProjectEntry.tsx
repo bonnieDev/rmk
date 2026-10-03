@@ -209,7 +209,7 @@ export function ProjectEntry({
                 <dd>{project.brief.problem}</dd>
               </div>
               <div className="entry__brief-row">
-                <dt>Pipeline</dt>
+                <dt>Build</dt>
                 <dd>{project.brief.pipeline}</dd>
               </div>
               <div className="entry__brief-row">

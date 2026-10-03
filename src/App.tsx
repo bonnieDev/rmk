@@ -17,6 +17,8 @@ const NAV = [
 ] as const
 
 /** Hero manifest — the spec sheet that locks to the mark's vertical rules */
+const EMAIL = 'bonnie@rmk.systems'
+
 const MANIFEST = [
   { key: 'Name', value: 'Bonnie Caroline Remeika' },
   { key: 'Practice', value: 'RMK Systems — independent' },
@@ -206,7 +208,7 @@ export default function App() {
 
               <div className="manifest__row">
                 <dt>Record</dt>
-                <dd>25 years · 8 patents filed</dd>
+                <dd>25 years · 8 provisional patents</dd>
               </div>
 
               <div className="manifest__row">
@@ -214,6 +216,20 @@ export default function App() {
                 <dd>
                   {String(projects.length).padStart(2, '0')} entries ·{' '}
                   <time dateTime="2026-09">2026.09</time>
+                </dd>
+              </div>
+
+              <div className="manifest__row">
+                <dt>Contact</dt>
+                <dd>
+                  <a
+                    className="manifest__link"
+                    href={`mailto:${EMAIL}`}
+                    onClick={() => track('email_click', { from: 'manifest' })}
+                  >
+                    {EMAIL}
+                  </a>
+                  {' · '}open to new roles
                 </dd>
               </div>
             </dl>
@@ -368,6 +384,14 @@ export default function App() {
               </a>
               <a
                 className="ghost-btn"
+                href={`mailto:${EMAIL}`}
+                onClick={() => track('email_click', { from: 'record' })}
+              >
+                <span aria-hidden="true">→</span>
+                Email
+              </a>
+              <a
+                className="ghost-btn"
                 href="https://cirkitree.xyz/"
                 rel="me noreferrer"
                 target="_blank"
@@ -391,7 +415,12 @@ export default function App() {
 
       <footer className="site-foot">
         <p>rmk.systems · <a href="https://cirkitree.xyz/" rel="me noreferrer" target="_blank">cirkitree.xyz</a></p>
-        <p>Ravenna, Ohio</p>
+        <p>
+          <a href={`mailto:${EMAIL}`} onClick={() => track('email_click', { from: 'footer' })}>
+            {EMAIL}
+          </a>
+          {' · '}Ravenna, Ohio
+        </p>
         <p>
           <time dateTime="2026">© 2026</time> Bonnie Caroline Remeika
         </p>

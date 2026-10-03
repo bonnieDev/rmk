@@ -19,12 +19,11 @@ body {
 body {
   background:
     radial-gradient(ellipse at top, var(--rmk-ground-raised), var(--rmk-ground) 70%)
-    fixed;
+    fixed var(--rmk-ground);
   font-family: var(--rmk-font-body);
   font-size: 16px;
   line-height: 1.55;
   color: var(--rmk-ink);
-  background: var(--rmk-ground);
   /* Tabular figures everywhere — this is a spec sheet, numbers must align */
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;

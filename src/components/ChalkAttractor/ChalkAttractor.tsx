@@ -132,9 +132,9 @@ export function ChalkAttractor() {
     // overlaps the next nothing doubles up into a bead; depth is carried by
     // color instead of transparency.
     // the light beneath: wider and saturated; CSS blurs it and drops it below
-    gctx.lineWidth = 3
+    gctx.lineWidth = 2.4
     // the cut: a pale, frosted hairline
-    ctx.lineWidth = 0.85
+    ctx.lineWidth = 0.55
 
     let drawn = 1
     /** Lay down every segment the tip has passed since last frame. */
@@ -143,7 +143,7 @@ export function ChalkAttractor() {
         const a = segs[drawn - 1]
         const b = segs[drawn]
         const depth = (a.depth + b.depth) / 2
-        gctx.globalAlpha = 0.12 + depth * 0.3
+        gctx.globalAlpha = 0.08 + depth * 0.22
         gctx.strokeStyle = mix(depth * 0.5)
         gctx.beginPath()
         gctx.moveTo(a.x, a.y)

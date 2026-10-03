@@ -327,6 +327,15 @@ export default function App() {
                 them.
               </p>
               <p>
+                I work on both sides of the line between design and engineering,
+                and I don’t hand off in the middle. Aether Command’s visual language
+                and its deck.gl globe came from the same person. So did Listening
+                Room’s score and the code that picks the track, and Kinedic Drop’s
+                mark and the displacement filter that ripples the page. I prototype
+                fast, pick up new tools when the work needs them, and keep the
+                experience honest while I’m deep in the technical problem.
+              </p>
+              <p>
                 What’s in front of me now is AI-native work: one person in the
                 director’s chair, shipping code, motion, worlds, and products that
                 used to need a crew. There’s still no degree for that. I recognize

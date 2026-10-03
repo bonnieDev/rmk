@@ -18,19 +18,26 @@
   height: 100%;
 }
 
-/* Light from beneath the glass: blurred, and sitting just below the cut. */
+/* A lower layer reflecting light back up through the cut: deep, soft, and
+   sitting further down than the line, so it shows past the groove's shadow. */
 .chalk-attractor__glow {
-  filter: blur(5px);
-  transform: translateY(4px);
+  filter: blur(8px);
+  transform: translateY(6px);
+  opacity: 0.9;
   mix-blend-mode: screen;
 }
 
-/* The cut. Lit from above, a groove's upper wall falls into shadow and its
-   lower wall catches the light: a dark hairline above, a bright one below. */
+/* The cut, as a groove in the surface. The filters stack outward from the
+   line, and each one shadows the whole drawing, so where lines crowd
+   together the dark doesn't pile up:
+     1. the lit lower lip of the groove (light comes from above)
+     2. the upper wall, falling into shadow
+     3. the inset: a soft dark halo hugging both sides of the line */
 .chalk-attractor__etch {
   filter:
-    drop-shadow(0 0.8px 0 rgba(232, 246, 255, 0.35))
-    drop-shadow(0 -0.8px 0 rgba(0, 0, 0, 0.55));
+    drop-shadow(0 0.7px 0 rgba(232, 246, 255, 0.5))
+    drop-shadow(0 -0.9px 0 rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 1.6px rgba(2, 5, 12, 0.95));
 }
 
 .chalk-attractor__tip {

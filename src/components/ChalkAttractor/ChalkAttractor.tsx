@@ -121,16 +121,20 @@ export function ChalkAttractor() {
     const segs = project(lorenz(), w, h, 10)
     const total = segs[segs.length - 1].d
 
-    // Light adds up where the path passes again: the wings fill from within.
     for (const c of [gctx, ctx]) {
-      c.globalCompositeOperation = 'lighter'
       c.lineCap = 'round'
       c.lineJoin = 'round'
     }
+    // Light adds up beneath, where the path passes again: the wings fill
+    // from within.
+    gctx.globalCompositeOperation = 'lighter'
+    // The cut itself is laid down opaque, so where one tiny segment's end
+    // overlaps the next nothing doubles up into a bead; depth is carried by
+    // color instead of transparency.
     // the light beneath: wider and saturated; CSS blurs it and drops it below
-    gctx.lineWidth = 2.2
+    gctx.lineWidth = 3
     // the cut: a pale, frosted hairline
-    ctx.lineWidth = 0.7
+    ctx.lineWidth = 0.85
 
     let drawn = 1
     /** Lay down every segment the tip has passed since last frame. */
@@ -139,14 +143,13 @@ export function ChalkAttractor() {
         const a = segs[drawn - 1]
         const b = segs[drawn]
         const depth = (a.depth + b.depth) / 2
-        gctx.globalAlpha = 0.1 + depth * 0.25
+        gctx.globalAlpha = 0.12 + depth * 0.3
         gctx.strokeStyle = mix(depth * 0.5)
         gctx.beginPath()
         gctx.moveTo(a.x, a.y)
         gctx.lineTo(b.x, b.y)
         gctx.stroke()
-        ctx.globalAlpha = 0.2 + depth * 0.45
-        ctx.strokeStyle = mix(0.65 + depth * 0.35)
+        ctx.strokeStyle = mix(0.5 + depth * 0.5)
         ctx.beginPath()
         ctx.moveTo(a.x, a.y)
         ctx.lineTo(b.x, b.y)

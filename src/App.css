@@ -428,6 +428,28 @@
   grid-template-columns: clamp(200px, 22vw, 300px) minmax(0, 1fr);
 }
 
+.prose-grid__side {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The portrait heads the spec column: framed in the same hairline as the
+   grid, cropped to a steady 4:5 so the column keeps its proportions. */
+.portrait {
+  margin: 0;
+  padding: clamp(24px, 2.6vw, 34px) clamp(16px, 1.8vw, 26px) 0;
+}
+
+.portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 22%;
+  border: var(--rmk-hair) solid var(--rmk-line);
+}
+
 .prose-grid__spec {
   display: flex;
   flex-direction: column;
@@ -615,6 +637,10 @@
 @media (max-width: 860px) {
   .prose-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .portrait img {
+    max-width: 220px;
   }
 
   .prose-grid__spec {

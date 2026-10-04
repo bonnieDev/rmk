@@ -299,20 +299,32 @@ export default function App() {
           </div>
 
           <div className="prose-grid">
-            <dl className="prose-grid__spec">
-              <div>
-                <dt>Role</dt>
-                <dd>Creative technologist · UX/UI</dd>
-              </div>
-              <div>
-                <dt>Base</dt>
-                <dd>Ravenna, Ohio</dd>
-              </div>
-              <div>
-                <dt>Depth</dt>
-                <dd>Brand · Front-end · Motion · Audio · Full-stack</dd>
-              </div>
-            </dl>
+            <div className="prose-grid__side">
+              <figure className="portrait">
+                <img
+                  src="/bonnie-remeika.jpg"
+                  alt="Portrait of Bonnie Caroline Remeika: shoulder-length wavy light-brown hair with bangs, a soft smile, and a black top, in a bright office."
+                  width={640}
+                  height={1009}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+              <dl className="prose-grid__spec">
+                <div>
+                  <dt>Role</dt>
+                  <dd>Creative technologist · UX/UI</dd>
+                </div>
+                <div>
+                  <dt>Base</dt>
+                  <dd>Ravenna, Ohio</dd>
+                </div>
+                <div>
+                  <dt>Depth</dt>
+                  <dd>Brand · Front-end · Motion · Audio · Full-stack</dd>
+                </div>
+              </dl>
+            </div>
 
             <div className="prose">
               <p>

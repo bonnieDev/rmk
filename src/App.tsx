@@ -344,6 +344,11 @@ export default function App() {
                 them.
               </p>
               <p>
+                Early client work taught me to learn a new trade for every job —
+                car audio, pharma compliance, sustainability certification —
+                because you can’t design for a business you don’t understand.
+              </p>
+              <p>
                 I work on both sides of the line between design and engineering,
                 and I don’t hand off in the middle. Aether Command’s visual language
                 and its deck.gl globe came from the same person. So did Listening

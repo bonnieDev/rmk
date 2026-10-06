@@ -346,7 +346,8 @@ export default function App() {
               <p>
                 Early client work taught me to learn a new trade for every job —
                 car audio, pharma compliance, sustainability certification —
-                because you can’t convey a message you don’t understand.
+                because you can’t convey a message you don’t understand, to an
+                audience you don’t understand.
               </p>
               <p>
                 I work on both sides of the line between design and engineering,

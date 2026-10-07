@@ -275,7 +275,7 @@ export const projects: Project[] = [
       'An interface that adapts to the person using it, reading friction as it happens instead of asking people to declare their limitations up front.',
     role: 'Interaction design · Systems',
     pipeline: ['Behavioral signals', 'Friction model', 'Adaptive layout', 'Voice handoff (designed)'],
-    status: { label: 'Prototype', accent: 'magenta', live: true },
+    status: { label: 'Concept demo', accent: 'magenta', live: true },
     year: '2026',
     brief: {
       problem:
@@ -283,7 +283,7 @@ export const projects: Project[] = [
       pipeline:
         'An adaptive layer reads continuous behavioral signals, like pointer jitter, dwell time and missed targets, then enlarges controls, widens spacing and simplifies complex questions in real time. No declaration, no mode switch. If friction keeps climbing, the design hands off to a voice mode, so the person can finish the task by talking instead of fighting the screen.',
       milestone:
-        'Adaptive layout working in a live demo. Voice handoff designed, not yet built. Patent proposal drafted.',
+        'A scripted concept demo shows the adaptations. The open-source library is next; the voice handoff is designed, not yet built.',
     },
     demoEmbed: '/demos/kinedic-bloom.html',
     logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },

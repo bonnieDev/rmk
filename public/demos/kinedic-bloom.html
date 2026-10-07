@@ -69,7 +69,20 @@
   .help__call:hover, .help__chat:hover { background: #1a4480; }
   .help__icon { flex: none; width: 44px; height: 44px; }
   .help__label { display: block; }
-  .help__number { display: block; font-size: 1.35em; letter-spacing: 0.01em; }
+  /* the number never breaks across lines: one glance, one number */
+  .help__number { display: block; font-size: 1.35em; letter-spacing: 0.01em; white-space: nowrap; }
+  @media (max-width: 520px) {
+    .layout { padding: 12px; }
+    form.gov { padding: 20px 16px; }
+    .gov__banner { margin: -20px -16px 16px; padding: 6px 16px; }
+    .help__call, .help__chat { width: 100%; justify-content: flex-start; padding: 12px 16px; }
+    .help__icon { width: 36px; height: 36px; }
+    /* icon and "Call" on top, the number across the full card below, sized
+       to the card so it always fits on one line */
+    .help__call { container-type: inline-size; flex-wrap: wrap; row-gap: 4px; }
+    .help__call > span { display: contents; }
+    .help__number { flex-basis: 100%; font-size: clamp(16px, 11.5cqi, 34px); }
+  }
   /* the chat button is the speech bubble itself, tail and all */
   .help__chat { position: relative; border-radius: 28px; margin-bottom: 14px; }
   .help__chat::after { content: ''; position: absolute; left: 34px; bottom: -17px; border: 14px solid transparent; border-top-color: #1b1b1b; border-bottom: 0; }
@@ -114,7 +127,7 @@
 <body>
 
 <header class="demo-head" data-bloom-ignore>
-  <h1>Kinedic Bloom <span>· working demo v0.5</span></h1>
+  <h1>Kinedic Bloom <span>· working demo v0.6</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
     <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
@@ -297,6 +310,7 @@
     r.deadClicks.forEach((d) => lines.push('Clicked <b>' + esc(d.clicked) + '</b>, which isn’t a link or button' + (d.count > 1 ? ' (×' + d.count + ')' : '')));
     r.rageClicks.forEach((d) => lines.push('Clicked again and again on <b>' + esc(d.on) + '</b>'));
     r.stalls.forEach((d) => lines.push('Stalled on <b>' + esc(d.field) + '</b>' + (d.count > 1 ? ' (×' + d.count + ')' : '')));
+    r.scrolling.forEach((d) => lines.push('<b>Scrolled up and down</b>, looking for something' + (d.count > 1 ? ' (×' + d.count + ')' : '')));
     r.revisits.forEach((d) => lines.push('Came back to <b>' + esc(d.field) + '</b> ' + d.count + ' times'));
     if (r.keyboardMode) lines.push('Used the keyboard instead of the pointer');
     r.changes.forEach((c) => lines.push('<span class="muted">Bloom: ' + esc(c.what) + (c.count > 1 ? ' (×' + c.count + ')' : '') + '</span>'));

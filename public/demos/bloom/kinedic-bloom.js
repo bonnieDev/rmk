@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.5.1 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.6.0 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -23,10 +23,16 @@
     minPath: 120,
     maxNetRatio: 0.35,
     nearMissPx: 36,
+    nearMissTouchPx: 48,     // fingers are less precise than a mouse
+    // Finger tremor: a tap where the finger wobbles back and forth on the
+    // glass instead of pressing cleanly.
+    tapMinReversals: 4, tapMinPath: 24, tapMaxNet: 30,
     // Cognitive friction
     stallMs: 12000,          // focused on a field, no typing
     refocusLimit: 3,         // came back to the same field this many times
-    rereadLimit: 3,          // scrolled back up this many times in a minute
+    scrollReversals: 4,      // scrolling back and forth this many times…
+    scrollWindowMs: 45000,   // …within this long adds cognitive load
+    scrollLegPx: 150,        // a scroll this far before turning counts as a reversal
     // Scores (0 = calm). Each signal adds; scores decay gently over time.
     motorLevels: [0.6, 1.4],
     breakAt: 1.2,
@@ -128,7 +134,7 @@
       motor: 0, cognitive: 0, motorLevel: 0,
       samples: [], ticking: false,
       field: null, fieldSince: 0, lastInput: 0, stallFired: false,
-      refocus: new Map(), rereads: [], lastScrollY: window.scrollY,
+      refocus: new Map(), lastScrollY: window.scrollY, scrollDir: 0, legStart: window.scrollY, scrollFlips: [], touch: null,
       breakSnoozedUntil: 0, offered: new Set(), paused: false,
       last: performance.now(),
       tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false, easy: false,
@@ -171,7 +177,11 @@
 
     // ── motor: tremor and near-misses ─────────────────────────────────────
     function onPointerMove(e) {
-      if (state.off || state.paused || e.pointerType === 'touch') return;
+      if (state.off || state.paused) return;
+      if (e.pointerType === 'touch') {
+        if (state.touch) state.touch.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+        return;
+      }
       var now = performance.now();
       if (e.isTrusted) {
         if (state.px != null) state.travel += Math.hypot(e.clientX - state.px, e.clientY - state.py);
@@ -207,13 +217,37 @@
 
     function onPointerDown(e) {
       if (state.off || state.paused || e.button !== 0) return;
+      if (e.pointerType === 'touch') state.touch = [{ x: e.clientX, y: e.clientY, t: performance.now() }];
       if (e.target.closest && e.target.closest('button, a, input, select, textarea, label, [role=button]')) return;
       var near = nearestTarget(e.clientX, e.clientY);
-      if (near && near.dist <= o.nearMissPx) {
+      if (near && near.dist <= (e.pointerType === 'touch' ? o.nearMissTouchPx : o.nearMissPx)) {
         bump('motor', 0.3, 'Near-miss: ' + Math.round(near.dist) + 'px from “' + label(near.el) + '”');
         record(rep.misses, accName(near.el), { wanted: accName(near.el), closestPx: Math.round(near.dist) }, function (r) { r.closestPx = Math.min(r.closestPx, Math.round(near.dist)); });
       }
     }
+
+    // A tap ended. If the finger wobbled back and forth on the way, that's
+    // what a shaking hand looks like on glass. (A scroll cancels the pointer
+    // instead, so it never lands here.)
+    function onPointerUp(e) {
+      var s = state.touch;
+      state.touch = null;
+      if (!s || e.pointerType !== 'touch' || state.off || state.paused || s.length < 4) return;
+      var rev = 0, path = 0, pdx = 0, pdy = 0;
+      for (var i = 1; i < s.length; i++) {
+        var dx = s[i].x - s[i - 1].x, dy = s[i].y - s[i - 1].y;
+        path += Math.hypot(dx, dy);
+        if (Math.abs(dx) > 1 && pdx && Math.sign(dx) !== Math.sign(pdx)) rev++;
+        if (Math.abs(dy) > 1 && pdy && Math.sign(dy) !== Math.sign(pdy)) rev++;
+        if (Math.abs(dx) > 1) pdx = dx;
+        if (Math.abs(dy) > 1) pdy = dy;
+      }
+      var net = Math.hypot(s[s.length - 1].x - s[0].x, s[s.length - 1].y - s[0].y);
+      if (rev >= o.tapMinReversals && path >= o.tapMinPath && net <= o.tapMaxNet) {
+        bump('motor', 0.35, 'Finger tremor during a tap: ' + rev + ' wobbles over ' + Math.round(path) + 'px');
+      }
+    }
+    function onPointerCancel() { state.touch = null; }
 
     function nearestTarget(x, y) {
       var best = null;
@@ -267,14 +301,27 @@
       if (!isField(e.target)) return;
       state.lastInput = performance.now(); state.stallFired = false;
     }
+    // Scrolling up and down, again and again, is looking for something or
+    // losing your place. Each turn after a real scroll counts; enough turns in
+    // a short time adds to cognitive load, and it can happen again.
     function onScroll() {
       var y = window.scrollY, now = performance.now();
-      if (y < state.lastScrollY - 120) {
-        state.rereads = state.rereads.filter(function (t) { return now - t < 60000; });
-        state.rereads.push(now);
-        if (state.rereads.length === o.rereadLimit) bump('cognitive', 0.4, 'Scrolled back to re-read ' + o.rereadLimit + ' times in a minute');
+      var dy = y - state.lastScrollY;
+      if (Math.abs(dy) < 2) return;
+      var dir = dy > 0 ? 1 : -1;
+      if (state.scrollDir && dir !== state.scrollDir) {
+        if (Math.abs(state.lastScrollY - state.legStart) >= o.scrollLegPx) state.scrollFlips.push(now);
+        state.legStart = state.lastScrollY;
       }
+      state.scrollDir = dir;
       state.lastScrollY = y;
+      state.scrollFlips = state.scrollFlips.filter(function (t) { return now - t < o.scrollWindowMs; });
+      if (state.scrollFlips.length >= o.scrollReversals) {
+        var n = state.scrollFlips.length;
+        state.scrollFlips = [];
+        bump('cognitive', 0.4, 'Scrolling up and down: ' + n + ' turns in ' + Math.round(o.scrollWindowMs / 1000) + 's');
+        record(rep.scrolling, 'page', { what: 'Scrolled up and down, looking for something' });
+      }
     }
 
     function tick() {
@@ -889,7 +936,7 @@
     // In this page's memory only. It never holds anything a person typed.
     var rep;
     function newReport() {
-      rep = { since: Date.now(), misses: new Map(), dead: new Map(), rage: new Map(), stalls: new Map(),
+      rep = { since: Date.now(), misses: new Map(), dead: new Map(), rage: new Map(), stalls: new Map(), scrolling: new Map(),
               revisits: new Map(), changes: [], keyboard: false, os: osSettings(), audit: rep ? rep.audit : [] };
     }
     function record(map, key, init, update) {
@@ -910,7 +957,7 @@
       var vals = function (m) { return Array.from(m.values()).sort(function (a, b) { return b.count - a.count; }); };
       return { since: rep.since, os: rep.os, keyboardMode: rep.keyboard, audit: rep.audit,
                nearMisses: vals(rep.misses), deadClicks: vals(rep.dead), rageClicks: vals(rep.rage),
-               stalls: vals(rep.stalls), revisits: vals(rep.revisits), changes: rep.changes.slice() };
+               stalls: vals(rep.stalls), scrolling: vals(rep.scrolling), revisits: vals(rep.revisits), changes: rep.changes.slice() };
     }
     function osSettings() {
       var q = { 'reduced motion': '(prefers-reduced-motion: reduce)', 'more contrast': '(prefers-contrast: more)',
@@ -972,6 +1019,8 @@
 
     window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerCancel, { passive: true });
     window.addEventListener('scroll', onScroll, { passive: true });
     root.addEventListener('focusin', onFocusIn);
     root.addEventListener('focusout', onFocusOut);
@@ -1002,7 +1051,7 @@
       turnOn: function () { setOff(false); },
       turnOff: function () { setOff(true); },
       reset: function () {
-        state.motor = 0; state.cognitive = 0; state.offered.clear(); state.refocus.clear(); state.breakSnoozedUntil = 0;
+        state.motor = 0; state.cognitive = 0; state.offered.clear(); state.refocus.clear(); state.breakSnoozedUntil = 0; state.scrollFlips = [];
         state.undo = null; state.paused = false; state.assistOffered = false;
         var assistInput = root.querySelector('input[type=hidden][name="' + o.assistField + '"]');
         if (assistInput) assistInput.value = '';
@@ -1015,6 +1064,8 @@
         clearTimeout(timer);
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerdown', onPointerDown);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerCancel);
         window.removeEventListener('scroll', onScroll);
         root.removeEventListener('focusin', onFocusIn);
         root.removeEventListener('focusout', onFocusOut);
@@ -1041,5 +1092,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.5.1' };
+  global.KinedicBloom = { start: start, version: '0.6.0' };
 })(typeof window !== 'undefined' ? window : this);

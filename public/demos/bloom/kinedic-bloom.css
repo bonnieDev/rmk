@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.5.1 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
+ * Kinedic Bloom v0.6.0 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
  *
  * Motor adaptations use transform and an invisible hit area only: nothing
  * changes size in the layout, so nothing moves out from under a pointer.
@@ -108,6 +108,17 @@
 .bloom-textsize__btn--2 { font-size: 32px; }
 .bloom-textsize__btn[aria-pressed='true'] { background: var(--bloom-ink); color: var(--bloom-paper); }
 .bloom-textsize__btn:focus-visible { outline: 4px solid #2491ff; outline-offset: 2px; }
+/* narrow screens: the label on its own line, the three sizes in one row */
+@media (max-width: 460px) {
+  .bloom-textsize__label { flex-basis: 100%; }
+  .bloom-textsize__btn { flex: 1 1 0; min-width: 0; padding: 0 6px; font-size: 18px; }
+  .bloom-textsize__btn--1 { font-size: 22px; }
+  .bloom-textsize__btn--2 { font-size: 26px; }
+}
+@media (max-width: 360px) {
+  .bloom-textsize__btn--1 { font-size: 20px; }
+  .bloom-textsize__btn--2 { font-size: 22px; }
+}
 .bloom-textsize__status:not(:empty) { padding: 6px 10px; border-radius: 4px; background: var(--bloom-alert); font-weight: 800; }
 
 /* ── the status bar ───────────────────────────────────────────────────── */

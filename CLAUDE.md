@@ -55,7 +55,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Kinedic Bloom: `bloom_motor`, `bloom_keyboard`, `bloom_steps`, `bloom_assist`, `bloom_text_auto`, `bloom_break_offered`, `bloom_pause`, `bloom_resume` |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Kinedic Bloom: `bloom_motor`, `bloom_keyboard`, `bloom_steps`, `bloom_assist`, `bloom_text_auto`, `bloom_shaky_tried`, `bloom_break_offered`, `bloom_pause`, `bloom_resume` |
 
 Registered custom dimensions (Bonnie to confirm in GA): `section`, `project`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`.

@@ -1,10 +1,15 @@
 /*!
- * Kinedic Bloom v0.6.0 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.7.0 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
  * Bloom reads friction, not people. Everything runs in the browser: nothing is
- * collected, nothing is sent anywhere. Every change it makes is announced and
+ * collected, nothing is sent anywhere.
+ *
+ * USE POLICY (USE-POLICY.md): Bloom talks to the person, never about them.
+ * Nothing it observes may be used to profile or report on anyone, or shared
+ * with insurers, employers or anyone deciding something about the person.
+ * Its signals are not medical and are unreliable about any one person. Every change it makes is announced and
  * can be undone, and it never rearranges what someone is in the middle of using.
  *
  * Use:  <form data-bloom-root> … </form>
@@ -27,6 +32,11 @@
     // Finger tremor: a tap where the finger wobbles back and forth on the
     // glass instead of pressing cleanly.
     tapMinReversals: 4, tapMinPath: 24, tapMaxNet: 30,
+    // Feeling a hand tremor through the phone's motion sensor. 'ask' (the
+    // default): after shaky taps, Bloom asks "Shaky hands?" and only a Yes
+    // turns the sensor on. 'off': never. The readings stay inside Bloom:
+    // no event, API or report ever exposes them, and nothing is stored.
+    motionSensing: 'ask',
     // Cognitive friction
     stallMs: 12000,          // focused on a field, no typing
     refocusLimit: 3,         // came back to the same field this many times
@@ -76,6 +86,9 @@
       assistTitle: 'Need help?', assistCall: 'Call me', assistDoctor: 'Doctor help', assistNo: 'No',
       assistSr: 'Ask the people reviewing this form to call you, or to work with your doctor to fill it in. The request is sent with the form.',
       assistDoneCall: 'We’ll ask someone to call you.', assistDoneDoctor: 'We’ll ask for help from your doctor.',
+      shakyTitle: 'Shaky hands?', shakyYes: 'Yes', shakyNo: 'No',
+      shakySr: 'Bloom can make everything bigger, and on a phone or tablet it can feel for shaking through the motion sensor and keep adjusting. That stays on this device.',
+      shakyOn: 'Bloom is feeling for shaking, on this device only.', shakyStop: 'Stop',
     },
     // After the Easy form, offer to request a call or a doctor's help. The
     // request goes with the form in a hidden field of this name.
@@ -104,6 +117,8 @@
     // Only do this with the person's knowledge, behind your own sign-in, and
     // with your privacy office's approval (for federal sites, the Privacy Act
     // and your system's SORN apply). Bloom's on-device default needs none of it.
+    // Store only what the person typed, to give it back to them. Never store
+    // Bloom's signals, scores or reports alongside it (see USE-POLICY.md).
     //
     //   KinedicBloom.start({
     //     storage: {
@@ -138,6 +153,7 @@
       breakSnoozedUntil: 0, offered: new Set(), paused: false,
       last: performance.now(),
       tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false, easy: false,
+      shakyOffered: false, motionOn: false,
       undo: null, clicks: [], textLevel: 0, searches: [], textCooldownUntil: 0,
     };
 
@@ -223,6 +239,7 @@
       if (near && near.dist <= (e.pointerType === 'touch' ? o.nearMissTouchPx : o.nearMissPx)) {
         bump('motor', 0.3, 'Near-miss: ' + Math.round(near.dist) + 'px from “' + label(near.el) + '”');
         record(rep.misses, accName(near.el), { wanted: accName(near.el), closestPx: Math.round(near.dist) }, function (r) { r.closestPx = Math.min(r.closestPx, Math.round(near.dist)); });
+        if (e.pointerType === 'touch') maybeOfferShaky();
       }
     }
 
@@ -245,6 +262,7 @@
       var net = Math.hypot(s[s.length - 1].x - s[0].x, s[s.length - 1].y - s[0].y);
       if (rev >= o.tapMinReversals && path >= o.tapMinPath && net <= o.tapMaxNet) {
         bump('motor', 0.35, 'Finger tremor during a tap: ' + rev + ' wobbles over ' + Math.round(path) + 'px');
+        maybeOfferShaky();
       }
     }
     function onPointerCancel() { state.touch = null; }
@@ -464,6 +482,10 @@
     //   if (assist.includes('doctor')) await caseQueue.add({ type: 'provider-assist', applicationId });
     //
     // Or listen in the browser: bloom.on('assist', ({ requests }) => …)
+    //
+    // Send the request only to the people who will help with it. It is the
+    // person asking for help, not a fact about their health: never use it to
+    // judge the application, and never share it beyond that (USE-POLICY.md).
     function offerAssist(after) {
       if (!o.assist || state.off || state.assistOffered) return;
       state.assistOffered = true;
@@ -501,6 +523,111 @@
       input.value = list.join(',');
       emit('assist', { requests: list.slice() });
       return list;
+    }
+
+
+    // ── shaky hands: asking, then feeling it through the device ───────────
+    // Bloom talks to the person, never about them. Like a watch that tells
+    // you your balance is off, this only ever acts for the person holding the
+    // phone. The motion readings never leave this block: nothing is emitted,
+    // returned or stored. All that comes out is "make the targets bigger".
+    var motion = { samples: [], hits: [], last: 0, hpX: 0, hpY: 0, hpZ: 0 };
+    function canSenseMotion() {
+      return o.motionSensing === 'ask' && typeof window.DeviceMotionEvent !== 'undefined' &&
+        (navigator.maxTouchPoints > 0 || 'ontouchstart' in window);
+    }
+    function maybeOfferShaky() {
+      if (state.shakyOffered || state.off || state.paused || state.motor < o.motorLevels[0]) return;
+      state.shakyOffered = true;
+      var box = el('div', { class: 'bloom-offer', role: 'region', 'aria-label': 'Bloom suggestion' });
+      var yes = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.shakyYes);
+      var no = el('button', { type: 'button', class: 'bloom-offer__no' }, T.shakyNo);
+      box.append(el('p', { class: 'bloom-offer__title' }, T.shakyTitle), el('span', { class: 'bloom-sr' }, T.shakySr), yes, no);
+      root.insertBefore(box, textBox ? textBox.nextSibling : root.firstChild);
+      emit('offer', { kind: 'shaky' });
+      log('Asked “Shaky hands?”', 'offer');
+      announce(T.shakyTitle + ' ' + T.shakySr);
+      no.addEventListener('click', function () { box.remove(); log('Declined', 'offer'); });
+      yes.addEventListener('click', function () {
+        box.remove();
+        // they told us: biggest targets straight away
+        state.motor = Math.max(state.motor, o.motorLevels[1]);
+        setMotorLevel(2, 'the person said their hands are shaky');
+        if (canSenseMotion()) startMotion(); else log('No motion sensor here; targets made larger', 'adapt');
+      });
+    }
+
+    function startMotion() {
+      // iPhone and iPad ask for permission; this click is the gesture they need
+      var D = window.DeviceMotionEvent;
+      var ask = D && typeof D.requestPermission === 'function' ? D.requestPermission() : Promise.resolve('granted');
+      Promise.resolve(ask).then(function (answer) {
+        if (answer !== 'granted') { log('Motion sensor not allowed; targets made larger', 'adapt'); return; }
+        state.motionOn = true;
+        window.addEventListener('devicemotion', onMotion, { passive: true });
+        change('Feeling for shaking through the motion sensor (on this device only)');
+        log('Motion sensor on, for this person only', 'adapt');
+        var line = el('p', { class: 'bloom-note', role: 'status' });
+        var stop = el('button', { type: 'button', class: 'bloom-bar__btn' }, T.shakyStop);
+        line.append(el('span', {}, T.shakyOn), ' ', stop);
+        root.insertBefore(line, textBox ? textBox.nextSibling : root.firstChild);
+        stop.addEventListener('click', function () { stopMotion(); line.remove(); });
+      }, function () { log('Motion sensor not available; targets made larger', 'adapt'); });
+    }
+    function stopMotion() {
+      if (!state.motionOn) return;
+      state.motionOn = false;
+      window.removeEventListener('devicemotion', onMotion);
+      motion.samples = []; motion.hits = [];
+      log('Motion sensor off', 'adapt');
+    }
+
+    // A hand tremor shakes in a rhythm, about 4–12 times a second. Walking
+    // and riding are slower, bigger and irregular. Every ~1.5s Bloom looks
+    // at the last 2.5s: the steadiest rhythm on the strongest axis, and how
+    // big it is. Two tremor windows out of the last three makes it count.
+    function onMotion(e) {
+      var a = e.acceleration && e.acceleration.x != null ? e.acceleration : null;
+      var g = e.accelerationIncludingGravity;
+      var now = performance.now();
+      var x, y, z;
+      if (a) { x = a.x; y = a.y; z = a.z; }
+      else if (g && g.x != null) {
+        // no gravity-free reading: take gravity out with a slow average
+        motion.hpX += 0.02 * (g.x - motion.hpX); motion.hpY += 0.02 * (g.y - motion.hpY); motion.hpZ += 0.02 * (g.z - motion.hpZ);
+        x = g.x - motion.hpX; y = g.y - motion.hpY; z = g.z - motion.hpZ;
+      } else return;
+      motion.samples.push({ t: now, x: x || 0, y: y || 0, z: z || 0 });
+      while (motion.samples.length && now - motion.samples[0].t > 2500) motion.samples.shift();
+      if (now - motion.last < 1500 || motion.samples.length < 60) return;
+      motion.last = now;
+      var tremor = isTremor(motion.samples);
+      motion.hits.push(tremor);
+      if (motion.hits.length > 3) motion.hits.shift();
+      if (motion.hits.filter(Boolean).length >= 2) {
+        motion.hits = [];
+        bump('motor', 0.35, 'Shaking felt through the device');
+      }
+    }
+    function isTremor(s) {
+      var secs = (s[s.length - 1].t - s[0].t) / 1000;
+      if (secs < 1.5) return false;
+      var best = null;
+      ['x', 'y', 'z'].forEach(function (k) {
+        var mean = 0; s.forEach(function (p) { mean += p[k]; }); mean /= s.length;
+        var rms = 0, cross = 0, prev = 0;
+        s.forEach(function (p) {
+          var v = p[k] - mean;
+          rms += v * v;
+          if (prev && Math.sign(v) !== Math.sign(prev) && Math.abs(v) > 0.02) cross++;
+          if (Math.abs(v) > 0.02) prev = v;
+        });
+        rms = Math.sqrt(rms / s.length);
+        if (!best || rms > best.rms) best = { rms: rms, hz: cross / (2 * secs) };
+      });
+      // a tremor: a steady 4–12 beats a second, strong enough to feel, but
+      // not the big swings of walking or a bumpy ride
+      return best.hz >= 4 && best.hz <= 12 && best.rms >= 0.12 && best.rms <= 2.5;
     }
 
     // ── offer: take a break ───────────────────────────────────────────────
@@ -624,7 +751,7 @@
     function setOff(off) {
       state.off = off;
       off ? safeSet(OFF_KEY, '1') : safeRemove(OFF_KEY);
-      if (off) { setMotorLevel(0, 'turned off'); setKeyboard(false, 'turned off'); hideBar(); root.querySelectorAll('.bloom-offer, .bloom-break').forEach(function (n) { n.remove(); }); }
+      if (off) { stopMotion(); setMotorLevel(0, 'turned off'); setKeyboard(false, 'turned off'); hideBar(); root.querySelectorAll('.bloom-offer, .bloom-break').forEach(function (n) { n.remove(); }); }
       emit('power', { off: off });
       log(off ? 'Bloom turned off' : 'Bloom turned on', 'info');
     }
@@ -725,7 +852,9 @@
     //   });
     //
     // Keep the person in charge: always ask before the microphone turns on,
-    // and show what was heard before it goes into the form.
+    // and show what was heard before it goes into the form. Your agent works
+    // for the person: don't record, score or pass on what Bloom tells it
+    // (USE-POLICY.md).
 
     function describe(n) {
       var parts = [accName(n) || 'Unnamed control', roleOf(n)];
@@ -1046,6 +1175,7 @@
       pause: pause,
       audit: audit,
       report: report,
+      askShaky: function () { state.shakyOffered = false; state.motor = Math.max(state.motor, o.motorLevels[0]); maybeOfferShaky(); },
       describe: describe,
       forget: forget,
       turnOn: function () { setOff(false); },
@@ -1055,6 +1185,7 @@
         state.undo = null; state.paused = false; state.assistOffered = false;
         var assistInput = root.querySelector('input[type=hidden][name="' + o.assistField + '"]');
         if (assistInput) assistInput.value = '';
+        stopMotion(); state.shakyOffered = false;
         setMotorLevel(0, 'reset'); setKeyboard(false, 'reset'); setText(0, 'reset'); setEasy(false); state.searches = []; state.textCooldownUntil = 0; hideBar();
         newReport(); emitReport();
         root.querySelectorAll('.bloom-offer, .bloom-break, .bloom-note').forEach(function (n) { n.remove(); });
@@ -1065,6 +1196,7 @@
         window.removeEventListener('pointermove', onPointerMove);
         window.removeEventListener('pointerdown', onPointerDown);
         window.removeEventListener('pointerup', onPointerUp);
+        stopMotion();
         window.removeEventListener('pointercancel', onPointerCancel);
         window.removeEventListener('scroll', onScroll);
         root.removeEventListener('focusin', onFocusIn);
@@ -1092,5 +1224,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.6.0' };
+  global.KinedicBloom = { start: start, version: '0.7.0' };
 })(typeof window !== 'undefined' ? window : this);

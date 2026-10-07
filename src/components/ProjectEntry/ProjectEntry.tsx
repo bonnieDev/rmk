@@ -157,6 +157,9 @@ export function ProjectEntry({
                     className="entry__frame"
                     src={project.demoEmbed}
                     title={`${fullTitle} — live demo`}
+                    // lets a demo (Kinedic Bloom) ask for the motion sensor;
+                    // the visitor still has to say yes
+                    allow="accelerometer; gyroscope"
                     loading="lazy"
                   />
                 ) : still ? (

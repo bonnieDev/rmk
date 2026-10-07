@@ -127,9 +127,10 @@
 <body>
 
 <header class="demo-head" data-bloom-ignore>
-  <h1>Kinedic Bloom <span>· working demo v0.6</span></h1>
+  <h1>Kinedic Bloom <span>· working demo v0.7</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
     <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
+    <button type="button" id="shaky" hidden>Try “Shaky hands?”</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
     <button type="button" id="reset">Reset demo</button>
     <a id="full" href="kinedic-bloom.html" target="_blank" rel="noopener" hidden>Open full screen ↗<span class="bloom-sr"> (opens in a new tab)</span></a>
@@ -146,6 +147,7 @@
         <li><strong>Break:</strong> stall again, in any field, and Bloom offers a break. Press Pause, reload the page, and it offers to pick up right where you were.</li>
         <li><strong>Keyboard:</strong> put the mouse down and press Tab a few times. Bloom switches to keyboard mode and describes each control.</li>
         <li><strong>Text size:</strong> use A · A+ · A++ at the top of the form, or act like you’re hunting for it: click the gray space beside the form a few times, or type when you’re not in a field. Bloom makes the text larger for you.</li>
+        <li><strong>Shaky hands (phone or tablet):</strong> tap with a wobbly finger, or press “Try ‘Shaky hands?’”. Say Yes and Bloom makes everything bigger, then feels for shaking through the motion sensor, on your device only.</li>
         <li><strong>Fill-in:</strong> let your browser autofill your name, email and phone, or type a phone number as plain digits and move on. Bloom shows it as 555-123-4567 so it’s easy to check.</li>
         <li><strong>Wrong clicks:</strong> click “See the eligibility rules” (it isn’t a link), or just miss the Submit button. It all lands in the friction report.</li>
       </ol>
@@ -386,6 +388,11 @@
       dispatchEvent(new PointerEvent('pointermove', { clientX: x, clientY: y, pointerType: 'mouse', bubbles: true }));
     }, 16);
   });
+
+  // On a phone or tablet: show Bloom's "Shaky hands?" question on demand.
+  // Saying Yes asks for the motion sensor; it stays on this device.
+  if (navigator.maxTouchPoints > 0) $('shaky').hidden = false;
+  $('shaky').addEventListener('click', () => { bloom.askShaky(); trackOnce('bloom_shaky_tried'); });
 
   // Inside the portfolio's frame, offer the full-screen version too.
   if (window.parent !== window) $('full').hidden = false;

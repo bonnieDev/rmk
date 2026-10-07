@@ -55,10 +55,22 @@
   .help__toggle { color: var(--blue); text-decoration: underline; cursor: pointer; }
   .help__more { margin: 10px 0 0; }
   .help__more p { margin: 0 0 6px; }
-  /* The number is the help: huge, bold, and one tap to call on a phone. */
-  .help__call { display: inline-block; min-height: 48px; padding: 6px 4px; font-size: 2.1em; font-weight: 800; line-height: 1.2; letter-spacing: 0.01em; color: var(--blue); text-decoration: underline; text-underline-offset: 0.15em; }
-  .help__call:hover { color: #1a4480; }
-  .help__call:focus-visible { outline: 4px solid #2491ff; outline-offset: 3px; }
+  /* Two big, obvious ways to get a person. Blurry vision should still find
+     them at a glance: large icons, heavy type, strong contrast, and the
+     whole shape is the target, not just the words. */
+  .help__actions { display: flex; flex-wrap: wrap; gap: 16px 20px; align-items: stretch; margin: 6px 0 12px; }
+  .help__call, .help__chat { display: inline-flex; align-items: center; gap: 14px; min-height: 84px; padding: 14px 22px; color: #fff; background: var(--blue); font: 800 24px/1.15 'Public Sans', sans-serif; text-decoration: none; cursor: pointer; border: 3px solid #1b1b1b; }
+  .help__call { border-radius: 10px; }
+  .help__call:hover, .help__chat:hover { background: #1a4480; }
+  .help__icon { flex: none; width: 44px; height: 44px; }
+  .help__label { display: block; }
+  .help__number { display: block; font-size: 1.35em; letter-spacing: 0.01em; }
+  /* the chat button is the speech bubble itself, tail and all */
+  .help__chat { position: relative; border-radius: 28px; margin-bottom: 14px; }
+  .help__chat::after { content: ''; position: absolute; left: 34px; bottom: -17px; border: 14px solid transparent; border-top-color: #1b1b1b; border-bottom: 0; }
+  .help__chat::before { content: ''; position: absolute; left: 37px; bottom: -11px; z-index: 1; border: 11px solid transparent; border-top-color: var(--blue); border-bottom: 0; }
+  .help__chat:hover::before { border-top-color: #1a4480; }
+  .help__call:focus-visible, .help__chat:focus-visible { outline: 4px solid #2491ff; outline-offset: 4px; }
   .help__fine { font-size: 15px; color: var(--muted); }
   .fake-link { color: var(--blue); text-decoration: underline; cursor: pointer; }
   .submitted { margin-top: 12px; padding: 10px 14px; background: #ecf3ec; border-left: 4px solid #00a91c; }
@@ -161,9 +173,23 @@
         <strong>Need help with this form?</strong>
         <span class="help__toggle" onclick="this.parentElement.querySelector('.help__more').hidden = !this.parentElement.querySelector('.help__more').hidden">Show phone and chat options</span>
         <div class="help__more" hidden>
-          <p>Call us, weekdays 8am–8pm:</p>
-          <a class="help__call" href="tel:+18000000000">1-800-000-0000</a>
-          <p class="help__fine">Sample number. Or chat with us online during the same hours.</p>
+          <p>Weekdays, 8am–8pm. Either way, a person helps you.</p>
+          <div class="help__actions">
+            <!-- The whole card is the link: no need to hit the digits. -->
+            <a class="help__call" href="tel:+18000000000">
+              <svg class="help__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>
+              <span><span class="help__label">Call</span><span class="help__number">1-800-000-0000</span></span>
+            </a>
+            <!-- INSERT YOUR AGENT HERE: the whole bubble is the button. Open
+                 your chat or voice agent on click (see the comment above and
+                 "INSERT YOUR AGENT HERE" in kinedic-bloom.js). -->
+            <button type="button" class="help__chat" id="help-chat">
+              <svg class="help__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm3 6.5a1.5 1.5 0 1 0 0 .01zm5 0a1.5 1.5 0 1 0 0 .01zm5 0a1.5 1.5 0 1 0 0 .01z"/></svg>
+              <span class="help__label">Chat with us</span>
+            </button>
+          </div>
+          <p class="help__fine" id="help-chat-note" role="status"></p>
+          <p class="help__fine">Sample number. Nothing here calls or chats with anyone.</p>
         </div>
       </div>
 
@@ -281,6 +307,10 @@
   bloom.on('resume', () => trackOnce('bloom_resume'));
 
   $('pause').addEventListener('click', () => bloom.pause());
+  // INSERT YOUR AGENT HERE: in a real site, open your chat or voice agent.
+  $('help-chat').addEventListener('click', () => {
+    $('help-chat-note').textContent = 'In a real site, a chat with a person (or your agent) would open here.';
+  });
   $('submit').addEventListener('click', () => {
     let done = document.querySelector('.submitted');
     if (!done) { done = document.createElement('p'); done.className = 'submitted'; done.setAttribute('role', 'status'); $('submit').closest('.actions').after(done); }

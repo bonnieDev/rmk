@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.3.1 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
+ * Kinedic Bloom v0.4.0 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
  *
  * Motor adaptations use transform and an invisible hit area only: nothing
  * changes size in the layout, so nothing moves out from under a pointer.
@@ -47,9 +47,9 @@
 }
 
 /* ── keyboard mode: a focus ring nobody can miss ─────────────────────── */
-/* Keep the focused control clear of the caption (top) and the status bar
-   (bottom) when Tab scrolls it into view. */
-:root[data-bloom-keyboard] { scroll-padding-top: 96px; scroll-padding-bottom: 120px; }
+/* Leave room under the focused control for its caption when Tab scrolls
+   it into view. */
+:root[data-bloom-keyboard] { scroll-padding-bottom: 110px; }
 :root[data-bloom-keyboard] [data-bloom-root] :focus {
   outline: 4px solid var(--bloom-accent);
   outline-offset: 3px;
@@ -59,12 +59,11 @@
 /* The description of where you are. Visual only (aria-hidden): screen
    readers already announce the control, and would hear it twice. */
 .bloom-caption {
-  position: fixed;
-  left: 50%;
-  top: 12px;
+  /* placed under the control it describes, in the page: it scrolls with
+     the page instead of following the screen */
+  position: absolute;
   z-index: 900;
-  max-width: min(46rem, calc(100vw - 32px));
-  transform: translateX(-50%);
+  max-width: min(40rem, calc(100vw - 16px));
   padding: 10px 16px;
   border-radius: 6px;
   background: var(--bloom-ink);
@@ -80,9 +79,9 @@
 
 /* ── the status bar ───────────────────────────────────────────────────── */
 .bloom-bar {
-  position: sticky;
-  bottom: 12px;
-  z-index: 20;
+  /* in the page's flow, never sticky: a box that follows you around the
+     screen reads as "what am I missing?" */
+  position: static;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.3.1 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.4.0 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -60,7 +60,14 @@
       breakTitle: 'Take a break?', breakYes: 'Pause', breakNo: 'Keep going', breakLine: 'We’ll save your spot.',
       breakSr: 'Pause, and your progress is saved. You can come back and pick up right where you left off.',
       backTitle: 'Welcome back', backYes: 'Pick up where I left off', backNo: 'Start over',
+      assistTitle: 'Need help?', assistCall: 'Call me', assistDoctor: 'Doctor help', assistNo: 'No',
+      assistSr: 'Ask the people reviewing this form to call you, or to work with your doctor to fill it in. The request is sent with the form.',
+      assistDoneCall: 'We’ll ask someone to call you.', assistDoneDoctor: 'We’ll ask for help from your doctor.',
     },
+    // After the Easy form, offer to request a call or a doctor's help. The
+    // request goes with the form in a hidden field of this name.
+    assist: true,
+    assistField: 'bloom_assist',
   };
 
   var OFF_KEY = 'kinedic-bloom:off';
@@ -117,7 +124,7 @@
       refocus: new Map(), rereads: [], lastScrollY: window.scrollY,
       breakSnoozedUntil: 0, offered: new Set(), paused: false,
       last: performance.now(),
-      tabs: 0, keyboard: false, travel: 0, px: null, py: null,
+      tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false,
       undo: null, clicks: [], textOffered: false,
     };
 
@@ -353,6 +360,9 @@
           field.insertAdjacentElement('afterend', note);
           field.dispatchEvent(new Event('input', { bubbles: true }));
           log('Answers put together in “' + label(field) + '” for review', 'adapt');
+          field.focus();
+          offerAssist(note);
+          return;
         }
         field.focus();
       }
@@ -362,6 +372,62 @@
       });
       back.addEventListener('click', function () { finish(false); });
       show();
+    }
+
+
+    // ── ask for a person: a call, or a doctor's help ──────────────────────
+    // Someone who needed the Easy form may need a person, too. Bloom asks;
+    // it never tells the reviewer on its own. The answer travels with the
+    // form, in a hidden field, and the person sees what was asked for.
+    //
+    // CONNECT YOUR CASE SYSTEM
+    // On submit, the form includes   bloom_assist=call   bloom_assist=doctor
+    // or both (call,doctor). Read it where you process the form and route it
+    // to whoever helps applicants, for example:
+    //
+    //   // server side, on receiving the form
+    //   const assist = (form.get('bloom_assist') || '').split(',').filter(Boolean);
+    //   if (assist.includes('call'))   await caseQueue.add({ type: 'callback', applicationId, phone: form.get('phone') });
+    //   if (assist.includes('doctor')) await caseQueue.add({ type: 'provider-assist', applicationId });
+    //
+    // Or listen in the browser: bloom.on('assist', ({ requests }) => …)
+    function offerAssist(after) {
+      if (!o.assist || state.off || state.assistOffered) return;
+      state.assistOffered = true;
+      var box = el('div', { class: 'bloom-offer', role: 'region', 'aria-label': 'Ask for help' });
+      var call = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.assistCall);
+      var doc = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.assistDoctor);
+      var no = el('button', { type: 'button', class: 'bloom-offer__no' }, T.assistNo);
+      box.append(el('p', { class: 'bloom-offer__title' }, T.assistTitle), el('span', { class: 'bloom-sr' }, T.assistSr), call, doc, no);
+      (after || root.firstChild).insertAdjacentElement(after ? 'afterend' : 'beforebegin', box);
+      emit('offer', { kind: 'assist' });
+      log('Offered to ask for a call or a doctor’s help', 'offer');
+      announce(T.assistTitle + ' ' + T.assistSr);
+      function choose(kind) {
+        box.remove();
+        var requests = setAssist(kind, true);
+        var line = el('p', { class: 'bloom-note', role: 'status' });
+        var undo = el('button', { type: 'button', class: 'bloom-bar__btn' }, 'Undo');
+        line.append(el('span', {}, kind === 'call' ? T.assistDoneCall : T.assistDoneDoctor), ' ', undo);
+        (after || root.firstChild).insertAdjacentElement(after ? 'afterend' : 'beforebegin', line);
+        undo.addEventListener('click', function () { setAssist(kind, false); line.remove(); log('Help request withdrawn', 'offer'); });
+        change(kind === 'call' ? 'Asked for a call' : 'Asked for a doctor’s help');
+        log('Help requested (' + requests.join(', ') + '); it goes with the form', 'adapt');
+      }
+      call.addEventListener('click', function () { choose('call'); });
+      doc.addEventListener('click', function () { choose('doctor'); });
+      no.addEventListener('click', function () { box.remove(); log('Help offer declined', 'offer'); });
+    }
+
+    function setAssist(kind, on) {
+      var input = root.querySelector('input[type=hidden][name="' + o.assistField + '"]');
+      if (!input) { input = el('input', { type: 'hidden', name: o.assistField, value: '' }); root.appendChild(input); }
+      var list = input.value ? input.value.split(',') : [];
+      list = list.filter(function (k) { return k !== kind; });
+      if (on) list.push(kind);
+      input.value = list.join(',');
+      emit('assist', { requests: list.slice() });
+      return list;
     }
 
     // ── offer: take a break ───────────────────────────────────────────────
@@ -507,6 +573,9 @@
       }
       if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) offerText('You zoomed in.');
     }
+    function onResize() {
+      if (state.keyboard && !caption.hidden && root.contains(document.activeElement)) placeCaption(document.activeElement);
+    }
     function onViewport() {
       if (window.visualViewport && window.visualViewport.scale >= o.zoomOfferScale) offerText('You zoomed in.');
     }
@@ -531,7 +600,17 @@
       var text = describe(n);
       caption.textContent = text;
       caption.hidden = false;
+      placeCaption(n);
       emit('describe', { text: text, element: n });
+    }
+    // Under the control it describes, and scrolling with the page. Nothing
+    // Bloom shows follows you around the screen.
+    function placeCaption(n) {
+      var r = n.getBoundingClientRect();
+      var top = r.bottom + window.scrollY + 10;
+      var left = Math.max(8, Math.min(r.left + window.scrollX, document.documentElement.clientWidth - caption.offsetWidth - 8));
+      caption.style.top = top + 'px';
+      caption.style.left = left + 'px';
     }
 
     // ── INSERT YOUR AGENT HERE: where talking starts ──────────────────────
@@ -825,6 +904,7 @@
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('click', onClick, true);
     if (window.visualViewport) window.visualViewport.addEventListener('resize', onViewport);
+    window.addEventListener('resize', onResize);
     newReport();
     if (rep.os.length) log('System settings: ' + rep.os.join(', '), 'info');
     tick();
@@ -842,7 +922,9 @@
       turnOff: function () { setOff(true); },
       reset: function () {
         state.motor = 0; state.cognitive = 0; state.offered.clear(); state.refocus.clear(); state.breakSnoozedUntil = 0;
-        state.textOffered = false; state.undo = null; state.paused = false;
+        state.textOffered = false; state.undo = null; state.paused = false; state.assistOffered = false;
+        var assistInput = root.querySelector('input[type=hidden][name="' + o.assistField + '"]');
+        if (assistInput) assistInput.value = '';
         setMotorLevel(0, 'reset'); setKeyboard(false, 'reset'); setText(0); hideBar();
         newReport(); emitReport();
         root.querySelectorAll('.bloom-offer, .bloom-break, .bloom-note').forEach(function (n) { n.remove(); });
@@ -861,6 +943,7 @@
         document.removeEventListener('keydown', onKeyDown);
         document.removeEventListener('click', onClick, true);
         if (window.visualViewport) window.visualViewport.removeEventListener('resize', onViewport);
+        window.removeEventListener('resize', onResize);
         bar.remove(); live.remove(); caption.remove();
       },
     };
@@ -877,5 +960,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.3.1' };
+  global.KinedicBloom = { start: start, version: '0.4.0' };
 })(typeof window !== 'undefined' ? window : this);

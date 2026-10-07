@@ -93,6 +93,8 @@
   .audit .fix { color: #00d17a; } .audit .person { color: #e5a000; }
   .report b { color: #fff; font-weight: 600; }
   .muted { color: #6f8590; }
+  .sent { margin: 0; color: #fff; }
+  .sent b { color: #e5a000; }
   .panel__btn { margin-top: 10px; min-height: 36px; padding: 0 12px; border: 1px solid #73b3e7; border-radius: 4px; background: transparent; color: #fff; font: 600 12px 'JetBrains Mono', monospace; cursor: pointer; }
   .panel__btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   .log { max-height: 260px; overflow: auto; margin: 0; padding: 0; list-style: none; }
@@ -107,7 +109,7 @@
 <body>
 
 <header class="demo-head">
-  <h1>Kinedic Bloom <span>· working demo v0.3</span></h1>
+  <h1>Kinedic Bloom <span>· working demo v0.4</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
     <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
@@ -122,7 +124,7 @@
       <strong>Try it.</strong> Nothing here is sent anywhere.
       <ol>
         <li><strong>Motor:</strong> shake your pointer near the form, or press “Simulate a tremor.” Buttons get easier to hit, and a bar explains what changed.</li>
-        <li><strong>Cognitive:</strong> click into the long question and stop typing for a few seconds. Bloom offers smaller steps.</li>
+        <li><strong>Cognitive:</strong> click into the long question and stop typing for a few seconds. Bloom offers an easy form, then asks if you’d like a call or your doctor’s help. That request goes with the form.</li>
         <li><strong>Break:</strong> stall again, in any field, and Bloom offers a break. Press Pause, reload the page, and it offers to pick up right where you were.</li>
         <li><strong>Keyboard:</strong> put the mouse down and press Tab a few times. Bloom switches to keyboard mode and describes each control.</li>
         <li><strong>Fill-in:</strong> let your browser autofill your name, email and phone, or type a phone number as plain digits and move on. Bloom shows it as 555-123-4567 so it’s easy to check.</li>
@@ -232,6 +234,9 @@
     <h2 class="panel__h">Tab-ready check</h2>
     <p class="panel__note" id="audit-sum">—</p>
     <ul class="audit" id="audit"></ul>
+    <h2 class="panel__h">Sent with the form</h2>
+    <p class="panel__note">What the people reviewing this form receive. Only what the person chose to send.</p>
+    <p class="sent" id="sent">bloom_assist: <span class="muted">(nothing requested)</span></p>
     <h2 class="panel__h">Friction report</h2>
     <p class="panel__note">What people wanted, and what they hit instead. Nothing typed is recorded.</p>
     <ul class="report" id="report"><li class="muted">Nothing yet.</li></ul>
@@ -286,6 +291,10 @@
     $('report').innerHTML = lines.length ? lines.map((l) => '<li>' + l + '</li>').join('') : '<li class="muted">Nothing yet.</li>';
   }
   bloom.on('report', renderReport);
+  bloom.on('assist', ({ requests }) => {
+    $('sent').innerHTML = 'bloom_assist: ' + (requests.length ? '<b>' + esc(requests.join(',')) + '</b>' : '<span class="muted">(nothing requested)</span>');
+    if (requests.length) trackOnce('bloom_assist');
+  });
   $('dl').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(bloom.report(), null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -326,6 +335,7 @@
 
   $('reset').addEventListener('click', () => {
     bloom.reset(); bloom.forget(); $('form').reset();
+    $('sent').innerHTML = 'bloom_assist: <span class="muted">(nothing requested)</span>';
     document.querySelectorAll('.submitted').forEach((n) => n.remove());
     $('log').innerHTML = '';
   });

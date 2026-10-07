@@ -4,6 +4,10 @@ Bonnie's portfolio. Vite + React, deployed by pushing `main` (live in about a
 minute). Projects are data in `src/data/projects.ts`; live demos are static
 pages in `public/demos/`.
 
+`public/demos/bloom/` is a copy of the Kinedic Bloom library
+(`~/Documents/_portfolio/kinedic-bloom`, github.com/bonnieDev/kinedic-bloom,
+files in `src/`). After changing the library, copy both files back here.
+
 ---
 
 ## Analytics tagging

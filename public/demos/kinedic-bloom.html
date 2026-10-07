@@ -51,9 +51,15 @@
   .btn--outline { border: 2px solid var(--blue); background: #fff; color: var(--blue); }
   .btn:focus-visible { outline: 4px solid #2491ff; outline-offset: 2px; }
   .sample { margin: 16px 0 0; font-size: 14px; color: var(--muted); }
-  .help { margin: 0 0 20px; padding: 12px 16px; background: #e7f6f8; border-left: 4px solid #00bde3; cursor: pointer; }
-  .help span { color: var(--blue); text-decoration: underline; }
-  .help__more { margin: 8px 0 0; }
+  .help { margin: 0 0 20px; padding: 12px 16px; background: #e7f6f8; border-left: 4px solid #00bde3; }
+  .help__toggle { color: var(--blue); text-decoration: underline; cursor: pointer; }
+  .help__more { margin: 10px 0 0; }
+  .help__more p { margin: 0 0 6px; }
+  /* The number is the help: huge, bold, and one tap to call on a phone. */
+  .help__call { display: inline-block; min-height: 48px; padding: 6px 4px; font-size: 2.1em; font-weight: 800; line-height: 1.2; letter-spacing: 0.01em; color: var(--blue); text-decoration: underline; text-underline-offset: 0.15em; }
+  .help__call:hover { color: #1a4480; }
+  .help__call:focus-visible { outline: 4px solid #2491ff; outline-offset: 3px; }
+  .help__fine { font-size: 15px; color: var(--muted); }
   .fake-link { color: var(--blue); text-decoration: underline; cursor: pointer; }
   .submitted { margin-top: 12px; padding: 10px 14px; background: #ecf3ec; border-left: 4px solid #00a91c; }
 
@@ -151,9 +157,14 @@
                });
              </script>
       -->
-      <div class="help" onclick="this.querySelector('.help__more').hidden = !this.querySelector('.help__more').hidden">
-        <strong>Need help with this form?</strong> <span>Show phone and chat options</span>
-        <p class="help__more" hidden>Call 1-800-000-0000 (sample) or chat with us weekdays 8am–8pm.</p>
+      <div class="help">
+        <strong>Need help with this form?</strong>
+        <span class="help__toggle" onclick="this.parentElement.querySelector('.help__more').hidden = !this.parentElement.querySelector('.help__more').hidden">Show phone and chat options</span>
+        <div class="help__more" hidden>
+          <p>Call us, weekdays 8am–8pm:</p>
+          <a class="help__call" href="tel:+18000000000">1-800-000-0000</a>
+          <p class="help__fine">Sample number. Or chat with us online during the same hours.</p>
+        </div>
       </div>
 
       <fieldset>

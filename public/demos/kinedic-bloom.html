@@ -51,6 +51,10 @@
   .btn--outline { border: 2px solid var(--blue); background: #fff; color: var(--blue); }
   .btn:focus-visible { outline: 4px solid #2491ff; outline-offset: 2px; }
   .sample { margin: 16px 0 0; font-size: 14px; color: var(--muted); }
+  .help { margin: 0 0 20px; padding: 12px 16px; background: #e7f6f8; border-left: 4px solid #00bde3; cursor: pointer; }
+  .help span { color: var(--blue); text-decoration: underline; }
+  .help__more { margin: 8px 0 0; }
+  .fake-link { color: var(--blue); text-decoration: underline; cursor: pointer; }
   .submitted { margin-top: 12px; padding: 10px 14px; background: #ecf3ec; border-left: 4px solid #00a91c; }
 
   .panel { align-self: start; position: sticky; top: 20px; background: #111; color: #d6e0e6; font: 13px/1.5 'JetBrains Mono', monospace; padding: 16px; border-radius: 4px; }
@@ -65,6 +69,14 @@
   .facts { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin: 12px 0; padding: 10px 0; border-top: 1px solid #2a2f33; border-bottom: 1px solid #2a2f33; }
   .facts dt { color: #9fb2bd; }
   .facts dd { margin: 0; color: #fff; text-align: right; }
+  .panel__h { margin: 18px 0 4px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; }
+  .audit, .report { margin: 0; padding: 0; list-style: none; }
+  .audit li, .report li { padding: 5px 0; border-bottom: 1px solid #1e2326; }
+  .audit .fix { color: #00d17a; } .audit .person { color: #e5a000; }
+  .report b { color: #fff; font-weight: 600; }
+  .muted { color: #6f8590; }
+  .panel__btn { margin-top: 10px; min-height: 36px; padding: 0 12px; border: 1px solid #73b3e7; border-radius: 4px; background: transparent; color: #fff; font: 600 12px 'JetBrains Mono', monospace; cursor: pointer; }
+  .panel__btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   .log { max-height: 260px; overflow: auto; margin: 0; padding: 0; list-style: none; }
   .log li { padding: 4px 0; border-bottom: 1px solid #1e2326; }
   .log time { color: #6f8590; margin-right: 6px; }
@@ -77,7 +89,7 @@
 <body>
 
 <header class="demo-head">
-  <h1>Kinedic Bloom <span>· working demo v0.1</span></h1>
+  <h1>Kinedic Bloom <span>· working demo v0.2</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
     <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
@@ -94,7 +106,10 @@
         <li><strong>Motor:</strong> shake your pointer near the form, or press “Simulate a tremor.” Buttons get easier to hit, and a bar explains what changed.</li>
         <li><strong>Cognitive:</strong> click into the long question and stop typing for a few seconds. Bloom offers smaller steps.</li>
         <li><strong>Break:</strong> stall again, in any field, and Bloom offers a break. Press Pause, reload the page, and it offers to pick up right where you were.</li>
+        <li><strong>Keyboard:</strong> put the mouse down and press Tab a few times. Bloom switches to keyboard mode and describes each control.</li>
+        <li><strong>Wrong clicks:</strong> click “See the eligibility rules” (it isn’t a link), or just miss the Submit button. It all lands in the friction report.</li>
       </ol>
+      <p style="margin:8px 0 0">This sample form has <strong>three deliberate accessibility mistakes</strong> for Bloom to find. See “Tab-ready check.”</p>
     </div>
 
     <form class="gov" data-bloom-root id="form" novalidate>
@@ -106,14 +121,44 @@
         <div class="field"><label for="first">First name</label><input type="text" id="first" name="first" autocomplete="given-name"></div>
         <div class="field"><label for="last">Last name</label><input type="text" id="last" name="last" autocomplete="family-name"></div>
       </div>
+      <!-- Planted mistake 1: an email field with only a placeholder, no label -->
+      <div class="field">
+        <input type="text" name="email" placeholder="Email address" autocomplete="email">
+      </div>
       <div class="field">
         <label for="phone">Phone number</label>
         <p class="hint" id="phone-hint">We may call you if we have questions.</p>
         <input type="tel" id="phone" name="phone" autocomplete="tel" aria-describedby="phone-hint">
       </div>
 
+      <!-- Planted mistake 2: a help box that only works with a mouse.
+           (Bloom finds it and makes it work with Tab, Enter and Space.)
+
+           INSERT YOUR AGENT HERE: this is where a person asks for help, so
+           it's where talking would start. Bloom doesn't include an agent.
+           Replace the onclick below with your own, for example:
+
+             <button type="button" id="help-agent">Need help with this form? Talk to us</button>
+             <script>
+               document.getElementById('help-agent').addEventListener('click', () => {
+                 // 1. Ask before the microphone turns on:
+                 //    yourAgent.ask('Would you like to finish this form by talking?');
+                 // 2. Start where the person is. Bloom can describe it:
+                 //    yourAgent.say(bloom.describe(document.activeElement));
+                 // 3. Put each answer in the real field, in plain view:
+                 //    yourAgent.onAnswer((field, text) => { field.value = text; });
+               });
+             </script>
+      -->
+      <div class="help" onclick="this.querySelector('.help__more').hidden = !this.querySelector('.help__more').hidden">
+        <strong>Need help with this form?</strong> <span>Show phone and chat options</span>
+        <p class="help__more" hidden>Call 1-800-000-0000 (sample) or chat with us weekdays 8am–8pm.</p>
+      </div>
+
       <fieldset>
         <legend>Are you currently working?</legend>
+        <!-- Planted mistake 3: styled like a link, but it isn't one -->
+        <p class="hint"><span class="fake-link">See the eligibility rules</span> before you answer.</p>
         <label class="radio"><input type="radio" name="working" value="yes"> Yes</label>
         <label class="radio"><input type="radio" name="working" value="part"> Yes, part time</label>
         <label class="radio"><input type="radio" name="working" value="no"> No</label>
@@ -144,7 +189,16 @@
       <dt>Target size</dt><dd id="d-level">normal</dd>
       <dt>Field</dt><dd id="d-field">—</dd>
       <dt>No typing for</dt><dd id="d-idle">—</dd>
+      <dt>Keyboard mode</dt><dd id="d-kb">off</dd>
     </dl>
+    <h2 class="panel__h">Tab-ready check</h2>
+    <p class="panel__note" id="audit-sum">—</p>
+    <ul class="audit" id="audit"></ul>
+    <h2 class="panel__h">Friction report</h2>
+    <p class="panel__note">What people wanted, and what they hit instead. Nothing typed is recorded.</p>
+    <ul class="report" id="report"><li class="muted">Nothing yet.</li></ul>
+    <button type="button" class="panel__btn" id="dl">Download report (JSON)</button>
+    <h2 class="panel__h">Log</h2>
     <ol class="log" id="log" aria-live="off"></ol>
   </aside>
 </div>
@@ -174,6 +228,33 @@
     $('d-field').textContent = s.field || '—';
     $('d-idle').textContent = s.field ? (s.idleMs / 1000).toFixed(1) + 's' : '—';
   });
+  const esc = (t) => String(t).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  function renderAudit(issues) {
+    const fixed = issues.filter((i) => i.fixed).length;
+    $('audit-sum').textContent = issues.length + ' found · ' + fixed + ' fixed by Bloom · ' + (issues.length - fixed) + ' need a person';
+    $('audit').innerHTML = issues.map((i) => '<li><span class="' + (i.fixed ? 'fix">✓ fixed' : 'person">! needs a person') + '</span> ' + esc(i.what) + '<br><span class="muted">' + esc(i.how) + '</span></li>').join('');
+  }
+  bloom.on('audit', (a) => renderAudit(a.issues));
+  renderAudit(bloom.report().audit);
+  function renderReport(r) {
+    const lines = [];
+    r.nearMisses.forEach((m) => lines.push('Wanted <b>' + esc(m.wanted) + '</b>, landed ' + m.closestPx + 'px away' + (m.count > 1 ? ' (×' + m.count + ')' : '')));
+    r.deadClicks.forEach((d) => lines.push('Clicked <b>' + esc(d.clicked) + '</b>, which isn’t a link or button' + (d.count > 1 ? ' (×' + d.count + ')' : '')));
+    r.rageClicks.forEach((d) => lines.push('Clicked again and again on <b>' + esc(d.on) + '</b>'));
+    r.stalls.forEach((d) => lines.push('Stalled on <b>' + esc(d.field) + '</b>' + (d.count > 1 ? ' (×' + d.count + ')' : '')));
+    r.revisits.forEach((d) => lines.push('Came back to <b>' + esc(d.field) + '</b> ' + d.count + ' times'));
+    if (r.keyboardMode) lines.push('Used the keyboard instead of the pointer');
+    r.changes.forEach((c) => lines.push('<span class="muted">Bloom: ' + esc(c.what) + '</span>'));
+    $('report').innerHTML = lines.length ? lines.map((l) => '<li>' + l + '</li>').join('') : '<li class="muted">Nothing yet.</li>';
+  }
+  bloom.on('report', renderReport);
+  $('dl').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(bloom.report(), null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'bloom-friction-report.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  bloom.on('adapt', (a) => { if (a.kind === 'keyboard') { $('d-kb').textContent = a.on ? 'on' : 'off'; if (a.on) trackOnce('bloom_keyboard'); } });
   bloom.on('motor', (m) => { $('d-rev').textContent = m.reversals; $('d-path').textContent = m.path + ' / ' + m.net + ' px'; });
   bloom.on('log', (e) => {
     const li = document.createElement('li');

@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.2.0 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.3.0 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -47,6 +47,9 @@
     rageClicks: 3, rageMs: 1000, ragePx: 40,
     // Tab-readiness audit at start, fixing what's safe to fix
     audit: true,
+    // Show phone numbers as 555-123-4567 once a field is left or autofilled.
+    // Opt a field out with data-bloom-noformat.
+    formatPhone: true,
   };
 
   var OFF_KEY = 'kinedic-bloom:off';
@@ -630,6 +633,15 @@
         if (n.matches('button, a[href], [role=button]') && !accName(n)) {
           issues.push({ kind: 'no-name', what: snippet(n), fixed: false, how: 'Has no name a screen reader could read. Needs a person to name it' });
         }
+        // 7. a personal-info field the browser can't autofill (WCAG 1.3.5).
+        // When you can't think, not having to type your own name matters.
+        if (n.matches('input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]), select, textarea') && !n.getAttribute('autocomplete')) {
+          var purpose = guessPurpose(n);
+          if (purpose) {
+            n.setAttribute('autocomplete', purpose);
+            issues.push({ kind: 'no-autocomplete', what: snippet(n), fixed: true, how: 'The browser couldn’t fill it in. Bloom added autocomplete="' + purpose + '". Needs to be added to the form itself' });
+          }
+        }
         // 6. an image with no alt text
         if (n.matches('img') && !n.hasAttribute('alt')) {
           issues.push({ kind: 'no-alt', what: snippet(n), fixed: false, how: 'Image has no alt text. Needs a person to describe it, or alt="" if decorative' });
@@ -641,6 +653,43 @@
       emit('audit', { issues: issues });
       emitReport();
       return issues;
+    }
+
+    // What a field is for, from its type, name, id and label (WCAG 1.3.5).
+    function guessPurpose(n) {
+      if (n.type === 'email') return 'email';
+      if (n.type === 'tel') return 'tel';
+      var t = [n.name, n.id, accName(n), n.getAttribute('placeholder')].join(' ').toLowerCase();
+      var map = [
+        [/e-?mail/, 'email'], [/phone|mobile|\btel\b|cell/, 'tel'],
+        [/first|given|fname/, 'given-name'], [/last|family|surname|lname/, 'family-name'],
+        [/middle/, 'additional-name'], [/full name|^\s*name\b|your name/, 'name'],
+        [/zip|postal/, 'postal-code'], [/street|address( line)? ?1|\baddress\b/, 'street-address'],
+        [/\bcity\b|town/, 'address-level2'], [/\bstate\b|province/, 'address-level1'],
+        [/birth|\bdob\b|bday/, 'bday'], [/country/, 'country-name'],
+      ];
+      for (var i = 0; i < map.length; i++) if (map[i][0].test(t)) return map[i][1];
+      return '';
+    }
+
+    // ── phone numbers you can check at a glance ───────────────────────────
+    // Formats only on leaving the field or autofill (a 'change'), never while
+    // typing, so the cursor never jumps. Only plain 10-digit US numbers, or
+    // 11 with a leading 1; anything with letters or an extension is left alone.
+    function onChange(e) {
+      var f = e.target;
+      if (!o.formatPhone || state.off || !f.matches || f.closest('[data-bloom-noformat]')) return;
+      if (!(f.type === 'tel' || (f.getAttribute('autocomplete') || '').indexOf('tel') === 0)) return;
+      var v = f.value;
+      if (!v || /[a-z]/i.test(v)) return;
+      var d = v.replace(/\D/g, '');
+      var out = d.length === 10 ? d.slice(0, 3) + '-' + d.slice(3, 6) + '-' + d.slice(6)
+              : d.length === 11 && d[0] === '1' ? '1-' + d.slice(1, 4) + '-' + d.slice(4, 7) + '-' + d.slice(7) : null;
+      if (out && out !== v) {
+        f.value = out;
+        log('Formatted “' + label(f) + '” as ' + out.replace(/\d(?=\d{4})/g, '•') + ' so it’s easy to check', 'adapt');
+        change('Formatted a phone number for easy checking');
+      }
     }
 
     // ── clicking the wrong thing ──────────────────────────────────────────
@@ -680,7 +729,12 @@
       if (update) update(r);
       emitReport();
     }
-    function change(what) { rep.changes.push({ what: what, at: Date.now() }); emitReport(); }
+    function change(what) {
+      var last = rep.changes[rep.changes.length - 1];
+      if (last && last.what === what) { last.count = (last.count || 1) + 1; last.at = Date.now(); }
+      else rep.changes.push({ what: what, at: Date.now(), count: 1 });
+      emitReport();
+    }
     function emitReport() { emit('report', report()); }
     function report() {
       var vals = function (m) { return Array.from(m.values()).sort(function (a, b) { return b.count - a.count; }); };
@@ -752,6 +806,7 @@
     root.addEventListener('focusin', onFocusIn);
     root.addEventListener('focusout', onFocusOut);
     root.addEventListener('input', onInput);
+    root.addEventListener('change', onChange);
     document.addEventListener('focusin', onAnyFocus);
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('click', onClick, true);
@@ -787,6 +842,7 @@
         root.removeEventListener('focusin', onFocusIn);
         root.removeEventListener('focusout', onFocusOut);
         root.removeEventListener('input', onInput);
+        root.removeEventListener('change', onChange);
         document.removeEventListener('focusin', onAnyFocus);
         document.removeEventListener('keydown', onKeyDown);
         document.removeEventListener('click', onClick, true);
@@ -807,5 +863,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.2.0' };
+  global.KinedicBloom = { start: start, version: '0.3.0' };
 })(typeof window !== 'undefined' ? window : this);

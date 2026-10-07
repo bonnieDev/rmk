@@ -89,7 +89,7 @@
 <body>
 
 <header class="demo-head">
-  <h1>Kinedic Bloom <span>· working demo v0.2</span></h1>
+  <h1>Kinedic Bloom <span>· working demo v0.3</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
     <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
@@ -107,9 +107,10 @@
         <li><strong>Cognitive:</strong> click into the long question and stop typing for a few seconds. Bloom offers smaller steps.</li>
         <li><strong>Break:</strong> stall again, in any field, and Bloom offers a break. Press Pause, reload the page, and it offers to pick up right where you were.</li>
         <li><strong>Keyboard:</strong> put the mouse down and press Tab a few times. Bloom switches to keyboard mode and describes each control.</li>
+        <li><strong>Fill-in:</strong> let your browser autofill your name, email and phone, or type a phone number as plain digits and move on. Bloom shows it as 555-123-4567 so it’s easy to check.</li>
         <li><strong>Wrong clicks:</strong> click “See the eligibility rules” (it isn’t a link), or just miss the Submit button. It all lands in the friction report.</li>
       </ol>
-      <p style="margin:8px 0 0">This sample form has <strong>three deliberate accessibility mistakes</strong> for Bloom to find. See “Tab-ready check.”</p>
+      <p style="margin:8px 0 0">This sample form has <strong>four deliberate accessibility mistakes</strong> for Bloom to find. See “Tab-ready check.”</p>
     </div>
 
     <form class="gov" data-bloom-root id="form" novalidate>
@@ -119,7 +120,7 @@
 
       <div class="row">
         <div class="field"><label for="first">First name</label><input type="text" id="first" name="first" autocomplete="given-name"></div>
-        <div class="field"><label for="last">Last name</label><input type="text" id="last" name="last" autocomplete="family-name"></div>
+        <div class="field"><label for="last">Last name</label><input type="text" id="last" name="last"><!-- Planted mistake 4: no autocomplete, so the browser can't fill it --></div>
       </div>
       <!-- Planted mistake 1: an email field with only a placeholder, no label -->
       <div class="field">
@@ -244,7 +245,7 @@
     r.stalls.forEach((d) => lines.push('Stalled on <b>' + esc(d.field) + '</b>' + (d.count > 1 ? ' (×' + d.count + ')' : '')));
     r.revisits.forEach((d) => lines.push('Came back to <b>' + esc(d.field) + '</b> ' + d.count + ' times'));
     if (r.keyboardMode) lines.push('Used the keyboard instead of the pointer');
-    r.changes.forEach((c) => lines.push('<span class="muted">Bloom: ' + esc(c.what) + '</span>'));
+    r.changes.forEach((c) => lines.push('<span class="muted">Bloom: ' + esc(c.what) + (c.count > 1 ? ' (×' + c.count + ')' : '') + '</span>'));
     $('report').innerHTML = lines.length ? lines.map((l) => '<li>' + l + '</li>').join('') : '<li class="muted">Nothing yet.</li>';
   }
   bloom.on('report', renderReport);

@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.5.0 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.5.1 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -131,7 +131,7 @@
       refocus: new Map(), rereads: [], lastScrollY: window.scrollY,
       breakSnoozedUntil: 0, offered: new Set(), paused: false,
       last: performance.now(),
-      tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false,
+      tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false, easy: false,
       undo: null, clicks: [], textLevel: 0, searches: [], textCooldownUntil: 0,
     };
 
@@ -327,6 +327,9 @@
       offer.append(el('p', { class: 'bloom-offer__title' }, T.stepsTitle), el('span', { class: 'bloom-sr' }, T.stepsSr), yes, no);
       block.insertBefore(offer, block.firstChild);
       emit('offer', { kind: 'steps', field: label(field) });
+      // the moment Bloom sees someone stuck, the page gets easier: no need to
+      // read the offer and answer it first
+      setEasy(true);
       log('Offered smaller steps for “' + label(field) + '”', 'offer');
       announce('Suggestion: answer this question in smaller steps.');
       no.addEventListener('click', function () { offer.remove(); log('Smaller steps declined', 'offer'); });
@@ -381,6 +384,22 @@
       show();
     }
 
+
+    // ── easy mode: less to read, everywhere ───────────────────────────────
+    // When Bloom offers the Easy form, someone is stuck and reading is hard
+    // right now. So the whole page gets easier at once, whatever they answer: anything marked data-bloom-easy-hide goes away
+    // (wordy help text, fine print), anything marked data-bloom-easy-show
+    // appears (big call and chat buttons). <html data-bloom-easy> is set too,
+    // for any styling of your own.
+    function setEasy(on) {
+      if (on === state.easy) return;
+      state.easy = on;
+      if (on) html.setAttribute('data-bloom-easy', ''); else html.removeAttribute('data-bloom-easy');
+      root.querySelectorAll('[data-bloom-easy-hide]').forEach(function (n) { n.hidden = on; });
+      root.querySelectorAll('[data-bloom-easy-show]').forEach(function (n) { n.hidden = !on; });
+      emit('adapt', { kind: 'easy', on: on });
+      if (on) { change('Easy mode: less to read, help buttons shown'); log('Easy mode on', 'adapt'); }
+    }
 
     // ── ask for a person: a call, or a doctor's help ──────────────────────
     // Someone who needed the Easy form may need a person, too. Bloom asks;
@@ -987,7 +1006,7 @@
         state.undo = null; state.paused = false; state.assistOffered = false;
         var assistInput = root.querySelector('input[type=hidden][name="' + o.assistField + '"]');
         if (assistInput) assistInput.value = '';
-        setMotorLevel(0, 'reset'); setKeyboard(false, 'reset'); setText(0, 'reset'); state.searches = []; state.textCooldownUntil = 0; hideBar();
+        setMotorLevel(0, 'reset'); setKeyboard(false, 'reset'); setText(0, 'reset'); setEasy(false); state.searches = []; state.textCooldownUntil = 0; hideBar();
         newReport(); emitReport();
         root.querySelectorAll('.bloom-offer, .bloom-break, .bloom-note').forEach(function (n) { n.remove(); });
       },
@@ -1022,5 +1041,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.5.0' };
+  global.KinedicBloom = { start: start, version: '0.5.1' };
 })(typeof window !== 'undefined' ? window : this);

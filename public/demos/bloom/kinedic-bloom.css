@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.3.0 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
+ * Kinedic Bloom v0.3.1 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
  *
  * Motor adaptations use transform and an invisible hit area only: nothing
  * changes size in the layout, so nothing moves out from under a pointer.
@@ -144,7 +144,17 @@
 .bloom-offer__no, .bloom-steps__full { border: 2px solid var(--bloom-accent); background: transparent; color: var(--bloom-accent); }
 /* on gold, the secondary button goes dark ink: blue text on gold is too faint */
 .bloom-offer .bloom-offer__no, .bloom-break .bloom-offer__no { border-color: var(--bloom-ink); color: var(--bloom-ink); background: rgba(255, 255, 255, 0.55); }
-.bloom-break__title, .bloom-offer > p:first-child { font-size: 1.15em; font-weight: 700; }
+/* A couple of big words and big buttons: readable with double vision,
+   hittable with shaking hands. */
+.bloom-offer__title { margin: 0 0 12px; font-size: 1.75em; font-weight: 800; line-height: 1.15; }
+:is(.bloom-offer, .bloom-break) :is(.bloom-offer__yes, .bloom-offer__no) {
+  min-height: 60px;
+  min-width: 7.5rem;
+  margin: 4px 12px 4px 0;
+  padding: 0 26px;
+  font-size: 1.3em;
+}
+.bloom-offer__line { margin: 10px 0 0; font-size: 1.05em; font-weight: 600; }
 
 /* ── smaller steps ────────────────────────────────────────────────────── */
 .bloom-steps { padding: 4px 0; }

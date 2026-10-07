@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.3.0 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.3.1 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -50,12 +50,25 @@
     // Show phone numbers as 555-123-4567 once a field is left or autofilled.
     // Opt a field out with data-bloom-noformat.
     formatPhone: true,
+    // What the offers say. Short on purpose: with double vision or shaking
+    // hands you can't read a sentence, so each offer is a couple of words and
+    // big buttons. Screen readers still hear the full explanation (`*Sr`).
+    // Override any of these to change the wording or translate it.
+    text: {
+      stepsTitle: 'Easy form?', stepsYes: 'Yes', stepsNo: 'No',
+      stepsSr: 'This question asks for a lot at once. Answer it in smaller steps instead?',
+      breakTitle: 'Take a break?', breakYes: 'Pause', breakNo: 'Keep going', breakLine: 'We’ll save your spot.',
+      breakSr: 'Pause, and your progress is saved. You can come back and pick up right where you left off.',
+      backTitle: 'Welcome back', backYes: 'Pick up where I left off', backNo: 'Start over',
+    },
   };
 
   var OFF_KEY = 'kinedic-bloom:off';
 
   function start(options) {
     var o = Object.assign({}, DEFAULTS, options || {});
+    o.text = Object.assign({}, DEFAULTS.text, (options && options.text) || {});
+    var T = o.text;
     var root = typeof o.root === 'string' ? document.querySelector(o.root) : o.root;
     if (!root) throw new Error('Kinedic Bloom: no root element (add data-bloom-root)');
     var html = document.documentElement;
@@ -295,9 +308,9 @@
       if (!Array.isArray(prompts) || !prompts.length) return;
       state.offered.add(block);
       var offer = el('div', { class: 'bloom-offer', role: 'region', 'aria-label': 'Bloom suggestion' });
-      var yes = el('button', { type: 'button', class: 'bloom-offer__yes' }, 'Yes, smaller steps');
-      var no = el('button', { type: 'button', class: 'bloom-offer__no' }, 'No thanks');
-      offer.append(el('p', {}, 'This question asks for a lot at once. Want to answer it in ' + prompts.length + ' smaller steps?'), yes, no);
+      var yes = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.stepsYes);
+      var no = el('button', { type: 'button', class: 'bloom-offer__no' }, T.stepsNo);
+      offer.append(el('p', { class: 'bloom-offer__title' }, T.stepsTitle), el('span', { class: 'bloom-sr' }, T.stepsSr), yes, no);
       block.insertBefore(offer, block.firstChild);
       emit('offer', { kind: 'steps', field: label(field) });
       log('Offered smaller steps for “' + label(field) + '”', 'offer');
@@ -355,12 +368,13 @@
     function offerBreak() {
       if (performance.now() < state.breakSnoozedUntil || root.querySelector('.bloom-break')) return;
       var box = el('div', { class: 'bloom-break', role: 'region', 'aria-label': 'Bloom suggestion' });
-      var pauseBtn = el('button', { type: 'button', class: 'bloom-offer__yes' }, 'Pause');
-      var keep = el('button', { type: 'button', class: 'bloom-offer__no' }, 'Keep going');
+      var pauseBtn = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.breakYes);
+      var keep = el('button', { type: 'button', class: 'bloom-offer__no' }, T.breakNo);
       box.append(
-        el('p', { class: 'bloom-break__title' }, 'Would you like to take a break?'),
-        el('p', {}, 'Press pause and your progress is saved on this device. You can come back here and pick up right at this spot.'),
-        pauseBtn, keep);
+        el('p', { class: 'bloom-offer__title' }, T.breakTitle),
+        el('span', { class: 'bloom-sr' }, T.breakSr),
+        pauseBtn, keep,
+        el('p', { class: 'bloom-offer__line' }, T.breakLine));
       // right where the person is, not at the top of a long form
       var f = state.field || (isField(document.activeElement) ? document.activeElement : null);
       var anchor = f && (f.closest('[data-bloom-steps], fieldset, .field, .usa-form-group') || f);
@@ -457,10 +471,10 @@
       var data; try { data = JSON.parse(raw); } catch (_) { return forget(); }
       if (!data || Date.now() - data.savedAt > o.saveTtlMs) return forget();
       var box = el('div', { class: 'bloom-break', role: 'region', 'aria-label': 'Saved progress' });
-      var yes = el('button', { type: 'button', class: 'bloom-offer__yes' }, 'Resume where I left off');
-      var no = el('button', { type: 'button', class: 'bloom-offer__no' }, 'Start over');
-      box.append(el('p', { class: 'bloom-break__title' }, 'Welcome back.'),
-        el('p', {}, 'Your progress from ' + new Date(data.savedAt).toLocaleString() + ' is saved' + (onDevice ? ' on this device' : '') + '.'), yes, no);
+      var yes = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.backYes);
+      var no = el('button', { type: 'button', class: 'bloom-offer__no' }, T.backNo);
+      box.append(el('p', { class: 'bloom-offer__title' }, T.backTitle),
+        el('span', { class: 'bloom-sr' }, 'Your progress from ' + new Date(data.savedAt).toLocaleString() + ' is saved' + (onDevice ? ' on this device' : '') + '.'), yes, no);
       root.insertBefore(box, root.firstChild);
       yes.focus();
       yes.addEventListener('click', function () { box.remove(); restore(data); forget(); });
@@ -863,5 +877,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.3.0' };
+  global.KinedicBloom = { start: start, version: '0.3.1' };
 })(typeof window !== 'undefined' ? window : this);

@@ -272,18 +272,18 @@ export const projects: Project[] = [
     titleEm: 'Bloom',
     category: 'INTERACTION SYSTEM',
     tagline:
-      'A passive+active adaptive interface that blooms in real time — reading dwell, motor noise, and cognitive load, then reshaping the surface.',
+      'An interface that adapts to the person using it, reading friction as it happens instead of asking people to declare their limitations up front.',
     role: 'Interaction design · Systems',
-    pipeline: ['Input telemetry', 'Load model', 'Adaptive layout', 'Live demo loop'],
+    pipeline: ['Behavioral signals', 'Friction model', 'Adaptive layout', 'Voice handoff (designed)'],
     status: { label: 'Prototype', accent: 'magenta', live: true },
     year: '2026',
     brief: {
       problem:
-        'Accessibility settings ask people to declare needs in advance, once, in a settings panel — which is exactly when they know least about them. Need changes by the hour: fatigue, tremor, distraction, context.',
+        'Interfaces decide what you can do before they know anything about you. The page loads assuming you can see it, read it, aim a pointer and fill in a form, and the accessibility settings that might help sit behind those same abilities. Asking people to declare their limitations once, up front, also misses that need changes by the hour: fatigue, tremor, distraction.',
       pipeline:
-        'The surface reads dwell time, pointer jitter and correction rate as continuous signals rather than a stored profile, then reshapes target size, density and pacing in place. No declaration, no mode switch.',
+        'An adaptive layer reads continuous behavioral signals, like pointer jitter, dwell time and missed targets, then enlarges controls, widens spacing and simplifies complex questions in real time. No declaration, no mode switch. If friction keeps climbing, the design hands off to a voice mode, so the person can finish the task by talking instead of fighting the screen.',
       milestone:
-        'Working prototype with a live demo loop; patent proposal drafted.',
+        'Adaptive layout working in a live demo. Voice handoff designed, not yet built. Patent proposal drafted.',
     },
     demoEmbed: '/demos/kinedic-bloom.html',
     logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },

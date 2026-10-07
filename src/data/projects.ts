@@ -274,8 +274,8 @@ export const projects: Project[] = [
     tagline:
       'An interface that adapts to the person using it, reading friction as it happens instead of asking people to declare their limitations up front.',
     role: 'Interaction design · Systems',
-    pipeline: ['Behavioral signals', 'Friction model', 'Adaptive layout', 'Voice handoff (designed)'],
-    status: { label: 'Concept demo', accent: 'magenta', live: true },
+    pipeline: ['Behavioral signals', 'Friction model', 'Adaptive layout', 'Pause & resume', 'Open source · GPLv3'],
+    status: { label: 'v0.1 · open source', accent: 'magenta', live: true },
     year: '2026',
     brief: {
       problem:
@@ -283,9 +283,10 @@ export const projects: Project[] = [
       pipeline:
         'An adaptive layer reads continuous behavioral signals, like pointer jitter, dwell time and missed targets, then enlarges controls, widens spacing and simplifies complex questions in real time. No declaration, no mode switch. If friction keeps climbing, the design hands off to a voice mode, so the person can finish the task by talking instead of fighting the screen.',
       milestone:
-        'A scripted concept demo shows the adaptations. The open-source library is next; the voice handoff is designed, not yet built.',
+        'v0.1 is open source and running in the live demo: larger targets, smaller steps, and a break you can pause and come back to, saved on the device. The voice handoff is designed, not yet built.',
     },
     demoEmbed: '/demos/kinedic-bloom.html',
+    site: { href: 'https://github.com/bonnieDev/kinedic-bloom', label: 'github.com/bonnieDev/kinedic-bloom' },
     logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
   },
   {

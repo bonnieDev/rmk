@@ -108,8 +108,8 @@
 </head>
 <body>
 
-<header class="demo-head">
-  <h1>Kinedic Bloom <span>· working demo v0.4</span></h1>
+<header class="demo-head" data-bloom-ignore>
+  <h1>Kinedic Bloom <span>· working demo v0.5</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
     <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
@@ -120,13 +120,14 @@
 
 <div class="layout">
   <main>
-    <div class="try">
+    <div class="try" data-bloom-ignore>
       <strong>Try it.</strong> Nothing here is sent anywhere.
       <ol>
         <li><strong>Motor:</strong> shake your pointer near the form, or press “Simulate a tremor.” Buttons get easier to hit, and a bar explains what changed.</li>
         <li><strong>Cognitive:</strong> click into the long question and stop typing for a few seconds. Bloom offers an easy form, then asks if you’d like a call or your doctor’s help. That request goes with the form.</li>
         <li><strong>Break:</strong> stall again, in any field, and Bloom offers a break. Press Pause, reload the page, and it offers to pick up right where you were.</li>
         <li><strong>Keyboard:</strong> put the mouse down and press Tab a few times. Bloom switches to keyboard mode and describes each control.</li>
+        <li><strong>Text size:</strong> use A · A+ · A++ at the top of the form, or act like you’re hunting for it: click the gray space beside the form a few times, or type when you’re not in a field. Bloom makes the text larger for you.</li>
         <li><strong>Fill-in:</strong> let your browser autofill your name, email and phone, or type a phone number as plain digits and move on. Bloom shows it as 555-123-4567 so it’s easy to check.</li>
         <li><strong>Wrong clicks:</strong> click “See the eligibility rules” (it isn’t a link), or just miss the Submit button. It all lands in the friction report.</li>
       </ol>
@@ -135,6 +136,7 @@
 
     <form class="gov" data-bloom-root id="form" novalidate>
       <div class="gov__banner">A sample form, for demonstration only. It looks official; it isn’t.</div>
+      <div data-bloom-textsize></div>
       <h2>Application for benefits</h2>
       <p class="gov__omb">Sample form · Section 2 of 6</p>
 
@@ -218,7 +220,7 @@
     </form>
   </main>
 
-  <aside class="panel" aria-label="What Bloom sees">
+  <aside class="panel" aria-label="What Bloom sees" data-bloom-ignore>
     <h2>What Bloom sees</h2>
     <p class="panel__note">Live readings from the real library. All of it stays in this browser.</p>
     <div class="meter"><div class="meter__label"><span>Motor friction</span><span id="m-motor">0.00</span></div><div class="meter__track"><div class="meter__fill" id="f-motor"></div></div></div>
@@ -301,6 +303,7 @@
     a.href = URL.createObjectURL(blob); a.download = 'bloom-friction-report.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
+  bloom.on('adapt', (a) => { if (a.kind === 'text' && a.how === 'auto') trackOnce('bloom_text_auto'); });
   bloom.on('adapt', (a) => { if (a.kind === 'keyboard') { $('d-kb').textContent = a.on ? 'on' : 'off'; if (a.on) trackOnce('bloom_keyboard'); } });
   bloom.on('motor', (m) => { $('d-rev').textContent = m.reversals; $('d-path').textContent = m.path + ' / ' + m.net + ' px'; });
   bloom.on('log', (e) => {

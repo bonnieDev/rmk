@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.4.0 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.5.0 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -42,7 +42,14 @@
     // Keyboard and seeing
     keyboardTabs: 3,         // Tab presses without the pointer → keyboard mode
     pointerResetPx: 400,     // real pointer travel that ends keyboard mode
-    zoomOfferScale: 1.25,    // pinch-zoom past this → offer larger text
+    zoomOfferScale: 1.25,    // pinch-zoom past this counts as looking for bigger text
+    // Text size: a control at the top of the form, and larger text on its own
+    // when someone seems to be hunting for it (clicking outside the form,
+    // typing when not in a field, pressing + or −).
+    textControl: true,
+    searchSignals: 3,        // this many hunting signals…
+    searchWindowMs: 15000,   // …within this long → one size larger
+    ignore: '[data-bloom-ignore]', // areas Bloom leaves alone (e.g. a site's own toolbar)
     // Clicking the wrong thing
     rageClicks: 3, rageMs: 1000, ragePx: 40,
     // Tab-readiness audit at start, fixing what's safe to fix
@@ -125,7 +132,7 @@
       breakSnoozedUntil: 0, offered: new Set(), paused: false,
       last: performance.now(),
       tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false,
-      undo: null, clicks: [], textOffered: false,
+      undo: null, clicks: [], textLevel: 0, searches: [], textCooldownUntil: 0,
     };
 
     // ── events ────────────────────────────────────────────────────────────
@@ -551,7 +558,7 @@
     function setOff(off) {
       state.off = off;
       off ? safeSet(OFF_KEY, '1') : safeRemove(OFF_KEY);
-      if (off) { setMotorLevel(0, 'turned off'); setKeyboard(false, 'turned off'); setText(0); hideBar(); root.querySelectorAll('.bloom-offer, .bloom-break').forEach(function (n) { n.remove(); }); }
+      if (off) { setMotorLevel(0, 'turned off'); setKeyboard(false, 'turned off'); hideBar(); root.querySelectorAll('.bloom-offer, .bloom-break').forEach(function (n) { n.remove(); }); }
       emit('power', { off: off });
       log(off ? 'Bloom turned off' : 'Bloom turned on', 'info');
     }
@@ -571,13 +578,20 @@
         state.tabs++; state.travel = 0;
         if (!state.keyboard && state.tabs >= o.keyboardTabs) setKeyboard(true, 'Moving with Tab, not the pointer');
       }
-      if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) offerText('You zoomed in.');
+      // Ctrl/Cmd + plus is the browser's own zoom, which already works;
+      // adding Bloom's larger text on top would double it.
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var inField = isField(document.activeElement) || (document.activeElement && document.activeElement.isContentEditable);
+      if (inField || inIgnored(document.activeElement)) return;
+      if (e.key === '+' || e.key === '=' || e.key === '-') searchSignal('pressed ' + e.key + ' outside a field', 2);
+      else if (e.key === 'Escape') searchSignal('pressed Escape', 1);
+      else if (e.key.length === 1 && /\S/.test(e.key)) searchSignal('typed outside a field', 1);
     }
     function onResize() {
       if (state.keyboard && !caption.hidden && root.contains(document.activeElement)) placeCaption(document.activeElement);
     }
     function onViewport() {
-      if (window.visualViewport && window.visualViewport.scale >= o.zoomOfferScale) offerText('You zoomed in.');
+      if (window.visualViewport && window.visualViewport.scale >= o.zoomOfferScale) searchSignal('pinch-zoomed in', o.searchSignals);
     }
 
     function setKeyboard(on, why) {
@@ -658,20 +672,56 @@
       return parts.join(' · ') + (hint ? ' — ' + hint : '');
     }
 
-    function offerText(why) {
-      if (state.textOffered || state.off) return;
-      state.textOffered = true;
-      emit('offer', { kind: 'text' });
-      log('Offered larger text (' + why + ')', 'offer');
-      showBar(why + ' Make the form’s text larger?', undefined, ['Larger text', function () {
-        setText(1);
-        change('Larger text');
-        showBar('Bloom made the text larger.', function () { setText(0); });
-      }]);
+    // ── text size: always at the top, and larger on its own when hunted for ─
+    var TEXT_KEY = 'kinedic-bloom:text';
+    var textBox = null, textBtns = [], textStatus = null;
+    if (o.textControl) {
+      textBox = el('div', { class: 'bloom-textsize', role: 'group', 'aria-labelledby': 'bloom-textsize-label' });
+      textBox.appendChild(el('span', { class: 'bloom-textsize__label', id: 'bloom-textsize-label' }, 'Text size'));
+      [['A', 'Normal text'], ['A+', 'Larger text'], ['A++', 'Largest text']].forEach(function (b, i) {
+        var btn = el('button', { type: 'button', class: 'bloom-textsize__btn bloom-textsize__btn--' + i, 'aria-label': b[1], 'aria-pressed': 'false' }, b[0]);
+        btn.addEventListener('click', function () { setText(i, 'chosen'); });
+        textBtns.push(btn); textBox.appendChild(btn);
+      });
+      textStatus = el('span', { class: 'bloom-textsize__status', role: 'status' });
+      textBox.appendChild(textStatus);
+      // a site can choose the spot with an empty <div data-bloom-textsize>;
+      // otherwise it goes at the very top of the form
+      var slot = root.querySelector('[data-bloom-textsize]');
+      if (slot) slot.appendChild(textBox); else root.insertBefore(textBox, root.firstChild);
     }
-    function setText(level) {
+
+    function searchSignal(why, weight) {
+      if (state.off || state.paused || state.textLevel >= 2) return;
+      var now = performance.now();
+      if (now < state.textCooldownUntil) return;
+      state.searches = state.searches.filter(function (t) { return now - t.at < o.searchWindowMs; });
+      for (var i = 0; i < (weight || 1); i++) state.searches.push({ at: now, why: why });
+      log('Looking for something? (' + why + ')', 'cognitive');
+      if (state.searches.length >= o.searchSignals) {
+        state.searches = [];
+        state.textCooldownUntil = now + 20000;
+        setText(state.textLevel + 1, 'auto', why);
+      }
+    }
+
+    // how: 'chosen' (the person pressed a size), 'auto' (Bloom saw them hunting),
+    // 'restore' (their saved choice), 'reset'
+    function setText(level, how, why) {
+      level = Math.max(0, Math.min(2, level || 0));
+      state.textLevel = level;
       if (level) html.setAttribute('data-bloom-text', String(level)); else html.removeAttribute('data-bloom-text');
-      emit('adapt', { kind: 'text', level: level });
+      textBtns.forEach(function (b, i) { b.setAttribute('aria-pressed', String(i === level)); });
+      if (how !== 'restore') safeSet(TEXT_KEY, String(level));
+      if (textStatus) textStatus.textContent = how === 'auto' ? 'Made larger for you' : '';
+      emit('adapt', { kind: 'text', level: level, how: how });
+      if (how === 'auto') {
+        change('Larger text (looked like the person was hunting for it: ' + why + ')');
+        log('Text made larger on its own (' + why + ')', 'adapt');
+        announce('Text made larger. Text size buttons are at the top of the form.');
+      } else if (how === 'chosen') {
+        change('Text size set to ' + ['normal', 'larger', 'largest'][level]);
+      }
     }
 
     // ── tab-ready audit ───────────────────────────────────────────────────
@@ -683,7 +733,8 @@
         return !n.disabled && n.tabIndex >= 0 && !isBloomUI(n) && n.getClientRects().length > 0;
       });
     }
-    function isBloomUI(n) { return !!(n.closest && n.closest('.bloom-bar, .bloom-offer, .bloom-break, .bloom-steps, .bloom-note, .bloom-sr')); }
+    function isBloomUI(n) { return !!(n.closest && n.closest('.bloom-bar, .bloom-offer, .bloom-break, .bloom-steps, .bloom-note, .bloom-sr, .bloom-textsize')); }
+    function inIgnored(n) { return !!(o.ignore && n && n.closest && n.closest(o.ignore)); }
 
     function audit() {
       var issues = [];
@@ -789,7 +840,14 @@
     function onClick(e) {
       if (state.off || state.paused || !e.isTrusted && !o.countSyntheticClicks) return;
       var t = e.target;
-      if (!root.contains(t) || isBloomUI(t)) return;
+      if (!root.contains(t)) {
+        // clicking around outside the form, not on anything that does
+        // something: often someone hunting for a way to make text bigger
+        if (e.isTrusted && !inIgnored(t) && !t.closest('a[href], button, input, select, textarea, label, summary, [role=button], [tabindex], .bloom-pause, .bloom-caption'))
+          searchSignal('clicked outside the form', 1);
+        return;
+      }
+      if (isBloomUI(t)) return;
       var now = performance.now();
       state.clicks = state.clicks.filter(function (c) { return now - c.t < o.rageMs; });
       state.clicks.push({ t: now, x: e.clientX, y: e.clientY });
@@ -906,6 +964,10 @@
     if (window.visualViewport) window.visualViewport.addEventListener('resize', onViewport);
     window.addEventListener('resize', onResize);
     newReport();
+    // the person's own text-size choice comes back with them
+    var savedText = parseInt(safeGet(TEXT_KEY) || '0', 10);
+    if (savedText) setText(savedText, 'restore');
+    else textBtns.length && textBtns[0].setAttribute('aria-pressed', 'true');
     if (rep.os.length) log('System settings: ' + rep.os.join(', '), 'info');
     tick();
     checkSaved();
@@ -922,10 +984,10 @@
       turnOff: function () { setOff(true); },
       reset: function () {
         state.motor = 0; state.cognitive = 0; state.offered.clear(); state.refocus.clear(); state.breakSnoozedUntil = 0;
-        state.textOffered = false; state.undo = null; state.paused = false; state.assistOffered = false;
+        state.undo = null; state.paused = false; state.assistOffered = false;
         var assistInput = root.querySelector('input[type=hidden][name="' + o.assistField + '"]');
         if (assistInput) assistInput.value = '';
-        setMotorLevel(0, 'reset'); setKeyboard(false, 'reset'); setText(0); hideBar();
+        setMotorLevel(0, 'reset'); setKeyboard(false, 'reset'); setText(0, 'reset'); state.searches = []; state.textCooldownUntil = 0; hideBar();
         newReport(); emitReport();
         root.querySelectorAll('.bloom-offer, .bloom-break, .bloom-note').forEach(function (n) { n.remove(); });
       },
@@ -944,7 +1006,7 @@
         document.removeEventListener('click', onClick, true);
         if (window.visualViewport) window.visualViewport.removeEventListener('resize', onViewport);
         window.removeEventListener('resize', onResize);
-        bar.remove(); live.remove(); caption.remove();
+        bar.remove(); live.remove(); caption.remove(); if (textBox) textBox.remove();
       },
     };
     return api;
@@ -960,5 +1022,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.4.0' };
+  global.KinedicBloom = { start: start, version: '0.5.0' };
 })(typeof window !== 'undefined' ? window : this);

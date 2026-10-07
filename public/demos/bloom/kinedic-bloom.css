@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.4.0 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
+ * Kinedic Bloom v0.5.0 — styles. GPL-3.0-only. © 2026 Bonnie Caroline Remeika.
  *
  * Motor adaptations use transform and an invisible hit area only: nothing
  * changes size in the layout, so nothing moves out from under a pointer.
@@ -23,13 +23,13 @@
 :root[data-bloom-motor='1'] { --bloom-scale: 1.08; --bloom-hit: 10px; --bloom-ring: 3px; }
 :root[data-bloom-motor='2'] { --bloom-scale: 1.16; --bloom-hit: 18px; --bloom-ring: 4px; }
 
-[data-bloom-root] :is(button, [role='button'], input[type='submit'], .bloom-target):not([class*='bloom-bar'], [class*='bloom-offer'], [class*='bloom-steps']) {
+[data-bloom-root] :is(button, [role='button'], input[type='submit'], .bloom-target):not([class*='bloom-bar'], [class*='bloom-offer'], [class*='bloom-steps'], [class*='bloom-textsize']) {
   position: relative;
   transform: scale(var(--bloom-scale));
   transition: transform var(--bloom-ease), box-shadow var(--bloom-ease);
 }
 /* Bloom's own controls are already large; they don't adapt themselves */
-:root[data-bloom-motor] [data-bloom-root] :is(button, [role='button'], .bloom-target):not([class*='bloom-bar'], [class*='bloom-offer'], [class*='bloom-steps']) {
+:root[data-bloom-motor] [data-bloom-root] :is(button, [role='button'], .bloom-target):not([class*='bloom-bar'], [class*='bloom-offer'], [class*='bloom-steps'], [class*='bloom-textsize']) {
   box-shadow: 0 0 0 var(--bloom-ring) var(--bloom-tint), 0 0 0 calc(var(--bloom-ring) + 2px) var(--bloom-accent);
 }
 /* The invisible hit expander: a click just outside the target still lands.
@@ -74,8 +74,41 @@
 }
 .bloom-caption[hidden] { display: none; }
 
-/* ── larger text, only when the person says yes ──────────────────────── */
+/* ── text size: the control, and the sizes ───────────────────────────── */
 :root[data-bloom-text='1'] [data-bloom-root] { font-size: 1.2em; }
+:root[data-bloom-text='2'] [data-bloom-root] { font-size: 1.45em; }
+
+.bloom-textsize {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border: 2px solid var(--bloom-ink);
+  border-radius: 6px;
+  background: var(--bloom-paper);
+  color: var(--bloom-ink);
+  /* sized in px so the control stays put when the form's text grows */
+  font-size: 18px;
+}
+.bloom-textsize__label { font-weight: 800; margin-right: 4px; }
+.bloom-textsize__btn {
+  min-width: 56px;
+  min-height: 52px;
+  padding: 0 12px;
+  border: 2px solid var(--bloom-ink);
+  border-radius: 6px;
+  background: var(--bloom-paper);
+  color: var(--bloom-ink);
+  font: 800 20px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+.bloom-textsize__btn--1 { font-size: 26px; }
+.bloom-textsize__btn--2 { font-size: 32px; }
+.bloom-textsize__btn[aria-pressed='true'] { background: var(--bloom-ink); color: var(--bloom-paper); }
+.bloom-textsize__btn:focus-visible { outline: 4px solid #2491ff; outline-offset: 2px; }
+.bloom-textsize__status:not(:empty) { padding: 6px 10px; border-radius: 4px; background: var(--bloom-alert); font-weight: 800; }
 
 /* ── the status bar ───────────────────────────────────────────────────── */
 .bloom-bar {

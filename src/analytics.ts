@@ -79,3 +79,54 @@ export function trackJourney(): () => void {
     window.removeEventListener('pagehide', exit)
   }
 }
+
+/**
+ * Every click on something you can interact with, named by where it was and
+ * what it was: one `ui_click` with `part` ("Kinedic Drop: Technical brief"),
+ * `section` and `control`. Clicks on images count too, by their alt text.
+ * Never anything a visitor typed. Returns a cleanup function.
+ */
+export function trackClicks(): () => void {
+  const clean = (s: string | null | undefined) => (s ?? '').replace(/\s+/g, ' ').trim()
+  // the label a person sees: leaves out decorative bits (aria-hidden) like the
+  // "+" on "Technical brief", and screen-reader-only text
+  const textOf = (el: Element) => {
+    const copy = el.cloneNode(true) as Element
+    copy.querySelectorAll('[aria-hidden="true"], .visually-hidden').forEach((n) => n.remove())
+    return copy.textContent
+  }
+
+  const sectionOf = (el: Element): string => {
+    const entry = el.closest('article.entry')
+    if (entry) {
+      const title = entry.querySelector('.entry__title')
+      return (title && clean(textOf(title))) || entry.id.replace(/^work-/, '')
+    }
+    if (el.closest('.masthead')) return 'Masthead'
+    if (el.closest('.hero')) return 'Hero'
+    if (el.closest('#index')) return 'Index'
+    if (el.closest('#about')) return 'About'
+    if (el.closest('#resume')) return 'Record'
+    if (el.closest('.site-foot')) return 'Footer'
+    return 'Page'
+  }
+
+  const onClick = (e: MouseEvent) => {
+    const target = e.target as Element | null
+    if (!target?.closest) return
+    // the button or link wins over a picture inside it
+    const control = target.closest('a, button, [role=button], summary, label') || target.closest('img')
+    if (!control) return
+    const label = clean(
+      control.getAttribute('aria-label') ||
+        (control instanceof HTMLImageElement ? control.alt && 'Image: ' + control.alt.slice(0, 40) : '') ||
+        textOf(control) ||
+        control.getAttribute('title'),
+    ).slice(0, 50) || control.tagName.toLowerCase()
+    const section = sectionOf(control).slice(0, 40)
+    track('ui_click', { part: `${section}: ${label}`, section, control: label })
+  }
+
+  document.addEventListener('click', onClick, true)
+  return () => document.removeEventListener('click', onClick, true)
+}

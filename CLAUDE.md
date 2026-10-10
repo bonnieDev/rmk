@@ -45,6 +45,7 @@ without asking.
 
 | Event | Parameters | Fires when |
 |---|---|---|
+| `ui_click` | `part`, `section`, `control` | Any click on a link, button or image, named by where and what ("Kinedic Drop: Technical brief"). Labels skip decorative and screen-reader-only text |
 | `section_view` | `section`, `order` | A section is first reached (hero, index, each project id, about, record) |
 | `page_exit` | `last_section`, `sections_seen`, `seconds_on_page` | Tab hidden or page closed (sent as beacon; can repeat if they return) |
 | `project_open` | `project`, `position` | A project's brief is opened |
@@ -57,7 +58,7 @@ without asking.
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
 | `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Kinedic Bloom: `bloom_motor`, `bloom_keyboard`, `bloom_steps`, `bloom_assist`, `bloom_text_auto`, `bloom_shaky_tried`, `bloom_break_offered`, `bloom_pause`, `bloom_resume` |
 
-Registered custom dimensions (Bonnie to confirm in GA): `section`, `project`,
+Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`.
 
 Outbound links and PDF downloads are recorded automatically by GA's enhanced

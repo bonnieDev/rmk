@@ -9,7 +9,7 @@ import { ProjectEntry } from './components/ProjectEntry'
 // Shape field background — switched off for now; restore this and <ShapeField /> below to bring it back.
 // import { ShapeField } from './components/ShapeField'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
-import { track, trackJourney } from './analytics'
+import { track, trackClicks, trackJourney } from './analytics'
 import './App.css'
 
 const NAV = [
@@ -97,6 +97,8 @@ export default function App() {
 
   // The visitor's path through the page, for Analytics → User explorer
   useEffect(() => trackJourney(), [])
+  // Every click, named by where it was and what it was
+  useEffect(() => trackClicks(), [])
 
   useEffect(() => {
     const el = heroLogoRef.current

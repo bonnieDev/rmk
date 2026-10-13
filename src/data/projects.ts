@@ -161,7 +161,7 @@ export const projects: Project[] = [
       'A cherry, a bomb, and one very big lift. A short for Bunny Anarchy: funny, cute, and a little unruly, set to an original song by Moia.',
     role: 'Motion design · Edit',
     pipeline: ['Generated footage', 'After Effects', 'Original score · Moia'],
-    status: { label: '700+ views on LinkedIn', accent: 'coral' },
+    status: { label: 'Released', accent: 'coral' },
     year: '2026',
     brief: {
       problem:
@@ -169,7 +169,7 @@ export const projects: Project[] = [
       pipeline:
         'Generated clips cut, composited and timed in After Effects, set to an original song composed by Moia.',
       milestone:
-        'Released on LinkedIn, where it passed 700 views.',
+        'Released on LinkedIn.',
     },
     videoEmbed:
       'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/f3991de4540fffbfd31b4914480526b7/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent',

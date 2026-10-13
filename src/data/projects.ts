@@ -341,7 +341,7 @@ export const projects: Project[] = [
       'Fashion, art and controlled chaos built around one idea: empowerment does not have a dress code.',
     role: 'Brand · Character design · Front-end',
     pipeline: ['Shopify storefront', 'Character IP', 'React Three Fiber arcade', 'SVG + DOM motion'],
-    status: { label: 'Live · in progress', accent: 'coral', live: true },
+    status: { label: 'Shop live on otherly.shop', accent: 'coral', live: true },
     year: '2026',
     brief: {
       problem:
@@ -349,7 +349,7 @@ export const projects: Project[] = [
       pipeline:
         'A single static page with Shopify buy buttons. The Bunny Anarcade, a catch-the-drop game in React Three Fiber, loads only when someone presses play and hands the page back to the shop on exit. Reggie, the origami unicorn, runs on his own state machine and only hears named game events, so his art can be replaced without touching gameplay. The fur on the headline is an SVG filter over live text.',
       milestone:
-        'Live. The game and Reggie’s reactions ship with placeholder art; final character drawings are in progress.',
+        'The standalone site has moved into Otherly, my multi-brand store: bunnyanarchy.co now goes to its shop there. The Anarcade and Reggie, shown here, were built for that site; final character drawings are in progress.',
     },
     stills: [
       {
@@ -363,7 +363,7 @@ export const projects: Project[] = [
         alt: 'The Bunny Anarchy homepage hero: the word BUNNY in soft white fur above ANARCHY in hot pink, hand-lettered stickers scattered around it, and Reggie the origami unicorn upside down on his horn on the WOT sticker.',
       },
     ],
-    site: { href: 'https://bunnyanarchy.co', label: 'bunnyanarchy.co' },
+    site: { href: 'https://otherly.shop/collections/bunny-anarchy', label: 'Shop Bunny Anarchy on otherly.shop' },
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
 ]

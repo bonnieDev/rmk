@@ -295,19 +295,20 @@ export const projects: Project[] = [
     titleEm: 'Byte',
     category: 'NARRATIVE SYSTEM',
     tagline:
-      'Frostbyte and the Tablet of Light. Diffing history: the Emerald Tablet, run against science and theology the way you’d diff two versions of code, with AI as the cross-reference engine. Not religious. Forensic.',
+      'Frostbyte and the Tablet of Light. Diffing history: the Emerald Tablet and the Hermetic Principles, run against science and theology the way you’d diff two versions of code, with AI as the cross-reference engine. Not religious. Forensic.',
     role: 'Worldbuilding · Story systems · Research method',
     pipeline: ['AI cross-reference', 'Text diff: tablet × science × theology', 'Structural canon', 'AI video'],
     status: { label: 'In development', accent: 'yellow' },
     year: '2026',
     brief: {
       problem:
-        'The Emerald Tablet has been read for centuries through one lens at a time: alchemy, theology, early science. The readings are rarely laid side by side to ask what actually changed between them, the way a programmer compares two versions of the same file.',
+        'The Emerald Tablet and the Hermetic Principles have been read for centuries through one lens at a time: alchemy, theology, early science. The readings are rarely laid side by side to ask what actually changed between them, the way a programmer compares two versions of the same file.',
       pipeline:
-        'My method: treat each tradition’s reading as a version of the text and use AI to cross-reference and diff them, line by line, against what science and theology each claim. Frostbyte, a programmer torn into a strange world, carries that method as her story. A fixed structural framework holds the canon, so every new fragment is reconciled against what is already established before it ships.',
+        'In 2025 I built the FrostByte Codex, the first AI-assisted framework to cross-check the Hermetic Principles, principle by principle, against neuroscience, quantum physics, fractal geometry, thermodynamics, chaos theory, biology and the major world faiths. Each tradition’s reading is treated as a version of the text and diffed against the others. Frostbyte, a programmer torn into a strange world, carries that method as her story. A fixed structural framework holds the canon, so every new fragment is reconciled against what is already established before it ships.',
       milestone:
         'Method and voice established; the first chapters of “Frostbyte and the Tablet of Light” are drafting against the structure.',
     },
+    site: { href: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7365617344020189186/', label: 'The FrostByte Codex, timestamped on LinkedIn (2025)' },
     videoEmbed:
       'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/28c267ddd2cafd0073aa94aca59c2592/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F28c267ddd2cafd0073aa94aca59c2592%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
     logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },

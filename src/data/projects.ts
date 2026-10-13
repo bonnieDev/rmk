@@ -295,19 +295,21 @@ export const projects: Project[] = [
     titleEm: 'Byte',
     category: 'NARRATIVE SYSTEM',
     tagline:
-      'A programmer torn into a strange world as Frostbyte — broadcast, memory, and purpose braided through hermetic structure and live transmission.',
-    role: 'Worldbuilding · Story systems',
-    pipeline: ['Structural framework', 'Voice + transmission', 'Serialized release'],
+      'Frostbyte and the Tablet of Light. Diffing history: the Emerald Tablet, run against science and theology the way you’d diff two versions of code, with AI as the cross-reference engine. Not religious. Forensic.',
+    role: 'Worldbuilding · Story systems · Research method',
+    pipeline: ['AI cross-reference', 'Text diff: tablet × science × theology', 'Structural canon', 'AI video'],
     status: { label: 'In development', accent: 'yellow' },
     year: '2026',
     brief: {
       problem:
-        'A world told in fragments across broadcast, text and transmission falls apart without a structure underneath it. Continuity cannot be held in the author’s head once the release is serialized.',
+        'The Emerald Tablet has been read for centuries through one lens at a time: alchemy, theology, early science. The readings are rarely laid side by side to ask what actually changed between them, the way a programmer compares two versions of the same file.',
       pipeline:
-        'A fixed structural framework governs the canon — kernels of the world set in advance, with a documented method for reconciling each new fragment against what is already established before it ships.',
+        'My method: treat each tradition’s reading as a version of the text and use AI to cross-reference and diff them, line by line, against what science and theology each claim. Frostbyte, a programmer torn into a strange world, carries that method as her story. A fixed structural framework holds the canon, so every new fragment is reconciled against what is already established before it ships.',
       milestone:
-        'Framework and voice established; chapters drafting against the structure.',
+        'Method and voice established; the first chapters of “Frostbyte and the Tablet of Light” are drafting against the structure.',
     },
+    videoEmbed:
+      'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/28c267ddd2cafd0073aa94aca59c2592/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F28c267ddd2cafd0073aa94aca59c2592%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
     logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },
   },
   {

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SNBN Presents: Skull — live demo</title>
+    <!--
+      A playable copy of SNBN PRESENTS: SKULL for rmk.systems.
+      The real one runs on the Otherly store (otherly.shop/pages/skull), which
+      Shopify won't let other sites embed. Source: ~/Documents/_Otherly/snbn
+      (built bundle copied into demos/skull-live/). The song streams from
+      Shopify's CDN. Copyright © Bonnie Remeika. All rights reserved.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Big+Shoulders+Display:wght@800;900&family=Silkscreen&family=VT323&display=swap" />
+    <link rel="stylesheet" href="/demos/skull-live/snbn.css" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #050406; color: #efe8d8; font-family: 'Archivo', system-ui, sans-serif; overflow: hidden; }
+      /* fill the portfolio's demo frame */
+      .snbn.skull-live { height: 100vh !important; min-height: 0 !important; }
+      /* in the portfolio's column the stage uses its narrow layout: keep the title cards clear of the controls */
+      @media (max-width: 760px) {
+        .skull-live .stage-title { top: 36%; }
+      }
+    </style>
+    <script>
+      // Report to the portfolio's GA through the parent page, as the other demos do.
+      // Each kind of action once per visit; never anything personal.
+      ;(function () {
+        var done = {}
+        window.dcTrack = function (event, params) {
+          params = params || {}
+          var action = event === 'skull_section' ? 'section_' + String(params.section || '').toLowerCase().replace(/\s+/g, '_') : params.action ? String(params.action) : event
+          if (done[action]) return
+          done[action] = true
+          try {
+            if (window.parent !== window && window.parent.gtag) window.parent.gtag('event', 'demo_interact', { demo: 'skull-live', action: action })
+          } catch (e) {}
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <main>
+      <div
+        id="skull-live-root"
+        data-mode="demo"
+        data-director="false"
+        data-song="https://cdn.shopify.com/s/files/1/0750/4458/5697/files/McBling_2026-10-11T044516.mp3?v=1791879824"
+        data-shop-url="https://otherly.shop/pages/dead-cute"
+        data-back="https://otherly.shop/pages/snbn"
+        data-back-label="Visit SNBN on otherly.shop"
+      >
+        <script type="application/json" data-snbn-assets>
+          {
+            "skull.png": "/demos/skull-live/art/skull.png",
+            "beau.png": "/demos/skull-live/art/beau.png",
+            "stanielle.png": "/demos/skull-live/art/stanielle.png",
+            "snbn-logo.jpg": "/demos/skull-live/art/snbn-logo.jpg",
+            "yeo-neutral.jpg": "/demos/skull-live/art/yeo-neutral.jpg",
+            "yeo-smug.jpg": "/demos/skull-live/art/yeo-smug.jpg",
+            "yeo-grin.jpg": "/demos/skull-live/art/yeo-grin.jpg",
+            "yeo-interrogate.jpg": "/demos/skull-live/art/yeo-interrogate.jpg",
+            "yeo-glitch1.jpg": "/demos/skull-live/art/yeo-glitch1.jpg",
+            "yeo-glitch2.jpg": "/demos/skull-live/art/yeo-glitch2.jpg",
+            "yeo-glitch3.jpg": "/demos/skull-live/art/yeo-glitch3.jpg"
+          }
+        </script>
+      </div>
+    </main>
+    <script type="module" src="/demos/skull-live/snbn.js"></script>
+  </body>
+</html>

@@ -4,6 +4,11 @@ Bonnie's portfolio. Vite + React, deployed by pushing `main` (live in about a
 minute). Projects are data in `src/data/projects.ts`; live demos are static
 pages in `public/demos/`.
 
+`public/demos/skull-live/` is a built copy of SNBN Presents: Skull from
+`~/Documents/_Otherly/snbn` (run `npx vite build` there, copy `dist/snbn.js`,
+`dist/snbn.css` and the art it needs). The real one is on otherly.shop, which
+Shopify won't let other sites embed.
+
 `public/demos/bloom/` is a copy of the Kinedic Bloom library
 (`~/Documents/_portfolio/kinedic-bloom`, github.com/bonnieDev/kinedic-bloom,
 files in `src/`). After changing the library, copy both files back here.
@@ -56,7 +61,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Kinedic Bloom: `bloom_motor`, `bloom_keyboard`, `bloom_steps`, `bloom_assist`, `bloom_text_auto`, `bloom_shaky_tried`, `bloom_break_offered`, `bloom_pause`, `bloom_resume` |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_motor`, `bloom_keyboard`, `bloom_steps`, `bloom_assist`, `bloom_text_auto`, `bloom_shaky_tried`, `bloom_break_offered`, `bloom_pause`, `bloom_resume` |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`.

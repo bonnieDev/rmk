@@ -570,3 +570,16 @@
   outline: 2px solid var(--rmk-focus);
   outline-offset: -2px;
 }
+
+/* Skull & Beau's demo is a dark stage: a black mat, and the frame fills the
+   column so the show isn't letterboxed in white under the brief. */
+#work-skull-and-beau .entry__media {
+  display: flex;
+  flex-direction: column;
+  background: #050406;
+}
+#work-skull-and-beau .entry__frame {
+  flex: 1;
+  aspect-ratio: auto;
+  min-height: 460px;
+}

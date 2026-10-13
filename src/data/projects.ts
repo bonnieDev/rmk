@@ -204,23 +204,23 @@ export const projects: Project[] = [
     id: 'skull-and-beau',
     title: 'Skull',
     titleEm: '& Beau',
-    category: 'CHARACTER SYSTEM',
+    category: 'ORIGINAL IP',
     tagline:
-      'Original character IP, drawn as vectors that render like pixels and stitch like cross-stitch. One source file becomes broadcast animation, screen prints, and soft goods. Also: they’re skeletons, and they’re in love.',
-    role: 'Character design · Vector IP · Multi-format',
-    pipeline: ['Vector source', 'Grid-locked render', 'Broadcast + print', 'Soft goods'],
-    status: { label: 'Active', accent: 'yellow' },
+      'Hello Kitty for grown-ups. Two skeletons in love, a sentient Stanley cup and a Rorschach self-help guru, now running their own shopping network from Purgatory. Skull also thinks she’s a pop star.',
+    role: 'Worldbuilding · Characters · Music · Creative direction · Built with Claude Code',
+    pipeline: ['Pixel-vector characters', 'WebGL studio (R3F)', 'Beat-synced stage', 'Multi-brand Shopify'],
+    status: { label: 'Live on otherly.shop', accent: 'magenta', live: true },
     year: '2026',
     brief: {
       problem:
-        'Characters that ship to broadcast, screen print and embroidery usually get redrawn for each destination, and drift apart in the process. One artwork had to survive every output without a redraw.',
+        'Two years of characters, lore, a book and songs lived in documents. The world needed somewhere people could walk into and buy from, without the characters drifting off-model or the jokes leaking into the commerce.',
       pipeline:
-        'The source is vector built on a fixed cell grid, so it rasterizes cleanly as pixel art, separates directly for screen print, and maps one-to-one onto stitch counts. Animation runs off the same file rather than a copy.',
+        'The original Illustrator art is the rig, and the character rules are enforced in code: only the eyes and tooth holes animate, bones never gesture, Stanielle never speaks. SNBN is a WebGL shopping network where four characters run a scripted broadcast through a validated action queue, pitching real products; prices and stock only ever come from the store. SNBN Presents: Skull stages her single “McBling”, with cues timed from an analysis of the track and her mouth driven by its vocal band. It all lives inside Otherly, a multi-brand Shopify theme I directed and built with Claude Code from my briefs.',
       milestone:
-        'Source system proven across film and soft goods from a single master.',
+        'Live: the store, the SNBN studio and Skull’s stage. Next: “Bow Shaker”, and pixel puppets cut from the Illustrator layers.',
     },
-    videoEmbed:
-      'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/3c511c1b8adb43f3cc039eef2155933b/iframe?autoplay=true&muted=true&loop=false&controls=false&preload=auto&letterboxColor=transparent',
+    demoEmbed: '/demos/skull-live.html',
+    site: { href: 'https://otherly.shop/pages/skull', label: 'otherly.shop' },
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {

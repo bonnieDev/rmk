@@ -293,20 +293,20 @@ export const projects: Project[] = [
     id: 'frostbyte',
     title: 'Frost',
     titleEm: 'Byte',
-    category: 'NARRATIVE SYSTEM',
+    category: 'EDUCATION · NARRATIVE',
     tagline:
-      'Frostbyte and the Tablet of Light. Diffing history: the Emerald Tablet and the Hermetic Principles, run against science and theology the way you’d diff two versions of code, with AI as the cross-reference engine. Not religious. Forensic.',
-    role: 'Worldbuilding · Story systems · Research method',
-    pipeline: ['AI cross-reference', 'Text diff: tablet × science × theology', 'Structural canon', 'AI video'],
+      'A programmer torn out of time and reborn as Frostbyte, a being of cold logic haunted by feelings she can’t name. With the Tablet of Light she reads history like a database, and every day she and her viewers, the Sparks, solve a mystery together.',
+    role: 'Worldbuilding · Learning design · Research method',
+    pipeline: ['Tablet of Light (daily mysteries)', 'Teaching loop: Freeze → Reveal → Connect', 'FrostByte Codex', 'AI video'],
     status: { label: 'In development', accent: 'yellow' },
     year: '2026',
     brief: {
       problem:
-        'The Emerald Tablet and the Hermetic Principles have been read for centuries through one lens at a time: alchemy, theology, early science. The readings are rarely laid side by side to ask what actually changed between them, the way a programmer compares two versions of the same file.',
+        'Most tech education either bores people or scares them. Explaining the wires, satellites and systems that run everyday life tends to leave people more anxious about technology, not more capable with it.',
       pipeline:
-        'In 2025 I built the FrostByte Codex, the first AI-assisted framework to cross-check the Hermetic Principles, principle by principle, against neuroscience, quantum physics, fractal geometry, thermodynamics, chaos theory, biology and the major world faiths. Each tradition’s reading is treated as a version of the text and diffed against the others. Frostbyte, a programmer torn into a strange world, carries that method as her story. A fixed structural framework holds the canon, so every new fragment is reconciled against what is already established before it ships.',
+        'Frostbyte teaches in four beats: Freeze the moment so the noise drops away, Reveal the hidden layers (fiber under the street, satellites overhead), Connect them to the viewer’s own life, and close with Gratitude, never fear. The Tablet of Light app turns it into a daily mystery the Sparks solve with her. Underneath is the FrostByte Codex: in 2025 I became the first to use AI to systematically cross-check the Hermetic Principles, principle by principle, against neuroscience, quantum physics, fractal geometry, thermodynamics, chaos theory, biology and the major world faiths, diffing each tradition like two versions of code.',
       milestone:
-        'Method and voice established; the first chapters of “Frostbyte and the Tablet of Light” are drafting against the structure.',
+        'Character, world, teaching loop and the Codex are established; the Tablet of Light app and the first teaching scenes are in development.',
     },
     site: { href: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7365617344020189186/', label: 'The FrostByte Codex, timestamped on LinkedIn (2025)' },
     videoEmbed:

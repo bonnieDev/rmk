@@ -26,8 +26,8 @@ can't reach it.
   the same; a fix is a new version.
 - Versions from v0.8 on may have a different license (see the Bloom repo).
   Copy whatever LICENSE that tag has.
-- `public/demos/bloom/` is the older unversioned copy the Bloom demo page
-  uses. Leave it, or point the demo at a version folder.
+- The Bloom demo page (`public/demos/kinedic-bloom.html`) loads
+  `../bloom/vX.Y.Z/`. Move it to each new version after testing it.
 
 ---
 

@@ -1,5 +1,5 @@
 /*!
- * Kinedic Bloom v0.7.0 — an interface layer that adapts to the person using it.
+ * Kinedic Bloom v0.7.1 — an interface layer that adapts to the person using it.
  * Copyright (C) 2026 Bonnie Caroline Remeika. Licensed under GPL-3.0-only.
  * "Kinedic" and "Kinedic Bloom" are trademarks of Bonnie Caroline Remeika.
  *
@@ -83,6 +83,11 @@
       breakTitle: 'Take a break?', breakYes: 'Pause', breakNo: 'Keep going', breakLine: 'We’ll save your spot.',
       breakSr: 'Pause, and your progress is saved. You can come back and pick up right where you left off.',
       backTitle: 'Welcome back', backYes: 'Pick up where I left off', backNo: 'Start over',
+      // Only shown when the site passes `storage` (saving to the person's account)
+      accountYes: 'Save to my account too',
+      accountLine: 'So you can finish on another device. This sends your answers to this site.',
+      accountDone: 'Also saved to your account.',
+      accountFail: 'Couldn’t save to your account. It’s still saved on this device.',
       assistTitle: 'Need help?', assistCall: 'Call me', assistDoctor: 'Doctor help', assistNo: 'No',
       assistSr: 'Ask the people reviewing this form to call you, or to work with your doctor to fill it in. The request is sent with the form.',
       assistDoneCall: 'We’ll ask someone to call you.', assistDoneDoctor: 'We’ll ask for help from your doctor.',
@@ -108,9 +113,11 @@
     var saveKey = 'kinedic-bloom:save:' + (o.storageKey || location.pathname);
 
     // ── CONNECT YOUR DATABASE ────────────────────────────────────────────
-    // By default, paused progress stays on the person's device (localStorage)
-    // and nothing is sent anywhere. To save it to your own backend instead,
-    // pass a `storage` object with get / set / remove. Each may return a
+    // Paused progress always stays on the person's device (localStorage), and
+    // nothing is sent anywhere. To let people also save it to their account
+    // (so they can finish on another device), pass a `storage` object with
+    // get / set / remove. Bloom still saves on the device first, then asks:
+    // only a tap on "Save to my account too" calls `set`. Each may return a
     // Promise. `value` is a JSON string of the field values (never passwords
     // or files), the field they were in, and when they paused.
     //
@@ -137,11 +144,11 @@
     //       // remove: async (key) => supabase.from('progress').delete().eq('key', key),
     //     },
     //   });
-    var onDevice = !o.storage;
-    var store = o.storage || { get: safeGet, set: safeSet, remove: safeRemove };
-    function storeGet(k) { try { return Promise.resolve(store.get(k)).catch(function () { return null; }); } catch (_) { return Promise.resolve(null); } }
-    function storeSet(k, v) { try { return Promise.resolve(store.set(k, v)).then(function (ok) { return ok !== false; }, function () { return false; }); } catch (_) { return Promise.resolve(false); } }
-    function storeRemove(k) { try { return Promise.resolve(store.remove(k)).catch(function () {}); } catch (_) { return Promise.resolve(); } }
+    var device = { get: safeGet, set: safeSet, remove: safeRemove };
+    var account = o.storage || null; // the site's, used only when the person says so
+    function storeGet(store, k) { try { return Promise.resolve(store.get(k)).catch(function () { return null; }); } catch (_) { return Promise.resolve(null); } }
+    function storeSet(store, k, v) { try { return Promise.resolve(store.set(k, v)).then(function (ok) { return ok !== false; }, function () { return false; }); } catch (_) { return Promise.resolve(false); } }
+    function storeRemove(store, k) { try { return Promise.resolve(store.remove(k)).catch(function () {}); } catch (_) { return Promise.resolve(); } }
 
     var listeners = {};
     var state = {
@@ -153,7 +160,7 @@
       breakSnoozedUntil: 0, offered: new Set(), paused: false,
       last: performance.now(),
       tabs: 0, keyboard: false, travel: 0, px: null, py: null, assistOffered: false, easy: false,
-      shakyOffered: false, motionOn: false,
+      shakyOffered: false, motionOn: false, inAccount: false,
       undo: null, clicks: [], textLevel: 0, searches: [], textCooldownUntil: 0,
     };
 
@@ -673,14 +680,14 @@
         data.values[keyOf(f)] = (f.type === 'checkbox' || f.type === 'radio') ? f.checked : f.value;
       });
       state.paused = true;
-      storeSet(saveKey, JSON.stringify(data)).then(function (saved) { showPaused(data, saved); });
+      storeSet(device, saveKey, JSON.stringify(data)).then(function (saved) { showPaused(data, saved); });
     }
 
     function showPaused(data, saved) {
-      var where = onDevice ? ' on this device' : '';
+      var where = ' on this device';
       change('Paused and saved progress');
-      emit('pause', { saved: saved, onDevice: onDevice });
-      log(saved ? 'Paused. Progress saved' + where + '.' : 'Paused, but progress could not be saved', 'pause');
+      emit('pause', { saved: saved, onDevice: true });
+      log(saved ? 'Paused. Progress saved' + where + '.' : 'Paused, but progress could not be saved on this device', 'pause');
 
       var shade = el('div', { class: 'bloom-pause', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'bloom-pause-title' });
       var card = el('div', { class: 'bloom-pause__card' });
@@ -690,11 +697,25 @@
         el('h2', { id: 'bloom-pause-title' }, 'Paused'),
         el('p', {}, saved
           ? 'Your progress is saved' + where + '. Go rest. When you come back to this page, you’ll pick up right where you left off.'
-          : 'Your progress couldn’t be saved, so please keep this page open.'),
-        el('p', { class: 'bloom-pause__fine' }, onDevice
-          ? 'Nothing was sent anywhere. On a shared computer, choose “Forget saved progress” before you leave.'
-          : 'On a shared computer, choose “Forget saved progress” before you leave.'),
-        resumeBtn, forgetBtn);
+          : 'Your progress couldn’t be saved on this device' + (account ? '. You can save it to your account instead, or keep this page open.' : ', so please keep this page open.')),
+        el('p', { class: 'bloom-pause__fine' }, 'Nothing has been sent anywhere. On a shared computer, choose “Forget saved progress” before you leave.'));
+      // Saving to the account is the person's choice, one tap, never automatic
+      if (account) {
+        var accountBtn = el('button', { type: 'button', class: 'bloom-offer__no' }, T.accountYes);
+        var accountLine = el('p', { class: 'bloom-pause__fine', role: 'status' }, T.accountLine);
+        card.append(accountBtn, accountLine);
+        accountBtn.addEventListener('click', function () {
+          accountBtn.disabled = true;
+          storeSet(account, saveKey, JSON.stringify(data)).then(function (ok) {
+            state.inAccount = ok;
+            accountLine.textContent = ok ? T.accountDone : T.accountFail;
+            if (ok) { accountBtn.remove(); card.querySelector('.bloom-pause__fine').textContent = 'Saved on this device and to your account. On a shared computer, choose “Forget saved progress” before you leave.'; }
+            else accountBtn.disabled = false;
+            log(ok ? 'Progress also saved to their account, because they asked' : 'Could not save to their account', 'pause');
+          });
+        });
+      }
+      card.append(resumeBtn, forgetBtn);
       shade.appendChild(card);
       document.body.appendChild(shade);
       resumeBtn.focus();
@@ -728,11 +749,24 @@
       log('Resumed' + (target ? ' at “' + label(target) + '”' : ''), 'pause');
     }
 
-    function forget() { storeRemove(saveKey); emit('forget', {}); log('Saved progress removed', 'pause'); }
+    // Clears the device, and the account only if progress was put there
+    function forget() {
+      storeRemove(device, saveKey);
+      if (account && state.inAccount) storeRemove(account, saveKey);
+      state.inAccount = false;
+      emit('forget', {}); log('Saved progress removed', 'pause');
+    }
 
-    // On load: offer to resume, never resume on its own.
-    function checkSaved() { storeGet(saveKey).then(offerResume); }
-    function offerResume(raw) {
+    // On load: offer to resume, never resume on its own. The device first; the
+    // account (if the site offers one) only when the device has nothing.
+    function checkSaved() {
+      storeGet(device, saveKey).then(function (raw) {
+        if (raw || !account) return offerResume(raw, 'device');
+        storeGet(account, saveKey).then(function (fromAccount) { offerResume(fromAccount, 'account'); });
+      });
+    }
+    function offerResume(raw, from) {
+      if (from === 'account' && raw) state.inAccount = true;
       if (!raw) return;
       var data; try { data = JSON.parse(raw); } catch (_) { return forget(); }
       if (!data || Date.now() - data.savedAt > o.saveTtlMs) return forget();
@@ -740,7 +774,7 @@
       var yes = el('button', { type: 'button', class: 'bloom-offer__yes' }, T.backYes);
       var no = el('button', { type: 'button', class: 'bloom-offer__no' }, T.backNo);
       box.append(el('p', { class: 'bloom-offer__title' }, T.backTitle),
-        el('span', { class: 'bloom-sr' }, 'Your progress from ' + new Date(data.savedAt).toLocaleString() + ' is saved' + (onDevice ? ' on this device' : '') + '.'), yes, no);
+        el('span', { class: 'bloom-sr' }, 'Your progress from ' + new Date(data.savedAt).toLocaleString() + ' is saved' + (from === 'account' ? ' in your account' : ' on this device') + '.'), yes, no);
       root.insertBefore(box, root.firstChild);
       yes.focus();
       yes.addEventListener('click', function () { box.remove(); restore(data); forget(); });
@@ -974,11 +1008,17 @@
         }
         // 7. a personal-info field the browser can't autofill (WCAG 1.3.5).
         // When you can't think, not having to type your own name matters.
-        if (n.matches('input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]), select, textarea') && !n.getAttribute('autocomplete')) {
+        // Fields the site turned autofill off on get it back too, but only when
+        // the field is clearly about the person filling it in: an emergency
+        // contact's phone must never be filled with their own.
+        var ac = (n.getAttribute('autocomplete') || '').trim().toLowerCase();
+        if (n.matches('input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=checkbox]):not([type=radio]), select, textarea') && (!ac || ac === 'off') && !aboutSomeoneElse(n)) {
           var purpose = guessPurpose(n);
           if (purpose) {
             n.setAttribute('autocomplete', purpose);
-            issues.push({ kind: 'no-autocomplete', what: snippet(n), fixed: true, how: 'The browser couldn’t fill it in. Bloom added autocomplete="' + purpose + '". Needs to be added to the form itself' });
+            issues.push({ kind: 'no-autocomplete', what: snippet(n), fixed: true, how: (ac === 'off'
+              ? 'The site turned autofill off on a field about the person. Bloom turned it back on with autocomplete="' + purpose + '". Needs to be fixed in the form itself'
+              : 'The browser couldn’t fill it in. Bloom added autocomplete="' + purpose + '". Needs to be added to the form itself') });
           }
         }
         // 6. an image with no alt text
@@ -992,6 +1032,16 @@
       emit('audit', { issues: issues });
       emitReport();
       return issues;
+    }
+
+    // A field about another person (an emergency contact, a spouse, a doctor):
+    // autofill would put the person's own details there, so Bloom leaves it be.
+    function aboutSomeoneElse(n) {
+      var t = [n.name, n.id, accName(n), n.getAttribute('placeholder')].join(' ').toLowerCase();
+      var group = n.closest('fieldset');
+      var legend = group && group.querySelector('legend');
+      if (legend) t += ' ' + legend.textContent.toLowerCase();
+      return /emergency|contact person|next of kin|spouse|partner|husband|wife|parent|guardian|mother|father|child|dependent|beneficiar|reference|referr|recipient|gift|friend|relative|doctor|physician|provider|employer|supervisor|manager|landlord|witness|attorney|lawyer|representative|someone else|other person/.test(t);
     }
 
     // What a field is for, from its type, name, id and label (WCAG 1.3.5).
@@ -1224,5 +1274,5 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (_) { return false; } }
   function safeRemove(k) { try { localStorage.removeItem(k); } catch (_) {} }
 
-  global.KinedicBloom = { start: start, version: '0.7.0' };
+  global.KinedicBloom = { start: start, version: '0.7.1' };
 })(typeof window !== 'undefined' ? window : this);

@@ -9,9 +9,25 @@ pages in `public/demos/`.
 `dist/snbn.css` and the art it needs). The real one is on otherly.shop, which
 Shopify won't let other sites embed.
 
-`public/demos/bloom/` is a copy of the Kinedic Bloom library
-(`~/Documents/_portfolio/kinedic-bloom`, github.com/bonnieDev/kinedic-bloom,
-files in `src/`). After changing the library, copy both files back here.
+### Kinedic Bloom hosting
+
+rmk.systems is where all of Bonnie's sites load Kinedic Bloom from, because the
+Bloom repo (`~/Documents/_portfolio/kinedic-bloom`) is private and jsDelivr
+can't reach it.
+
+- `public/bloom/vX.Y.Z/`: one folder per tagged release, with
+  `kinedic-bloom.js`, `kinedic-bloom.css`, and the release's `LICENSE`,
+  `NOTICE` and `USE-POLICY.md` (GPL versions must ship with their license).
+  Sites load `https://rmk.systems/bloom/vX.Y.Z/kinedic-bloom.{js,css}`.
+- **New release:** tag it in the Bloom repo, then make a new folder with
+  `git -C ../kinedic-bloom show vX.Y.Z:src/kinedic-bloom.js > public/bloom/vX.Y.Z/kinedic-bloom.js`
+  (same for the CSS and the three text files), commit, push `main`.
+- **Never change a published version folder.** Other sites rely on it staying
+  the same; a fix is a new version.
+- Versions from v0.8 on may have a different license (see the Bloom repo).
+  Copy whatever LICENSE that tag has.
+- `public/demos/bloom/` is the older unversioned copy the Bloom demo page
+  uses. Leave it, or point the demo at a version folder.
 
 ---
 
@@ -61,7 +77,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_motor`, `bloom_keyboard`, `bloom_steps`, `bloom_assist`, `bloom_text_auto`, `bloom_shaky_tried`, `bloom_break_offered`, `bloom_pause`, `bloom_resume` |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`.

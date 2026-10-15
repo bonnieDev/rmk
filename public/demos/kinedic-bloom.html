@@ -282,6 +282,9 @@
   const bloom = KinedicBloom.start({ root: '#form', stallMs: 5000, breakAt: 0.9, storageKey: 'rmk-bloom-demo' });
 
   // Reports to the portfolio's Google Analytics when framed on rmk.systems.
+  // Only the visitor's own clicks on demo buttons. Nothing Bloom notices about
+  // them (shaky hands, keyboard use, stalls, breaks, help requests) is ever
+  // sent: that's Bloom's Use Policy.
   function rmkTrack(event, params) {
     try { if (window.parent !== window && window.parent.gtag) window.parent.gtag('event', event, Object.assign({ demo: 'kinedic-bloom' }, params || {})); } catch (e) {}
   }
@@ -321,7 +324,6 @@
   bloom.on('report', renderReport);
   bloom.on('assist', ({ requests }) => {
     $('sent').innerHTML = 'bloom_assist: ' + (requests.length ? '<b>' + esc(requests.join(',')) + '</b>' : '<span class="muted">(nothing requested)</span>');
-    if (requests.length) trackOnce('bloom_assist');
   });
   $('dl').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(bloom.report(), null, 2)], { type: 'application/json' });
@@ -329,8 +331,7 @@
     a.href = URL.createObjectURL(blob); a.download = 'bloom-friction-report.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
-  bloom.on('adapt', (a) => { if (a.kind === 'text' && a.how === 'auto') trackOnce('bloom_text_auto'); });
-  bloom.on('adapt', (a) => { if (a.kind === 'keyboard') { $('d-kb').textContent = a.on ? 'on' : 'off'; if (a.on) trackOnce('bloom_keyboard'); } });
+  bloom.on('adapt', (a) => { if (a.kind === 'keyboard') { $('d-kb').textContent = a.on ? 'on' : 'off'; } });
   bloom.on('motor', (m) => { $('d-rev').textContent = m.reversals; $('d-path').textContent = m.path + ' / ' + m.net + ' px'; });
   bloom.on('log', (e) => {
     const li = document.createElement('li');
@@ -339,10 +340,6 @@
     li.lastChild.textContent = e.message;
     $('log').prepend(li);
   });
-  bloom.on('adapt', (a) => { if (a.kind === 'motor' && a.level) trackOnce('bloom_motor'); if (a.kind === 'steps') trackOnce('bloom_steps'); });
-  bloom.on('offer', (o) => { if (o.kind === 'break') trackOnce('bloom_break_offered'); });
-  bloom.on('pause', () => trackOnce('bloom_pause'));
-  bloom.on('resume', () => trackOnce('bloom_resume'));
 
   $('pause').addEventListener('click', () => bloom.pause());
   // INSERT YOUR AGENT HERE: in a real site, open your chat or voice agent.

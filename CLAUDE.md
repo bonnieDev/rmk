@@ -77,7 +77,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`.

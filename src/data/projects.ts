@@ -215,13 +215,52 @@ export const projects: Project[] = [
       problem:
         'Two years of characters, lore, a book and songs lived in documents. The world needed somewhere people could walk into and buy from, without the characters drifting off-model or the jokes leaking into the commerce.',
       pipeline:
-        'The original Illustrator art is the rig, and the character rules are enforced in code: only the eyes and tooth holes animate, bones never gesture, Stanielle never speaks. SNBN is a WebGL shopping network where four characters run a scripted broadcast through a validated action queue, pitching real products; prices and stock only ever come from the store. SNBN Presents: Skull stages her single “McBling”, with cues timed from an analysis of the track and her mouth driven by its vocal band. It all lives inside Otherly, a multi-brand Shopify theme I directed and built with Claude Code from my briefs.',
+        'The original Illustrator art is the rig, and the character rules are enforced in code: only the eyes and tooth holes animate, bones never gesture, Stanielle never speaks. SNBN is a WebGL shopping network where four characters run a scripted broadcast through a validated action queue, pitching real products; prices and stock only ever come from the store. SNBN Presents: Skull stages two of her songs, “McBling” and the Halloween “How We Boo It”: the visitor picks one, cues are timed from an analysis of each track, and her mouth follows the vocals alone, split from the horns with a stem separator. It all lives inside Otherly, a multi-brand Shopify theme I directed and built with Claude Code from my briefs.',
       milestone:
-        'Live: the store, the SNBN studio and Skull’s stage. Next: “Bow Shaker”, and pixel puppets cut from the Illustrator layers.',
+        'Live: the store, the SNBN studio and Skull’s stage with two songs. Next: “Bow Shaker”, more call-ins, and pixel puppets cut from the Illustrator layers.',
     },
     demoEmbed: '/demos/skull-live.html',
     site: { href: 'https://otherly.shop/pages/skull', label: 'otherly.shop' },
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
+  },
+  {
+    id: 'otherly',
+    title: 'Otherly',
+    titleEm: '& SNBN',
+    category: 'COMMERCE SYSTEM',
+    tagline:
+      'One Shopify store for every brand I make, with a shopping cartoon broadcasting from Purgatory inside it. The hosts refuse to do sales pitches, so a Marketing Ghoul possesses them to read the product facts.',
+    role: 'Brand · Illustration · Merch design · Interaction design · Theme architecture · Built with Claude Code',
+    pipeline: ['Shopify OS 2.0 theme', 'Plain CSS role tokens', 'React + Three.js broadcast', 'GA4 journeys · WCAG 2.2 AA'],
+    status: { label: 'Live on otherly.shop', accent: 'magenta', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Four brands, one store budget. Each needed its own look and voice without four Shopify stores, and the selling had to stay honest inside a show whose whole joke is selling: no invented prices, no fake urgency, and always clear when it’s marketing.',
+      pipeline:
+        'A custom Online Store 2.0 theme in plain CSS. A product’s brand comes from a tag; shared components read role tokens; each brand look is a tokens file and a layout. Illusion leggings are one product per printed skin-tone shade, so the theme groups them by design and builds the color picker from the shades that exist. SNBN runs on the same products: when real product facts come up, the studio cuts to night-vision footage and the Marketing Ghoul possesses Skull or Beau to read them in a different voice. A QVC-parody item box shows only real prices beside a joke Purgatory “price” that is never money; recorded call-ins and Ouijanet messages attach to products. Accessible to WCAG 2.2 AA, with consent-gated GA4 journey tagging. I drew the characters and merch in Illustrator and built it with Claude Code as my coding partner.',
+      milestone:
+        'Live with the Halloween drop, the SNBN studio and Skull’s stage. Next: slots on the show for other indie makers.',
+    },
+    stills: [
+      {
+        src: '/projects/skull-and-beau/possessed.jpg',
+        caption: 'Skull, possessed',
+        alt: 'SNBN in grey night-vision footage marked CAM 2 · NIGHT: Skull, possessed by the Marketing Ghoul, beside a Heart Webs crewneck on the studio screen, captioned “Behold. The Heart Webs Crewneck Sweatshirt. I invented this. Spiritually.”',
+      },
+      {
+        src: '/projects/skull-and-beau/ghoul-arrives.jpg',
+        caption: 'The Marketing Ghoul arrives',
+        alt: 'The SNBN studio in color: a green MARKETING GHOUL card with a cursed pixel sunshine face flashes over Skull as her bow starts to spin, with Beau in his purple beret at the desk.',
+      },
+      {
+        src: '/projects/skull-and-beau/night-shop.jpg',
+        caption: 'The store stays in color',
+        alt: 'A wide shot of the SNBN studio in night-vision grey while the real store panel beside it stays in full color, showing a camo crop tee with its price and options.',
+      },
+    ],
+    site: { href: 'https://otherly.shop/pages/snbn', label: 'Watch SNBN on otherly.shop' },
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.pale] },
   },
   {
     id: 'lil-swaps',

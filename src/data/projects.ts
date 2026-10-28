@@ -206,7 +206,7 @@ export const projects: Project[] = [
     titleEm: '& Beau',
     category: 'ORIGINAL IP',
     tagline:
-      'Hello Kitty for grown-ups. Two skeletons in love, a sentient Stanley cup and a Rorschach self-help guru, now running their own shopping network from Purgatory. Skull also thinks she’s a pop star.',
+      'Hello Kitty for grown-ups. Two skeletons in love, a sentient travel cup and a Rorschach self-help guru, now running their own shopping network from Purgatory. Skull also thinks she’s a pop star.',
     role: 'Worldbuilding · Characters · Music · Creative direction · Built with Claude Code',
     pipeline: ['Pixel-vector characters', 'WebGL studio (R3F)', 'Beat-synced stage', 'Multi-brand Shopify'],
     status: { label: 'Live on otherly.shop', accent: 'magenta', live: true },

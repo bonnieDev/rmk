@@ -220,7 +220,7 @@ export const projects: Project[] = [
         'Live: the store, the SNBN studio and Skull’s stage with two songs. Next: “Bow Shaker”, more call-ins, and pixel puppets cut from the Illustrator layers.',
     },
     demoEmbed: '/demos/skull-live.html',
-    site: { href: 'https://otherly.shop/pages/skull', label: 'otherly.shop' },
+    site: { href: 'https://otherly.shop/pages/dead-cute-wiki', label: 'Read the lore: the Dead Cute wiki' },
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {

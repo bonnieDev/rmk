@@ -120,7 +120,6 @@
   .log time { color: #6f8590; margin-right: 6px; }
   .log .k-motor { color: #73b3e7; } .log .k-cognitive { color: #c3a8f0; } .log .k-adapt { color: #00d17a; } .log .k-offer { color: #e5a000; } .log .k-pause { color: #fff; }
 
-  .ghost { position: fixed; z-index: 999; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px solid #e5a000; pointer-events: none; display: none; }
   @media (prefers-reduced-motion: reduce) { .meter__fill { transition: none; } }
 </style>
 </head>
@@ -129,7 +128,6 @@
 <header class="demo-head" data-bloom-ignore>
   <h1>Kinedic Bloom <span>· working demo v0.7</span></h1>
   <div class="demo-controls" role="group" aria-label="Demo controls">
-    <button type="button" id="tremor" aria-pressed="false">Simulate a tremor</button>
     <button type="button" id="shaky" hidden>Try “Shaky hands?”</button>
     <button type="button" id="power" aria-pressed="true">Bloom: on</button>
     <button type="button" id="reset">Reset demo</button>
@@ -142,12 +140,12 @@
     <div class="try" data-bloom-ignore>
       <strong>Try it.</strong> Nothing here is sent anywhere.
       <ol>
-        <li><strong>Motor:</strong> shake your pointer near the form, or press “Simulate a tremor.” Buttons get easier to hit, and a bar explains what changed.</li>
+        <li><strong>Motor:</strong> when aiming gets hard, buttons get easier to hit, and a bar explains what changed.</li>
         <li><strong>Cognitive:</strong> click into the long question and stop typing for a few seconds. Bloom offers an easy form, then asks if you’d like a call or your doctor’s help. That request goes with the form.</li>
         <li><strong>Break:</strong> stall again, in any field, and Bloom offers a break. Press Pause, reload the page, and it offers to pick up right where you were.</li>
         <li><strong>Keyboard:</strong> put the mouse down and press Tab a few times. Bloom switches to keyboard mode and describes each control.</li>
         <li><strong>Text size:</strong> use A · A+ · A++ at the top of the form, or act like you’re hunting for it: click the gray space beside the form a few times, or type when you’re not in a field. Bloom makes the text larger for you.</li>
-        <li><strong>Shaky hands (phone or tablet):</strong> tap with a wobbly finger, or press “Try ‘Shaky hands?’”. Say Yes and Bloom makes everything bigger, then feels for shaking through the motion sensor, on your device only.</li>
+        <li><strong>Shaky hands (phone or tablet):</strong> tap with a wobbly finger, or press “Try ‘Shaky hands?’”. Say Yes and Bloom makes everything bigger.</li>
         <li><strong>Fill-in:</strong> let your browser autofill your name, email and phone, or type a phone number as plain digits and move on. Bloom shows it as 555-123-4567 so it’s easy to check.</li>
         <li><strong>Wrong clicks:</strong> click “See the eligibility rules” (it isn’t a link), or just miss the Submit button. It all lands in the friction report.</li>
       </ol>
@@ -273,7 +271,6 @@
   </aside>
 </div>
 
-<div class="ghost" id="ghost" aria-hidden="true"></div>
 
 <script src="../bloom/v0.7.1/kinedic-bloom.js"></script>
 <script>
@@ -366,28 +363,7 @@
     $('log').innerHTML = '';
   });
 
-  // Tremor simulator: adds a small shake around the real pointer (or where it
-  // last was), so anyone can watch Bloom respond. The ring shows the shake.
-  const tremorBtn = $('tremor'), ghost = $('ghost');
-  let tremorOn = false, tremorTimer = null, px = innerWidth / 2, py = innerHeight / 2, phase = 0;
-  addEventListener('pointermove', (e) => { if (e.isTrusted) { px = e.clientX; py = e.clientY; } }, { passive: true });
-  tremorBtn.addEventListener('click', () => {
-    tremorOn = !tremorOn;
-    tremorBtn.setAttribute('aria-pressed', String(tremorOn));
-    tremorBtn.textContent = tremorOn ? 'Stop tremor' : 'Simulate a tremor';
-    ghost.style.display = tremorOn ? 'block' : 'none';
-    clearInterval(tremorTimer);
-    if (tremorOn) tremorTimer = setInterval(() => {
-      phase += 1;
-      const x = px + Math.sin(phase * 1.9) * 9 + (Math.random() - 0.5) * 6;
-      const y = py + Math.cos(phase * 1.3) * 5 + (Math.random() - 0.5) * 6;
-      ghost.style.left = x + 'px'; ghost.style.top = y + 'px';
-      dispatchEvent(new PointerEvent('pointermove', { clientX: x, clientY: y, pointerType: 'mouse', bubbles: true }));
-    }, 16);
-  });
-
   // On a phone or tablet: show Bloom's "Shaky hands?" question on demand.
-  // Saying Yes asks for the motion sensor; it stays on this device.
   if (navigator.maxTouchPoints > 0) $('shaky').hidden = false;
   $('shaky').addEventListener('click', () => { bloom.askShaky(); trackOnce('bloom_shaky_tried'); });
 

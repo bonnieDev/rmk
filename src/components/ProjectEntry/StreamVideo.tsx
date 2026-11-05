@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { track } from '../../analytics'
+import { onOtherSound, soundStarted } from '../../sound'
 
 /** The slice of the Cloudflare Stream player API used here */
 interface StreamPlayer {
@@ -54,6 +55,13 @@ export function StreamVideo({ src, title, sound = false, poster }: StreamVideoPr
   const [ready, setReady] = useState(false)
   const [muted, setMuted] = useState(true)
 
+  // Something else on the page started sound: go quiet, as "Sound off" does.
+  const stopRef = useRef(() => {
+    if (playerRef.current) playerRef.current.muted = true
+    setMuted(true)
+  })
+  useEffect(() => onOtherSound(stopRef.current), [])
+
   useEffect(() => {
     if (!sound) return
     let cancelled = false
@@ -91,6 +99,7 @@ export function StreamVideo({ src, title, sound = false, poster }: StreamVideoPr
     if (muted) {
       // Turning the sound on starts the song from the top.
       track('video_sound_on', { video: title })
+      soundStarted(stopRef.current)
       player.currentTime = 0
       player.muted = false
       void player.play()

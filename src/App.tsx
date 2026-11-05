@@ -10,6 +10,7 @@ import { ProjectEntry } from './components/ProjectEntry'
 // import { ShapeField } from './components/ShapeField'
 import { defaultLogoPalette, projects, type Project } from './data/projects'
 import { track, trackClicks, trackJourney } from './analytics'
+import { listenForDemoSound } from './sound'
 import './App.css'
 
 const NAV = [
@@ -100,6 +101,9 @@ export default function App() {
   useEffect(() => trackJourney(), [])
   // Every click, named by where it was and what it was
   useEffect(() => trackClicks(), [])
+
+  // One sound at a time across the videos and demos
+  useEffect(() => listenForDemoSound(), [])
 
   useEffect(() => {
     const el = heroLogoRef.current

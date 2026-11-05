@@ -80,6 +80,7 @@
   .note b{color:var(--ink2);font-weight:500}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<script src="one-sound.js"></script>
 </head>
 <body>
   <h1>Listening Room</h1>
@@ -352,6 +353,9 @@ toggle.addEventListener('click',()=>{
 audio.addEventListener('ended',()=>{ toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false');
   const t=TRACKS.find(x=>x.id===currentId); if(t) rmkTrack('song_complete', { song_title: t.title }); });
 document.getElementById('count').textContent=TRACKS.length;
+// Something else on rmk.systems started sound: pause, as the button does.
+window.rmkSoundStop=()=>{ if(audio.paused) return; audio.pause();
+  toggle.textContent='▶ Play'; toggle.setAttribute('aria-pressed','false'); };
 </script>
 </body>
 </html>

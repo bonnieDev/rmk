@@ -24,6 +24,20 @@
         .skull-live .stage-title { top: 36%; }
       }
     </style>
+    <script src="one-sound.js"></script>
+    <script>
+      // Something else on rmk.systems started sound: press the show's own
+      // Pause, so the cues stay in time. Before the show starts, turn its
+      // sound off instead.
+      window.rmkSoundStop = function () {
+        var ctrls = Array.prototype.slice.call(document.querySelectorAll('[aria-label="Show controls"] button[aria-pressed]'))
+        var pause = ctrls.filter(function (b) { return b.textContent.trim() === 'Pause' })[0]
+        var sound = ctrls.filter(function (b) { return b.textContent.trim() === 'Sound on' })[0]
+        if (pause) pause.click()
+        else if (sound) sound.click()
+        if (window.speechSynthesis) window.speechSynthesis.cancel()
+      }
+    </script>
     <script>
       // Report to the portfolio's GA through the parent page, as the other demos do.
       // Each kind of action once per visit; never anything personal.

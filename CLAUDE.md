@@ -112,6 +112,12 @@ as a bug, not a polish note.
   new tab say so with visually-hidden text.
 - **Media:** videos autoplay **muted** and never start sound on their own.
   Sound needs a deliberate click.
+- **One sound at a time:** starting sound anywhere stops the rest
+  (`src/sound.ts`). A demo with sound loads `public/demos/one-sound.js`
+  before its own scripts and sets `window.rmkSoundStop` to its own pause
+  (Listening Room pauses; Skull's stage presses its Pause so cues stay in time).
+- **Media fills its column:** the media column is as tall as the brief, and
+  the frame or image grows to fill it on a dark mat (never an empty panel).
 
 ### Known gaps (not yet fixed)
 

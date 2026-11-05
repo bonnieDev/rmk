@@ -323,16 +323,23 @@
   position: relative;
   margin: 0;
   border-right: var(--rmk-hair) solid var(--rmk-line);
-  background: var(--rmk-ink);
+  /* The column is as tall as the brief beside it. The frame or image grows
+     to fill it on a dark mat, so a long brief never leaves an empty panel. */
+  display: flex;
+  flex-direction: column;
+  background: var(--rmk-ground);
 }
 
 .entry__frame,
 .entry__cover {
+  /* the ratio is the smallest it gets; it grows with the column */
+  flex: 1 0 auto;
   width: 100%;
   aspect-ratio: 16 / 10;
   height: auto;
   border: 0;
-  object-fit: cover;
+  /* shown whole, never cropped, once it's taller than its ratio */
+  object-fit: contain;
   display: block;
 }
 
@@ -571,15 +578,12 @@
   outline-offset: -2px;
 }
 
-/* Skull & Beau's demo is a dark stage: a black mat, and the frame fills the
-   column so the show isn't letterboxed in white under the brief. */
+/* Skull & Beau's demo is a dark stage: a black mat, and a taller floor so
+   the show has room on narrow screens too. */
 #work-skull-and-beau .entry__media {
-  display: flex;
-  flex-direction: column;
   background: #050406;
 }
 #work-skull-and-beau .entry__frame {
-  flex: 1;
   aspect-ratio: auto;
   min-height: 460px;
 }

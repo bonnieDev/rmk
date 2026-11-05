@@ -28,8 +28,9 @@ const MANIFEST = [
 ] as const
 
 const DISCIPLINE = [
+  'Art Direction & Visual Judgment',
+  'Generative Image & Video Pipelines',
   'Enterprise UX Architecture',
-  'Generative Design Pipelines',
   'Original Worlds',
 ] as const
 
@@ -42,13 +43,13 @@ const RECORD = [
     id: 'origin',
     label: 'Origin',
     span: 'Pre-curriculum',
-    body: 'Print, darkrooms, and the web before any of those had a proper course of study.',
+    body: 'Print, photography in the darkroom, and the web before it had a proper course of study.',
   },
   {
     id: 'boutique',
     label: 'Boutique',
     span: 'Studio work',
-    body: 'Brand systems and identity built end to end for clients, at small-shop velocity.',
+    body: 'Creative director of my own studio: brand, print and web for clients, and the craft bar for a team of four designers whose work I reviewed on every job.',
   },
   {
     id: 'mobile',
@@ -60,20 +61,20 @@ const RECORD = [
     id: 'regulated',
     label: 'Regulated',
     span: 'Enterprise product',
-    body: 'Years inside compliance-bound product environments, where live has to match approved exactly.',
+    body: 'Eight years stewarding global brand and design systems for international pharmaceutical brands, across markets, where live has to match approved exactly.',
   },
   {
     id: 'ai-native',
     label: 'AI-native',
     span: 'Current',
-    body: 'One person in the director’s chair — code, motion, worlds, and products that used to need a crew.',
+    body: 'One person in the director’s chair: art direction over generative image and video, LLM agents, code, and worlds that used to need a crew.',
   },
 ] as const
 
 export default function App() {
   const [hovered, setHovered] = useState<Project | null>(null)
-  // Aether opens on load so the first thing a visitor sees includes real stills.
-  const [openIds, setOpenIds] = useState<string[]>(['aether-command'])
+  // Aether and Otherly open on load so the first thing a visitor sees includes real stills.
+  const [openIds, setOpenIds] = useState<string[]>(['aether-command', 'otherly'])
   const [logoPinned, setLogoPinned] = useState(false)
   const heroLogoRef = useRef<HTMLDivElement>(null)
 
@@ -315,7 +316,7 @@ export default function App() {
               <dl className="prose-grid__spec">
                 <div>
                   <dt>Role</dt>
-                  <dd>Creative technologist · UX/UI</dd>
+                  <dd>Visual designer · Art director · Creative technologist</dd>
                 </div>
                 <div>
                   <dt>Base</dt>
@@ -323,7 +324,7 @@ export default function App() {
                 </div>
                 <div>
                   <dt>Depth</dt>
-                  <dd>Brand · Front-end · Motion · Audio · Full-stack</dd>
+                  <dd>Art direction · Brand · Photography roots · Motion · Generative AI · Front-end</dd>
                 </div>
               </dl>
             </div>
@@ -359,6 +360,15 @@ export default function App() {
                 mark and the displacement filter that ripples the page. I prototype
                 fast, pick up new tools when the work needs them, and keep the
                 experience honest while I’m deep in the technical problem.
+              </p>
+              <p>
+                Most of my generative work is judgment. A model will make a
+                thousand images; the job is knowing which one is on-model,
+                on-brand and true to the culture it depicts, and saying why in
+                words an engineer can act on. I write the bibles and guardrails
+                that make that call repeatable, then hold every generated shot
+                to them, the same way I once reviewed a studio’s work or a
+                global brand’s pages before they shipped.
               </p>
               <p>
                 What’s in front of me now is AI-native work: one person in the

@@ -207,7 +207,7 @@ export const projects: Project[] = [
       problem:
         'Episodic character animation normally needs a crew per minute of screen time. The series had to hold a consistent cast across many shorts without one — silent comedy leaves nowhere for continuity errors to hide.',
       pipeline:
-        'Locked character sheets drive generative video passes, and every pass is judged against them before it is kept: a shot that drifts off-model in silhouette, palette or proportion is cut. The keepers are edited and graded to a house look. The bible fixes silhouette, palette and prop language up front, so every downstream shot inherits the same rules and the review has a standard to hold it to.',
+        'Locked character sheets drive generative video passes, which are cut and graded to a house look. The bible fixes silhouette, palette and prop language up front so every downstream shot inherits the same rules.',
       milestone:
         'Cast and visual language locked; shorts in production against the bible.',
     },
@@ -221,7 +221,7 @@ export const projects: Project[] = [
     category: 'MOTION',
     tagline:
       'A cherry, a bomb, and one very big lift. A short for Bunny Anarchy: funny, cute, and a little unruly, set to an original song by Moia.',
-    role: 'Art direction · Motion design · Edit',
+    role: 'Motion design · Edit',
     pipeline: ['Generated footage', 'After Effects', 'Original score · Moia'],
     status: { label: 'Released', accent: 'coral' },
     year: '2026',
@@ -229,7 +229,7 @@ export const projects: Project[] = [
       problem:
         'Bunny Anarchy runs on attitude, and attitude does not survive being explained. The piece had to land the brand’s voice in motion, with no copy to lean on.',
       pipeline:
-        'Generated clips, selected for the brand’s look and timing, then cut, composited and timed in After Effects to an original song composed by Moia.',
+        'Generated clips cut, composited and timed in After Effects, set to an original song composed by Moia.',
       milestone:
         'Released on LinkedIn.',
     },

@@ -28,8 +28,8 @@ const MANIFEST = [
 ] as const
 
 const DISCIPLINE = [
-  'Art Direction & Visual Judgment',
-  'Generative Image & Video Pipelines',
+  'Art Direction',
+  'Generative Video Pipelines',
   'Enterprise UX Architecture',
   'Original Worlds',
 ] as const
@@ -43,7 +43,7 @@ const RECORD = [
     id: 'origin',
     label: 'Origin',
     span: 'Pre-curriculum',
-    body: 'Print, photography in the darkroom, and the web before it had a proper course of study.',
+    body: 'Print, darkrooms, and the web before any of those had a proper course of study.',
   },
   {
     id: 'boutique',
@@ -67,7 +67,7 @@ const RECORD = [
     id: 'ai-native',
     label: 'AI-native',
     span: 'Current',
-    body: 'One person in the director’s chair: art direction over generative image and video, LLM agents, code, and worlds that used to need a crew.',
+    body: 'One person in the director’s chair: art direction, generative video, AI agents, code, and worlds that used to need a crew.',
   },
 ] as const
 
@@ -324,7 +324,7 @@ export default function App() {
                 </div>
                 <div>
                   <dt>Depth</dt>
-                  <dd>Art direction · Brand · Photography roots · Motion · Generative AI · Front-end</dd>
+                  <dd>Art direction · Brand · Motion · Audio · Generative AI · Front-end</dd>
                 </div>
               </dl>
             </div>
@@ -360,15 +360,6 @@ export default function App() {
                 mark and the displacement filter that ripples the page. I prototype
                 fast, pick up new tools when the work needs them, and keep the
                 experience honest while I’m deep in the technical problem.
-              </p>
-              <p>
-                Most of my generative work is judgment. A model will make a
-                thousand images; the job is knowing which one is on-model,
-                on-brand and true to the culture it depicts, and saying why in
-                words an engineer can act on. I write the bibles and guardrails
-                that make that call repeatable, then hold every generated shot
-                to them, the same way I once reviewed a studio’s work or a
-                global brand’s pages before they shipped.
               </p>
               <p>
                 What’s in front of me now is AI-native work: one person in the

@@ -4,6 +4,12 @@ Bonnie's portfolio. Vite + React, deployed by pushing `main` (live in about a
 minute). Projects are data in `src/data/projects.ts`; live demos are static
 pages in `public/demos/`.
 
+`dist/` is build output and every build wipes it: never keep source files
+there. Bonnie's working files go in `caps/<project>/` or the project's own
+folder. A project's `stills` can include videos (`video`: a Stream iframe
+src, with `src` as its thumbnail); they play in the gallery with a sound
+toggle.
+
 `public/demos/skull-live/` is a built copy of SNBN Presents: Skull from
 `~/Documents/_Otherly/snbn` (run `npx vite build` there, copy `dist/snbn.js`,
 `dist/snbn.css` and the art it needs). The real one is on otherly.shop, which

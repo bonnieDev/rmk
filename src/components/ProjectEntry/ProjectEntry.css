@@ -492,8 +492,10 @@
 }
 
 .entry__stills {
+  /* one row, however many stills: no lone thumbnail on a second line */
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   border-top: var(--rmk-hair) solid var(--rmk-line);
 }
 
@@ -576,6 +578,23 @@
 .entry__sound:focus-visible {
   outline: 2px solid var(--rmk-focus);
   outline-offset: -2px;
+}
+
+/* A caption on the top edge shares it with the sound toggle: it wraps short
+   of the toggle so the toggle is never covered (WCAG 2.4.11). */
+.entry__media:has(.entry__sound) .entry__media-cap--top {
+  max-width: calc(100% - 9.5rem);
+}
+.entry__sound {
+  z-index: 1;
+}
+
+/* Videos keep their own 16:9 and sit centered on the mat: stretched, the
+   player would letterbox in light bars. */
+.entry__frame--video {
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
+  margin-block: auto;
 }
 
 /* Skull & Beau's demo is a dark stage: a black mat, and a taller floor so

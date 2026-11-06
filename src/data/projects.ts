@@ -24,6 +24,11 @@ export interface ProjectStill {
   alt: string
   /** Short label for the caption bar */
   caption: string
+  /**
+   * Optional Cloudflare Stream iframe src: this gallery item is a video.
+   * `src` is then its thumbnail, and `alt` names the video.
+   */
+  video?: string
 }
 
 export interface ProjectStatus {
@@ -211,7 +216,45 @@ export const projects: Project[] = [
       milestone:
         'Cast and visual language locked; shorts in production against the bible.',
     },
-    cover: '/projects/kitty-n-pip/cover.jpg',
+    stills: [
+      {
+        src: '/projects/kitty-n-pip/storyboard.jpg',
+        caption: 'Storyboard · Ep. 01, The Resonant Bell',
+        alt: 'The production storyboard for Kitty & Pip Episode 01, The Resonant Bell: eight amber-lit frames in a 1970s living room with shag carpet and a black rotary telephone, each titled, from Shot 01, The Approach, to Shot 08, The Resonant Bell.',
+      },
+      {
+        src: '/projects/kitty-n-pip/turnarounds.jpg',
+        caption: 'Turnarounds',
+        alt: 'Character turnarounds on a dark sheet. Top: Kitty, a fluffy tabby kitten in a striped rainbow tutu and neck scarf, from the front, three-quarter, side and back. Bottom: Pip, a white lop-eared bunny in a raglan tee with a bunny print and rolled grey jeans, from the same four angles.',
+      },
+      {
+        src: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/440039f37b9e59937dde130236738710/thumbnails/thumbnail.jpg?time=1s&height=200',
+        video: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/440039f37b9e59937dde130236738710/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F440039f37b9e59937dde130236738710%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
+        caption: 'Motion test · The Approach',
+        alt: 'motion test of Shot 01: Kitty and Pip crawl across amber shag carpet toward a black rotary telephone in a sunlit 1970s living room',
+      },
+      {
+        src: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/be1d87dd214e015f98d636b0190a8303/thumbnails/thumbnail.jpg?time=1s&height=200',
+        video: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/be1d87dd214e015f98d636b0190a8303/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2Fbe1d87dd214e015f98d636b0190a8303%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
+        caption: 'Motion test · The Approach to Lotus Trance',
+        alt: 'motion test from the approach to the Lotus Trance: Kitty and Pip reach the rotary phone, then sit cross-legged with eyes closed beside the handset on the carpet',
+      },
+      {
+        src: '/projects/kitty-n-pip/portrait.jpg',
+        caption: 'Key art',
+        alt: 'Kitty and Pip sit side by side on blue velvet, looking up, with large soft-focus portraits of their faces glowing in the dark blue background.',
+      },
+      {
+        src: '/projects/kitty-n-pip/moodboard.jpg',
+        caption: 'Initial moodboard',
+        alt: 'The initial Kitty & Pip moodboard: a collage of early kitten and bunny looks in dresses, tutus and hoodies, some beside rotary telephones, with Kitty & Pip in script across the middle.',
+      },
+      {
+        src: '/projects/kitty-n-pip/paw-logo.jpg',
+        caption: 'Logo · paw print',
+        alt: 'The Kitty n Pip logo: a black paw print with P, I, P on three toe pads and claw marks streaking past it, over the script wordmark Kitty n Pip and a small heart.',
+      },
+    ],
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {

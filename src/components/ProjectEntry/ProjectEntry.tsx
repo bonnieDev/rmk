@@ -162,6 +162,9 @@ export function ProjectEntry({
                     allow="accelerometer; gyroscope"
                     loading="lazy"
                   />
+                ) : still?.video ? (
+                  // key: switching between gallery videos loads the new one fresh
+                  <StreamVideo key={still.video} src={still.video} title={`${fullTitle} — ${still.alt}`} sound />
                 ) : still ? (
                   <img
                     className="entry__cover entry__cover--still"
@@ -186,7 +189,7 @@ export function ProjectEntry({
                         type="button"
                         className="entry__still-thumb"
                         aria-pressed={i === stillIndex}
-                        aria-label={`Show still ${i + 1}: ${s.caption}`}
+                        aria-label={`Show ${s.video ? 'video' : 'still'} ${i + 1}: ${s.caption}`}
                         onClick={() => setStillIndex(i)}
                       >
                         <img src={s.src} alt="" loading="lazy" decoding="async" />
@@ -200,7 +203,7 @@ export function ProjectEntry({
                     : project.demoEmbed
                       ? 'Live demo · running'
                       : still
-                        ? `Still ${stillIndex + 1}/${stills.length} · ${still.caption}`
+                        ? `${still.video ? 'Video' : 'Still'} ${stillIndex + 1}/${stills.length} · ${still.caption}`
                         : 'Still'}
                 </figcaption>
               </figure>

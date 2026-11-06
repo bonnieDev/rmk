@@ -121,7 +121,7 @@ export function StreamVideo({ src, title, sound = false, poster }: StreamVideoPr
     <>
       <iframe
         ref={frameRef}
-        className="entry__frame"
+        className="entry__frame entry__frame--video"
         src={frameSrc}
         title={title}
         allow="accelerometer; gyroscope; autoplay; encrypted-media;"

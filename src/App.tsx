@@ -186,7 +186,7 @@ function HomeSheet({ live }: { live: boolean }) {
         <div className="hero__lead">
           <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} className="rmk-logo--heavy" />
           <h1 className="pov" id="hero-title" tabIndex={-1}>
-            One person in the <em>director’s chair.</em>
+            Worlds that used to need a <em>crew.</em>
           </h1>
           <p className="pov-sub">
             I work on both sides of the line between design and engineering, and I don’t hand off in the

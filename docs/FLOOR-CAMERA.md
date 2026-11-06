@@ -158,7 +158,7 @@ Palette (from `rmk-refine.css`). No pure `#000` or `#fff` by default; that's Bon
 - Floor: `#141413` plus fine SVG noise (≈9% alpha) and one warm overhead light pool. In aerial, a faint 1px grid at `W/8` fades in.
 - Sheet shadow (lying flat under overhead light): `0 2px 3px #0000008c, 0 30px 60px #000000a6` (was three layers; see the Decision log).
 - **The RMK mark is heavy:** each cell gets a same-color 1.5 stroke (closes the gaps) and stacked drop-shadows, so the cells read as physical blocks. Blue/cyan cells become amber, and the copper cell becomes `#c9772f`. The click-to-remake behavior must keep working.
-- **Point-of-view headline** under the mark: "One person in the *director's chair.*" (amber on "director's chair."). The sub-line is a draft; Bonnie will rewrite it.
+- **Point-of-view headline** under the mark: "Worlds that used to need a *crew.*" (amber on "crew."), from her About copy. The sub-line is a draft; Bonnie will rewrite it.
 - Floor labels (aerial only): mono, printed below each sheet. The one under Home reads "Index · you were here".
 - Hint at the top in aerial: "You were looking down the whole time · click any sheet".
 

@@ -256,8 +256,8 @@ export const projects: Project[] = [
       },
       {
         src: '/projects/kitty-n-pip/paw-logo.jpg',
-        caption: 'Logo · paw print',
-        alt: 'The Kitty n Pip logo: a black paw print with P, I, P on three toe pads and claw marks streaking past it, over the script wordmark Kitty n Pip and a small heart.',
+        caption: 'Logo · Kitty’s paw on the glass',
+        alt: 'The Kitty n Pip logo: Kitty has breathed on a window and pressed her paw into the fog to show Pip is her best friend. The black paw print has P, I, P on three toe pads, with streaks wiped across the glass, over the script wordmark Kitty n Pip and a small heart.',
       },
     ],
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },

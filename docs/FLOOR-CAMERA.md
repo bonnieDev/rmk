@@ -39,8 +39,8 @@ Timings are from the prototype; tune by feel, but keep the three beats.
 | Beat | What happens | Duration | Easing |
 |---|---|---|---|
 | 1. Pull up | Camera rises and tilts ~16° on X, framing the origin sheet and the target sheet together. Sheet corners round (0 to 28px), the floor grid and the floor labels fade in. | ~1250ms | ease-out cubic |
-| 2. Line up | Amber guide lines draw: an orthogonal elbow path from **the exact row clicked** to the target sheet's center, plus dashed extensions of the target's four edges (drafting-table feel), plus a mono distance readout. A press anywhere during this beat cancels the dive (§3.5). | ~1100ms hold (path draw 650ms) | cubic-bezier(.6,0,.3,1) |
-| 3. Dive | Guides fade, tilt returns to 0, camera descends and **rotates to match the target sheet's slight angle** so it lands perfectly flat and fills the viewport. | ~1350ms | ease-in-out cubic |
+| 2. Line up | Amber guide lines draw: an orthogonal elbow path from **the exact row clicked** to the target sheet's center, plus dashed extensions of the target's four edges (drafting-table feel), plus a mono distance readout. Then the camera **waits**: the target gets an amber ring and the hint reads "Click [project] to go in · or drag to look around". Nothing dives on its own. | path draw 650ms, then no time limit | cubic-bezier(.6,0,.3,1) |
+| 3. Dive (only when the visitor chooses) | Guides fade, tilt returns to 0, camera descends and **rotates to match the target sheet's slight angle** so it lands perfectly flat and fills the viewport. | ~1350ms | ease-in-out cubic |
 
 After landing: reset the target's scroll to the top, mark it focused, update the URL.
 
@@ -51,7 +51,7 @@ A control on every sheet's masthead, plus a floating HUD pill that appears only 
 
 Bonnie's brain expects to drag the floor around once it's revealed. The reveal is the surprise; roaming is the reward ("while I'm here"). Floor and aerial view only; the focused flat page scrolls normally. Code: `src/components/Floor/useRoam.ts`; tunables in `floor.ts` → `roam`.
 
-1. **Grab to stay.** During beat 2 (line-up), a press anywhere cancels the dive: the guides fade, the camera stays where it is, and the press is already a drag. The line-up hold is 1100ms so there's time to grab. (During flights `.floor.is-flying *` turns pointer events off, so the listener is on window.)
+1. **You're in control on the floor.** After a row click the camera stops at floor level with the pick lined up, and stays until the visitor chooses: click the lined-up sheet to go in, click another sheet, drag around, or press Esc to go back. Keyboard focus starts on the lined-up sheet, so Enter goes in. (Grabbing during the short line-up after choosing a sheet *from above* still cancels that dive.) Going back ("← Back", "← Index", browser back/forward) hops straight there with no stop.
 2. **Drag to pan.** The floor tracks the pointer 1:1: deltas are divided by the camera scale, Y also by cos(tilt), and rotated into world space by the camera's z-rotation. Pointer capture; `grab` cursor, `grabbing` while dragging; `touch-action: none` only while up.
 3. **Momentum.** On release it keeps gliding, velocity × 0.92 per frame, until under 0.2px/frame. Velocity is a smoothed average of the last moves; a pause before release means no glide. Off under reduced motion.
 4. **Zoom around the cursor.** The wheel zooms and the floor point under the cursor stays put. A trackpad pinch (wheel + ctrlKey) uses ≈0.01 per deltaY vs 0.0015; Safari's trackpad pinch arrives as gesture events and is handled too. Two-finger pinch on touch. Wheel `preventDefault` only while up.
@@ -179,7 +179,7 @@ Palette (from `rmk-refine.css`). No pure `#000` or `#fff` by default; that's Bon
 ## 11. Done means
 
 - [ ] A cold load looks like an ordinary site, with no hint of the floor.
-- [ ] Clicking any Home row runs all three beats, and the line starts at that row.
+- [ ] Clicking any Home row runs beats 1–2, the line starts at that row, and beat 3 waits for the visitor's click.
 - [ ] Landing is pixel-flat with no visible rotation, and the page scrolls normally.
 - [ ] Aerial view, sheet-click flights, Next, Back and Esc all work.
 - [ ] Deep links land directly; back/forward works.
@@ -187,7 +187,7 @@ Palette (from `rmk-refine.css`). No pure `#000` or `#fff` by default; that's Bon
 - [ ] Safari desktop and iOS Safari tested.
 - [ ] The RMK mark still remakes on click.
 - [ ] Floor positions and timings come only from `floor.ts`.
-- [x] Grabbing during line-up cancels the dive and you're dragging immediately. (Chrome, mouse)
+- [x] After a row click the floor waits: it only dives when you click the lined-up sheet (or Enter); you can choose another or drag instead. (Chrome, mouse and keyboard)
 - [x] Drag pans with momentum; wheel, trackpad and pinch zoom around the cursor. (Chrome: mouse drag, wheel, touch drag and two-finger pinch. Trackpad pinch and Safari's gesture events are coded but not yet tried on a real trackpad.)
 - [x] A tap lands on the sheet under it; a drag never triggers a click. (Chrome, mouse and touch)
 - [ ] Works with mouse, trackpad and touch, in Chrome and Safari. (Chrome done at desktop and phone size; Safari and a real trackpad still to test on Bonnie's Mac and iPhone.)
@@ -220,5 +220,6 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-05 | **Roaming:** drag to pan, zoom, tap to land; grabbing during the line-up beat cancels the dive. Line-up hold 820 → 1100ms. Pan clamps to the real 5 × 3 grid (the prompt said 3 × 3; same intent). | Bonnie: "my brain wants to drag… first the surprise of floor view and then while I'm here." |
 | 2026-11-05 | Landing from the floor needs a distinct click: quick (≤300ms), still (<5px), same sheet, not right after a drag (350ms), and never the press that stops a glide or grabs the line-up. | Bonnie: "it switches too fast when you are on floor drag. a distinct click is needed." |
 | 2026-11-05 | Chunky mark always on in every masthead, labeled "← Back to …". Site back = browser back inside the site (history entries remember the sheet before); from a deep link it goes to the Index. Replaces "← rmk.systems" and the mark that only appeared after scrolling. | Bonnie: "i hate it when im on sites and it dont know when to use their navigation v the browser and then im putting this on linkedin." |
+| 2026-11-06 | **No auto-dive.** After the pull-up and line-up the camera waits at floor level until the visitor clicks the lined-up sheet (or another one); `timing.lineUp` removed. "Next →" waits the same way; "← Back", "← Index" and back/forward hop straight there. Supersedes the 1100ms grab-to-stay hold. | Bonnie: "when you're on floor level it can't just go on its own. people need to have control… it only goes there if you click on it." |
 | 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |

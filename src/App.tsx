@@ -417,7 +417,7 @@ function AboutSheet({ live }: { live: boolean }) {
         </div>
 
         <nav className="psheet__nav" aria-label="Next">
-          <button type="button" className="pill" onClick={(e) => go('home', e.currentTarget)}>
+          <button type="button" className="pill" onClick={(e) => go('home', e.currentTarget, { direct: true })}>
             <span aria-hidden="true">← </span>Index
           </button>
           <button type="button" className="pill pill--amber" onClick={overview}>

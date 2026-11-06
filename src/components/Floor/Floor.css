@@ -116,6 +116,8 @@
   transition: box-shadow 0.3s;
 }
 
+/* the sheet the guides lined up, waiting to be chosen */
+.floor__hit.is-target,
 .floor__hit:hover,
 .floor__hit:focus-visible {
   outline: none;

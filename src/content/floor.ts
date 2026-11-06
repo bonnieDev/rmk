@@ -36,7 +36,8 @@ export const floor = {
     { id: 'kinedic-drop', col: 3, row: 2, rotation: -2.8 },
   ] satisfies FloorSpot[],
   /** milliseconds */
-  timing: { pullUp: 1250, lineUp: 1100, dive: 1350, aerial: 1500, back: 900 },
+  // no line-up hold: after the pull-up the camera waits for the visitor
+  timing: { pullUp: 1250, dive: 1350, aerial: 1500, back: 900 },
   /** perspective in px, tilts in degrees */
   camera: { perspective: 2200, pullTilt: 16, aerialTilt: 14 },
   /**

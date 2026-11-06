@@ -41,8 +41,13 @@ export interface FloorSheet {
 }
 
 interface FloorApi {
-  /** Fly to a sheet. Pass the clicked element so the guide starts there. */
-  go: (id: string, origin?: Element | null) => void
+  /**
+   * Fly to a sheet. Pass the clicked element so the guide starts there.
+   * From a flat page this reveals the floor, lines the sheet up and waits for
+   * the visitor to choose it; `direct` (going back, going home) hops straight
+   * there instead.
+   */
+  go: (id: string, origin?: Element | null, opts?: { direct?: boolean }) => void
   /** Pull all the way up */
   overview: () => void
   /**
@@ -105,6 +110,13 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const [lastId, setLastId] = useState(start.id)
   const lastIdRef = useRef(start.id)
   const [backTo, setBackTo] = useState<string | null>(null)
+  /** the sheet the guides are lining up, waiting for the visitor to choose it */
+  const [pending, setPending] = useState<string | null>(null)
+  const pendingRef = useRef<string | null>(null)
+  const setPendingBoth = (id: string | null) => {
+    pendingRef.current = id
+    setPending(id)
+  }
 
   const floorRef = useRef<HTMLDivElement>(null)
   const worldRef = useRef<HTMLDivElement>(null)
@@ -229,9 +241,13 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
       if (reducedMotion()) {
         await fadeTo(focusCam(T))
       } else if (upRef.current) {
-        // already above: line it up, then dive
-        drawGuides(guidesRef.current!, L, from, T, camRef.current.s, `${labelOf(toId)?.num} ${labelOf(toId)?.label}`)
-        if (await holdOrGrab(500 * scale())) return
+        // already above, and the visitor chose this sheet: line it up (unless
+        // it already is), then dive
+        if (pendingRef.current !== toId) {
+          drawGuides(guidesRef.current!, L, from, T, camRef.current.s, `${labelOf(toId)?.num} ${labelOf(toId)?.label}`)
+          if (await holdOrGrab(500 * scale())) return
+        }
+        setPendingBoth(null)
         setUp(false)
         clearGuides(guidesRef.current!)
         await flight(worldRef.current!, L, camRef.current, focusCam(T), floor.timing.dive * scale(), easeInOut)
@@ -248,13 +264,21 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
           // 1. pull up: the page was lying on a floor all along
           await flight(worldRef.current!, L, camRef.current, mid, floor.timing.pullUp * scale(), easeOut)
           setCam(mid)
-          // 2. the lines line it up
+          // 2. the lines line it up, and the camera waits. The visitor is in
+          // control on the floor: choose this sheet to go in (beat 3), choose
+          // another, or drag around. Nothing dives on its own.
           drawGuides(guidesRef.current!, L, from, T, mid.s, `${labelOf(toId)?.num} ${labelOf(toId)?.label}`)
-          if (await holdOrGrab(floor.timing.lineUp * scale())) return
-          // 3. dive onto it, turning to match the sheet so it lands flat
-          setUp(false)
-          clearGuides(guidesRef.current!)
-          await flight(worldRef.current!, L, mid, focusCam(T), floor.timing.dive * scale(), easeInOut)
+          setPendingBoth(toId)
+          upRef.current = true
+          busyRef.current = false
+          setFlying(false)
+          setAnnounce(
+            `Floor view. ${labelOf(toId)?.label} is lined up: choose it to open it, or choose another sheet.`,
+          )
+          requestAnimationFrame(() =>
+            document.querySelector<HTMLElement>(`.floor__hit[data-for="${toId}"]`)?.focus({ preventScroll: true }),
+          )
+          return
         }
       }
       land(toId, history)
@@ -274,6 +298,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
     setFocusId(null)
     focusRef.current = null
     upRef.current = true
+    setPendingBoth(null)
     if (reducedMotion()) await fadeTo(target)
     else await flight(worldRef.current!, L, camRef.current, target, floor.timing.aerial * scale(), easeOut)
     setCam(target)
@@ -369,11 +394,11 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const backLabel = labelOf(backTo ?? 'home')?.label ?? 'Index'
   const api = useMemo<FloorApi>(
     () => ({
-      go: (id, origin) => void go(id, origin),
+      go: (id, origin, opts) => void go(id, origin, 'push', Boolean(opts?.direct)),
       overview: () => void overview(),
       back: (origin) => {
         if ((floorHistory()?.rmkDepth ?? 0) > 0) window.history.back()
-        else void go('home', origin)
+        else void go('home', origin, 'push', true)
       },
       backLabel,
     }),
@@ -440,7 +465,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
                   {resting ? (
                     <button
                       type="button"
-                      className="floor__hit"
+                      className={`floor__hit${pending === s.id ? ' is-target' : ''}`}
                       data-for={s.id}
                       aria-label={`Open ${s.id === 'home' ? 'the index' : s.label}`}
                       style={place}
@@ -462,7 +487,15 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
         </div>
 
         <p className="floor__hint" aria-hidden="true">
-          You were looking down the whole time · <em>drag to look around</em> · click a sheet to land
+          {pending ? (
+            <>
+              Click <em>{labelOf(pending)?.label}</em> to go in · or drag to look around
+            </>
+          ) : (
+            <>
+              You were looking down the whole time · <em>drag to look around</em> · click a sheet to land
+            </>
+          )}
         </p>
         <div className="floor__hud" role="group" aria-label="View from above" inert={!resting}>
           <button type="button" className="pill" onClick={() => void go('home')}>

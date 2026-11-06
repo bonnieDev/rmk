@@ -45,9 +45,27 @@ interface FloorApi {
   go: (id: string, origin?: Element | null) => void
   /** Pull all the way up */
   overview: () => void
+  /**
+   * Back to the sheet you came from. Inside the site it is the browser's
+   * back, so the two never disagree; arriving from outside, it's the Index
+   * (and never leaves the site).
+   */
+  back: (origin?: Element | null) => void
+  /** where back goes, e.g. "Kitty & Pip" or "Index" */
+  backLabel: string
 }
 
-const FloorContext = createContext<FloorApi>({ go: () => {}, overview: () => {} })
+/** What each history entry remembers: how deep in the site, and the sheet before it */
+interface FloorHistory {
+  rmkDepth: number
+  rmkPrev: string | null
+}
+const floorHistory = (): FloorHistory | null => {
+  const st = window.history.state as Partial<FloorHistory> | null
+  return st && typeof st.rmkDepth === 'number' ? (st as FloorHistory) : null
+}
+
+const FloorContext = createContext<FloorApi>({ go: () => {}, overview: () => {}, back: () => {}, backLabel: 'Index' })
 export const useFloor = () => useContext(FloorContext)
 
 interface FloorProps {
@@ -85,6 +103,8 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const [flying, setFlying] = useState(false)
   const [announce, setAnnounce] = useState('')
   const [lastId, setLastId] = useState(start.id)
+  const lastIdRef = useRef(start.id)
+  const [backTo, setBackTo] = useState<string | null>(null)
 
   const floorRef = useRef<HTMLDivElement>(null)
   const worldRef = useRef<HTMLDivElement>(null)
@@ -163,16 +183,23 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
       busyRef.current = false
       landedRef.current = true
       setFocusId(id)
+      const prev = lastIdRef.current
+      lastIdRef.current = id
       setLastId(id)
       setUp(false)
       setFlying(false)
       setAnnounce(labelOf(id)?.label ?? '')
-      if (history === 'push' && location.hash !== hashFor(id)) {
+      if (history === 'push' && prev !== id) {
         try {
-          window.history.pushState(null, '', hashFor(id))
+          const entry: FloorHistory = { rmkDepth: (floorHistory()?.rmkDepth ?? 0) + 1, rmkPrev: prev }
+          window.history.pushState(entry, '', hashFor(id))
         } catch {
           /* file:// and sandboxed frames */
         }
+        setBackTo(prev)
+      } else if (history === 'none') {
+        // back / forward: the entry knows where it came from
+        setBackTo(floorHistory()?.rmkPrev ?? null)
       }
       onLandRef.current?.(id)
     },
@@ -262,6 +289,16 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
 
   // first paint: land on the address's sheet with no flight
   useLayoutEffect(() => {
+    // a reload keeps the trail; a fresh arrival starts one
+    const known = floorHistory()
+    if (known) setBackTo(known.rmkPrev)
+    else {
+      try {
+        window.history.replaceState({ rmkDepth: 0, rmkPrev: null } satisfies FloorHistory, '')
+      } catch {
+        /* file:// and sandboxed frames */
+      }
+    }
     setCam(focusCam(layoutRef.current.sheets[start.id]))
     if (start.anchor) {
       const el = document.getElementById(start.anchor)
@@ -329,7 +366,19 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
     onTap: (id) => void go(id),
   })
 
-  const api = useMemo<FloorApi>(() => ({ go: (id, origin) => void go(id, origin), overview: () => void overview() }), [go, overview])
+  const backLabel = labelOf(backTo ?? 'home')?.label ?? 'Index'
+  const api = useMemo<FloorApi>(
+    () => ({
+      go: (id, origin) => void go(id, origin),
+      overview: () => void overview(),
+      back: (origin) => {
+        if ((floorHistory()?.rmkDepth ?? 0) > 0) window.history.back()
+        else void go('home', origin)
+      },
+      backLabel,
+    }),
+    [go, overview, backLabel],
+  )
   const L = layout
   const resting = up && !flying
   const last = labelOf(lastId)

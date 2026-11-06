@@ -33,7 +33,54 @@
   white-space: nowrap;
 }
 
-button.masthead__word:hover {
+/* The chunky mark is on every sheet, and the control it sits in says
+   where it goes: "Back to Kitty & Pip", or the top of Home. */
+.masthead__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--rmk-ink);
+  cursor: pointer;
+}
+
+.masthead__mark {
+  display: block;
+  flex: none;
+  width: 86px;
+  --rmk-mark-compact-max: 86px;
+}
+
+/* small, so a thicker stroke keeps it chunky */
+.masthead__mark .rmk-mark__svg :is(rect, circle, path) {
+  stroke-width: 2.6;
+}
+
+.masthead__mark .rmk-mark {
+  cursor: inherit;
+}
+
+.masthead__back-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 500 var(--rmk-meta-size) / 1 var(--rmk-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rmk-ink);
+}
+
+.masthead__back-to {
+  color: var(--rmk-ink-muted);
+}
+
+.masthead__back:hover .masthead__back-label,
+.masthead__back:hover .masthead__back-to,
+.masthead__back:hover .masthead__word {
   color: var(--rmk-amber-2);
 }
 
@@ -83,6 +130,16 @@ button.masthead__word:hover {
   }
 
   .masthead__state {
+    display: none;
+  }
+
+  .masthead__mark {
+    width: 66px;
+    --rmk-mark-compact-max: 66px;
+  }
+
+  /* on a phone the destination can wait; "Back" can't */
+  .masthead__back-to {
     display: none;
   }
 }

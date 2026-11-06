@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { defaultLogoPalette, type LogoPalette } from '../../data/projects'
 import {
   BURST_REMAKE_MS,
@@ -96,9 +96,32 @@ function MarkCells({
   return <>{nodes}</>
 }
 
+/** The mark's frame: a remake button, or just a picture inside another control */
+function MarkFrame({ decorative, onRemake, children }: { decorative: boolean; onRemake: () => void; children: ReactNode }) {
+  if (decorative) {
+    return (
+      <span className="rmk-mark" aria-hidden="true">
+        {children}
+      </span>
+    )
+  }
+  return (
+    <button
+      type="button"
+      className="rmk-mark"
+      onClick={onRemake}
+      title="Click to remake"
+      aria-label="RMK generative logo — click to remake"
+    >
+      {children}
+    </button>
+  )
+}
+
 export function GenerativeRMKLogo({
   seed = 'kinedic',
   paused = false,
+  decorative = false,
   className = '',
   showControls = false,
   palette = defaultLogoPalette,
@@ -255,13 +278,7 @@ export function GenerativeRMKLogo({
         </div>
       ) : null}
 
-      <button
-        type="button"
-        className="rmk-mark"
-        onClick={() => advance()}
-        title="Click to remake"
-        aria-label="RMK generative logo — click to remake"
-      >
+      <MarkFrame decorative={decorative} onRemake={() => advance()}>
         <svg
           className="rmk-mark__svg"
           viewBox={`0 0 ${markWidth(COLS, LETTERS.length)} ${letterHeight(ROWS)}`}
@@ -272,7 +289,7 @@ export function GenerativeRMKLogo({
             <MarkCells config={config} palette={palette} />
           </g>
         </svg>
-      </button>
+      </MarkFrame>
 
       {showTicker ? (
         <div className="rmk-ticker">

@@ -49,26 +49,7 @@
   border-color: var(--rmk-amber);
 }
 
-/* --- Masthead extras on Home: the small mark and the live pip --- */
-
-.masthead__mark {
-  display: grid;
-  place-items: center;
-  width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  overflow: hidden;
-  opacity: 0;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-  --rmk-mark-compact-max: 64px;
-}
-
-.masthead__mark.is-visible {
-  width: auto;
-  opacity: 1;
-}
+/* --- Masthead extras on Home: the live pip --- */
 
 .masthead__pip {
   flex: none;

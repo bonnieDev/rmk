@@ -57,6 +57,8 @@ export interface GenerativeRMKLogoProps {
   pace?: LogoPace
   /** Compact mark for sticky header — smaller cells, no ticker */
   compact?: boolean
+  /** Just the picture: no remake-on-click, for use inside another control */
+  decorative?: boolean
   /** Hide the MK / RMK / MKR baseline ticker */
   hideTicker?: boolean
 }

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
 import { Floor, useFloor, type FloorSheet } from './components/Floor'
 import { ProjectSheet } from './components/ProjectSheet'
-import { SheetMast } from './components/SheetMast'
+import { MastMark, SheetMast } from './components/SheetMast'
 import { fullTitleOf, posterOf } from './components/ProjectMedia'
 // Retired with the floor redesign (docs/FLOOR-CAMERA.md): the chalk
 // annotations, the changeover cue, the etched attractor and the shape field.
@@ -85,7 +85,7 @@ export default function App() {
 
   const sheets = useMemo<FloorSheet[]>(
     () => [
-      { id: 'home', num: '00', label: 'Index', render: () => <HomeSheet /> },
+      { id: 'home', num: '00', label: 'Index', render: (live: boolean) => <HomeSheet live={live} /> },
       ...projects.map((p, i) => ({
         id: p.id,
         num: num(i),
@@ -94,7 +94,7 @@ export default function App() {
           <ProjectSheet project={p} num={num(i)} next={projects[(i + 1) % projects.length]} live={live} />
         ),
       })),
-      { id: 'about', num: '—', label: 'About', render: () => <AboutSheet /> },
+      { id: 'about', num: '—', label: 'About', render: (live: boolean) => <AboutSheet live={live} /> },
     ],
     [],
   )
@@ -130,27 +130,12 @@ export default function App() {
    HOME — looks like an ordinary site. Nothing gives the floor away.
    ========================================================= */
 
-function HomeSheet() {
+function HomeSheet({ live }: { live: boolean }) {
   const { go } = useFloor()
   const [hovered, setHovered] = useState<Project | null>(null)
-  const [logoPinned, setLogoPinned] = useState(false)
-  const leadRef = useRef<HTMLDivElement>(null)
   const palette = hovered?.logoPalette ?? defaultLogoPalette
   const pace = hovered ? 'hover' : 'slow'
   const liveCount = projects.filter((p) => p.status.live).length
-
-  // the small mark joins the masthead once the big one scrolls away
-  useEffect(() => {
-    const el = leadRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(([entry]) => setLogoPinned(!entry.isIntersecting), {
-      root: el.closest('.sheet__scroll'),
-      threshold: 0,
-      rootMargin: '-56px 0px 0px 0px',
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
 
   const scrollTo = (id: string) => {
     track('nav_click', { section: id })
@@ -165,19 +150,12 @@ function HomeSheet() {
     <div id="top">
       <SheetMast
         left={
-          <>
-            <button
-              type="button"
-              className={`masthead__mark${logoPinned ? ' is-visible' : ''}`}
-              onClick={() => scrollTo('top')}
-              tabIndex={logoPinned ? 0 : -1}
-              aria-hidden={!logoPinned}
-              aria-label="Back to top"
-            >
-              <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} compact hideTicker className="rmk-logo--heavy" />
-            </button>
+          // Home is the top of the site: the mark takes you to the top of the page
+          <button type="button" className="masthead__back" onClick={() => scrollTo('top')}>
+            <MastMark live={live} />
             <span className="masthead__word">rmk.systems</span>
-          </>
+            <span className="visually-hidden">, back to top</span>
+          </button>
         }
         nav={
           <>
@@ -204,7 +182,7 @@ function HomeSheet() {
       />
 
       <section className="hero" aria-labelledby="hero-title">
-        <div className="hero__lead" ref={leadRef}>
+        <div className="hero__lead">
           <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} className="rmk-logo--heavy" />
           <h1 className="pov" id="hero-title" tabIndex={-1}>
             One person in the <em>director’s chair.</em>
@@ -311,11 +289,11 @@ function HomeSheet() {
    ABOUT + RECORD
    ========================================================= */
 
-function AboutSheet() {
+function AboutSheet({ live }: { live: boolean }) {
   const { go, overview } = useFloor()
   return (
     <>
-      <SheetMast meta="About · Record" />
+      <SheetMast meta="About · Record" live={live} />
 
       <section id="about" className="about" aria-labelledby="about-title">
         <p className="psheet__kicker">

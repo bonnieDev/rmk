@@ -62,7 +62,8 @@ Bonnie's brain expects to drag the floor around once it's revealed. The reveal i
 Keyboard is unchanged: from above, Tab moves through the sheet buttons and Enter lands; Esc goes back.
 
 ### 3.4 Other navigation
-- Project pages: "← rmk.systems" goes home; "Next: [project] →" flies to the next project in index order.
+- **The chunky RMK mark is always on**, at the left of every masthead. On a project or About it is one control with a plain label: "← Back to Kitty & Pip" (the sheet you came from) or "← Back to Index" (arriving from outside, e.g. a LinkedIn link). Inside the site it *is* the browser's back, so the two never disagree; from outside it goes to the Index and never leaves the site. Phones show "← Back" only. On Home the mark goes to the top of the page.
+- "Next: [project] →" flies to the next project in index order.
 - **Esc**: toggles home ↔ aerial.
 - Hover in aerial: amber 6px inset ring on the sheet.
 
@@ -218,5 +219,6 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-05 | Retired: chalk annotation layer, changeover cue, cue marks on titles, the old drawer catalog and "Expand all". | They read window scroll, which the floor no longer has, and they were the HUD look §2 asks to drop. Components kept in src/components (AnnotationLayer, CueMark). |
 | 2026-11-05 | **Roaming:** drag to pan, zoom, tap to land; grabbing during the line-up beat cancels the dive. Line-up hold 820 → 1100ms. Pan clamps to the real 5 × 3 grid (the prompt said 3 × 3; same intent). | Bonnie: "my brain wants to drag… first the surprise of floor view and then while I'm here." |
 | 2026-11-05 | Landing from the floor needs a distinct click: quick (≤300ms), still (<5px), same sheet, not right after a drag (350ms), and never the press that stops a glide or grabs the line-up. | Bonnie: "it switches too fast when you are on floor drag. a distinct click is needed." |
+| 2026-11-05 | Chunky mark always on in every masthead, labeled "← Back to …". Site back = browser back inside the site (history entries remember the sheet before); from a deep link it goes to the Index. Replaces "← rmk.systems" and the mark that only appeared after scrolling. | Bonnie: "i hate it when im on sites and it dont know when to use their navigation v the browser and then im putting this on linkedin." |
 | 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |

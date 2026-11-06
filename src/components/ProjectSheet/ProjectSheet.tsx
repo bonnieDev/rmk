@@ -28,6 +28,7 @@ export function ProjectSheet({ project, num, next, live }: ProjectSheetProps) {
   return (
     <div className="psheet-page" id={`work-${project.id}`} data-section={title}>
       <SheetMast
+        live={live}
         meta={
           <>
             {num} / {project.category}

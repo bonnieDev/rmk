@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useFloor } from '../Floor'
+import { GenerativeRMKLogo } from '../GenerativeRMKLogo'
 import './SheetMast.css'
 
 interface SheetMastProps {
@@ -9,17 +10,32 @@ interface SheetMastProps {
   nav?: ReactNode
   /** Right side: a quiet line of metadata */
   meta: ReactNode
+  /** the sheet is in focus, so the mark can animate */
+  live?: boolean
+}
+
+/** The chunky mark that sits in every masthead */
+export function MastMark({ live = true }: { live?: boolean }) {
+  return (
+    <span className="masthead__mark">
+      <GenerativeRMKLogo seed="rmk" compact hideTicker decorative paused={!live} className="rmk-logo--heavy" />
+    </span>
+  )
 }
 
 /** The bar across the top of every sheet: hairline, glass, no pill. */
-export function SheetMast({ left, nav, meta }: SheetMastProps) {
-  const { go, overview } = useFloor()
+export function SheetMast({ left, nav, meta, live = true }: SheetMastProps) {
+  const { back, backLabel, overview } = useFloor()
   return (
     <header className="masthead">
       <div className="masthead__left">
         {left ?? (
-          <button type="button" className="masthead__word" onClick={(e) => go('home', e.currentTarget)}>
-            <span aria-hidden="true">← </span>rmk.systems
+          // the mark stays on and says plainly where it goes
+          <button type="button" className="masthead__back" onClick={(e) => back(e.currentTarget)}>
+            <MastMark live={live} />
+            <span className="masthead__back-label">
+              <span aria-hidden="true">← </span>Back <span className="masthead__back-to">to {backLabel}</span>
+            </span>
           </button>
         )}
       </div>

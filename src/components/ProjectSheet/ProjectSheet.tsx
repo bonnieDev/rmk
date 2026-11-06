@@ -56,6 +56,26 @@ export function ProjectSheet({ project, num, next, live }: ProjectSheetProps) {
         </h1>
         <p className="psheet__tag">{project.tagline}</p>
 
+        {project.links?.length ? (
+          // the live thing, one click from the title
+          <ul className="psheet__links" aria-label={`${title} online`}>
+            {project.links.map((link, i) => (
+              <li key={link.href}>
+                <a
+                  className={`pill${i === 0 ? ' pill--amber' : ''}`}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {link.label}
+                  <span aria-hidden="true"> ↗</span>
+                  <span className="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         {hasMedia(project) ? (
           <div className="psheet__media">
             {live ? (
@@ -100,18 +120,6 @@ export function ProjectSheet({ project, num, next, live }: ProjectSheetProps) {
               </ul>
             </dd>
           </div>
-          {project.site ? (
-            <div>
-              <dt>Visit</dt>
-              <dd>
-                <a className="psheet__site" href={project.site.href} target="_blank" rel="noopener noreferrer">
-                  {project.site.label}
-                  <span aria-hidden="true"> ↗</span>
-                  <span className="visually-hidden"> (opens in a new tab)</span>
-                </a>
-              </dd>
-            </div>
-          ) : null}
         </dl>
 
         <nav className="psheet__nav" aria-label="Next">

@@ -63,6 +63,13 @@
   color: var(--rmk-ink-2);
 }
 
+.psheet__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
 .psheet__media {
   margin-top: clamp(32px, 5vh, 56px);
 }
@@ -140,16 +147,6 @@
   color: var(--rmk-ink-faint);
 }
 
-.psheet__site {
-  color: var(--rmk-ink);
-  text-decoration: underline;
-  text-decoration-color: var(--rmk-line-strong);
-  text-underline-offset: 0.25em;
-}
-
-.psheet__site:hover {
-  text-decoration-color: var(--rmk-amber);
-}
 
 .psheet__nav {
   display: flex;

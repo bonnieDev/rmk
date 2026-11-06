@@ -70,8 +70,8 @@ export interface Project {
   videoCredit?: string
   /** Still shown in the player before the video starts, e.g. '/bombaStill.jpg' */
   videoPoster?: string
-  /** Optional live site, shown as the last row of the brief */
-  site?: { href: string; label: string }
+  /** Live sites and pages, shown as buttons right under the title; the first is the main one */
+  links?: { href: string; label: string }[]
 }
 
 /* Mark base — warm off-white, never pure white */
@@ -130,6 +130,7 @@ export const projects: Project[] = [
         alt: 'The Ghost Crown entry screen: the Ghost Crown wordmark, a quote in English and Lithuanian over a blurred golden crown, and the Aether Command sign-in panel.',
       },
     ],
+    links: [{ href: 'https://www.ghostcrown.co/', label: 'Visit ghostcrown.co' }],
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
   },
   {
@@ -168,7 +169,10 @@ export const projects: Project[] = [
         alt: 'A wide shot of the SNBN studio in night-vision grey while the real store panel beside it stays in full color, showing a camo crop tee with its price and options.',
       },
     ],
-    site: { href: 'https://otherly.shop/pages/snbn', label: 'Watch SNBN on otherly.shop' },
+    links: [
+      { href: 'https://otherly.shop/', label: 'Visit otherly.shop' },
+      { href: 'https://otherly.shop/pages/snbn', label: 'Watch SNBN' },
+    ],
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.pale] },
   },
   {
@@ -191,7 +195,10 @@ export const projects: Project[] = [
         'Live: the store, the SNBN studio and Skull’s stage with two songs. Next: “Bow Shaker”, more call-ins, and pixel puppets cut from the Illustrator layers.',
     },
     demoEmbed: '/demos/skull-live.html',
-    site: { href: 'https://otherly.shop/pages/dead-cute-wiki', label: 'Read the lore: the Dead Cute wiki' },
+    links: [
+      { href: 'https://otherly.shop/pages/snbn', label: 'Watch SNBN on otherly.shop' },
+      { href: 'https://otherly.shop/pages/dead-cute-wiki', label: 'Read the lore: the Dead Cute wiki' },
+    ],
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {
@@ -320,7 +327,9 @@ export const projects: Project[] = [
       milestone:
         'Character, world, teaching loop and the Codex are established; the Tablet of Light app and the first teaching scenes are in development.',
     },
-    site: { href: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7365617344020189186/', label: 'The FrostByte Codex, timestamped on LinkedIn (2025)' },
+    links: [
+      { href: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7365617344020189186/', label: 'The FrostByte Codex, timestamped on LinkedIn (2025)' },
+    ],
     videoEmbed:
       'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/28c267ddd2cafd0073aa94aca59c2592/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F28c267ddd2cafd0073aa94aca59c2592%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
     logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },
@@ -386,7 +395,7 @@ export const projects: Project[] = [
       pipeline:
         'A single static page with Shopify buy buttons. The Bunny Anarcade, a catch-the-drop game in React Three Fiber, loads only when someone presses play and hands the page back to the shop on exit. Reggie, the origami unicorn, runs on his own state machine and only hears named game events, so his art can be replaced without touching gameplay. The fur on the headline is an SVG filter over live text.',
       milestone:
-        'The standalone site has moved into Otherly, my multi-brand store: bunnyanarchy.co now goes to its shop there. The Anarcade and Reggie, shown here, were built for that site; final character drawings are in progress.',
+        'bunnyanarchy.co is live with the Anarcade and Reggie, and the shop is also part of Otherly, my multi-brand store. Final character drawings are in progress.',
     },
     stills: [
       {
@@ -400,7 +409,10 @@ export const projects: Project[] = [
         alt: 'The Bunny Anarchy homepage hero: the word BUNNY in soft white fur above ANARCHY in hot pink, hand-lettered stickers scattered around it, and Reggie the origami unicorn upside down on his horn on the WOT sticker.',
       },
     ],
-    site: { href: 'https://otherly.shop/collections/bunny-anarchy', label: 'Shop Bunny Anarchy on otherly.shop' },
+    links: [
+      { href: 'https://bunnyanarchy.co/', label: 'Play the Anarcade on bunnyanarchy.co' },
+      { href: 'https://otherly.shop/collections/bunny-anarchy', label: 'Shop Bunny Anarchy on otherly.shop' },
+    ],
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {
@@ -444,7 +456,7 @@ export const projects: Project[] = [
         'v0.7 is open source and runs on desktop, phone and tablet in the live demo: larger targets, a “Shaky hands?” offer that makes everything bigger, text that gets bigger on its own when someone seems to be hunting for a way to enlarge it, keyboard mode with spoken-ready descriptions, a tab-ready check that fixes what it safely can, autofill and readable phone numbers, a friction report of what people wanted and what they hit instead, an easy form, a request for a call or a doctor’s help that goes with the form (only if the person chooses), and a break you can pause and come back to. Voice and database hooks are marked for developers to plug in.',
     },
     demoEmbed: '/demos/kinedic-bloom.html',
-    site: { href: 'https://github.com/bonnieDev/kinedic-bloom', label: 'github.com/bonnieDev/kinedic-bloom' },
+    links: [{ href: 'https://github.com/bonnieDev/kinedic-bloom', label: 'github.com/bonnieDev/kinedic-bloom' }],
     logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
   },
 ]

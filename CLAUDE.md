@@ -5,7 +5,8 @@ minute). Projects are data in `src/data/projects.ts`; live demos are static
 pages in `public/demos/`. The site is a floor of sheets seen through a camera
 (`src/components/Floor`, positions and timings in `src/content/floor.ts`):
 Home, one sheet per project (`ProjectSheet`), and About. A new project needs
-an entry in `projects.ts` and a spot in `floor.ts`.
+an entry in `projects.ts` and a spot in `floor.ts`. Anything with a live site gets it in `links`
+(shown as buttons right under the title; the first is the main one, in amber).
 
 `dist/` is build output and every build wipes it: never keep source files
 there. Bonnie's working files go in `caps/<project>/` (git-ignored) or the

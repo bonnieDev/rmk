@@ -240,6 +240,11 @@ export const projects: Project[] = [
         alt: 'motion test from the approach to the Lotus Trance: Kitty and Pip reach the rotary phone, then sit cross-legged with eyes closed beside the handset on the carpet',
       },
       {
+        src: '/projects/kitty-n-pip/viewmaster.jpg',
+        caption: 'Another find · the View-Master',
+        alt: 'Kitty and Pip sit on amber shag carpet in the sunlit 1970s living room, staring wide-eyed at a red View-Master toy viewer on the floor between them, with the rotary phone, a crocheted afghan couch and baskets of yarn around them.',
+      },
+      {
         src: '/projects/kitty-n-pip/portrait.jpg',
         caption: 'Key art',
         alt: 'Kitty and Pip sit side by side on blue velvet, looking up, with large soft-focus portraits of their faces glowing in the dark blue background.',

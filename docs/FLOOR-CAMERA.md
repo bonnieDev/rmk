@@ -39,13 +39,27 @@ Timings are from the prototype; tune by feel, but keep the three beats.
 | Beat | What happens | Duration | Easing |
 |---|---|---|---|
 | 1. Pull up | Camera rises and tilts ~16° on X, framing the origin sheet and the target sheet together. Sheet corners round (0 to 28px), the floor grid and the floor labels fade in. | ~1250ms | ease-out cubic |
-| 2. Line up | Amber guide lines draw: an orthogonal elbow path from **the exact row clicked** to the target sheet's center, plus dashed extensions of the target's four edges (drafting-table feel), plus a mono distance readout. | ~820ms hold (path draw 650ms) | cubic-bezier(.6,0,.3,1) |
+| 2. Line up | Amber guide lines draw: an orthogonal elbow path from **the exact row clicked** to the target sheet's center, plus dashed extensions of the target's four edges (drafting-table feel), plus a mono distance readout. A press anywhere during this beat cancels the dive (§3.5). | ~1100ms hold (path draw 650ms) | cubic-bezier(.6,0,.3,1) |
 | 3. Dive | Guides fade, tilt returns to 0, camera descends and **rotates to match the target sheet's slight angle** so it lands perfectly flat and fills the viewport. | ~1350ms | ease-in-out cubic |
 
 After landing: reset the target's scroll to the top, mark it focused, update the URL.
 
 ### 3.3 "View from above"
 A control on every sheet's masthead, plus a floating HUD pill that appears only in the aerial view. It pulls all the way up to show all nine sheets (scale is about 0.86 × the fit, tilt 14°). Clicking any sheet from there draws guides and dives in.
+
+### 3.5 Roaming the floor
+
+Bonnie's brain expects to drag the floor around once it's revealed. The reveal is the surprise; roaming is the reward ("while I'm here"). Floor and aerial view only; the focused flat page scrolls normally. Code: `src/components/Floor/useRoam.ts`; tunables in `floor.ts` → `roam`.
+
+1. **Grab to stay.** During beat 2 (line-up), a press anywhere cancels the dive: the guides fade, the camera stays where it is, and the press is already a drag. The line-up hold is 1100ms so there's time to grab. (During flights `.floor.is-flying *` turns pointer events off, so the listener is on window.)
+2. **Drag to pan.** The floor tracks the pointer 1:1: deltas are divided by the camera scale, Y also by cos(tilt), and rotated into world space by the camera's z-rotation. Pointer capture; `grab` cursor, `grabbing` while dragging; `touch-action: none` only while up.
+3. **Momentum.** On release it keeps gliding, velocity × 0.92 per frame, until under 0.2px/frame. Velocity is a smoothed average of the last moves; a pause before release means no glide. Off under reduced motion.
+4. **Zoom around the cursor.** The wheel zooms and the floor point under the cursor stays put. A trackpad pinch (wheel + ctrlKey) uses ≈0.01 per deltaY vs 0.0015; Safari's trackpad pinch arrives as gesture events and is handled too. Two-finger pinch on touch. Wheel `preventDefault` only while up.
+5. **Clamp.** Zoom from 0.75 × the fit-all scale up to 0.75. The camera center stays within the grid's bounds plus 20% of a gap, so you can't get lost.
+6. **Tap to land.** A press that moves under 5px is a tap: fly to the sheet under it. A drag never fires a click; the click that follows a drag or a handled tap is swallowed.
+7. **Hint** in aerial: "You were looking down the whole time · *drag to look around* · click a sheet to land" (the middle in amber).
+
+Keyboard is unchanged: from above, Tab moves through the sheet buttons and Enter lands; Esc goes back.
 
 ### 3.4 Other navigation
 - Project pages: "← rmk.systems" goes home; "Next: [project] →" flies to the next project in index order.
@@ -172,6 +186,11 @@ Palette (from `rmk-refine.css`). No pure `#000` or `#fff` by default; that's Bon
 - [ ] Safari desktop and iOS Safari tested.
 - [ ] The RMK mark still remakes on click.
 - [ ] Floor positions and timings come only from `floor.ts`.
+- [x] Grabbing during line-up cancels the dive and you're dragging immediately. (Chrome, mouse)
+- [x] Drag pans with momentum; wheel, trackpad and pinch zoom around the cursor. (Chrome: mouse drag, wheel, touch drag and two-finger pinch. Trackpad pinch and Safari's gesture events are coded but not yet tried on a real trackpad.)
+- [x] A tap lands on the sheet under it; a drag never triggers a click. (Chrome, mouse and touch)
+- [ ] Works with mouse, trackpad and touch, in Chrome and Safari. (Chrome done at desktop and phone size; Safari and a real trackpad still to test on Bonnie's Mac and iPhone.)
+- [x] Reduced motion: no momentum, everything else works. (Chrome)
 
 ## 12. Staying in the loop (read this, Claude)
 
@@ -197,5 +216,6 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-05 | `--rmk-ink-faint` is #8c8b87, not #6c6b68; mono labels stay 12px, not 11px. | WCAG 1.4.3: #6c6b68 is 3.6:1 on the ground; #8c8b87 is 5.7:1. 12px is the site's text minimum. |
 | 2026-11-05 | Hero sub-line uses Bonnie's own sentence from About ("I work on both sides of the line between design and engineering, and I don't hand off in the middle.") instead of the draft. | Never publish claims she hasn't made. She can rewrite it. |
 | 2026-11-05 | Retired: chalk annotation layer, changeover cue, cue marks on titles, the old drawer catalog and "Expand all". | They read window scroll, which the floor no longer has, and they were the HUD look §2 asks to drop. Components kept in src/components (AnnotationLayer, CueMark). |
+| 2026-11-05 | **Roaming:** drag to pan, zoom, tap to land; grabbing during the line-up beat cancels the dive. Line-up hold 820 → 1100ms. Pan clamps to the real 5 × 3 grid (the prompt said 3 × 3; same intent). | Bonnie: "my brain wants to drag… first the surprise of floor view and then while I'm here." |
 | 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |

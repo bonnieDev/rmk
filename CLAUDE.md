@@ -121,6 +121,8 @@ as a bug, not a polish note.
   above, each sheet is a labeled button ("Open Kitty & Pip") and focus starts
   on the sheet you came from. Esc toggles in and out. The skip link focuses
   the current sheet's heading.
+- **Roaming** (drag, fling, zoom, tap) is pointer-only on top of that: the
+  keyboard path above stays complete. Momentum is off under reduced motion.
 - **Keyboard and focus:** visible `:focus-visible` outlines using
   `--rmk-focus`. Toggles use real `<button>`s with `aria-pressed` (stills,
   video sound).

@@ -89,6 +89,22 @@
   pointer-events: none !important;
 }
 
+/* Roaming (§3.5): the revealed floor can be grabbed and dragged */
+.floor.is-up {
+  touch-action: none;
+}
+
+.floor.is-up:not(.is-flying),
+.floor.is-up:not(.is-flying) .floor__hit,
+.floor.is-lineup {
+  cursor: grab;
+}
+
+.floor.is-dragging,
+.floor.is-dragging * {
+  cursor: grabbing !important;
+}
+
 /* From above, each sheet is one big button */
 .floor__hit {
   position: absolute;
@@ -97,7 +113,6 @@
   border-radius: 28px;
   background: transparent;
   transform-origin: 50% 50%;
-  cursor: zoom-in;
   transition: box-shadow 0.3s;
 }
 
@@ -167,12 +182,11 @@
 
 .floor__hint {
   position: fixed;
-  left: 50%;
+  left: 16px;
+  right: 16px;
   top: 22px;
   z-index: 50;
   margin: 0;
-  max-width: calc(100vw - 32px);
-  transform: translateX(-50%);
   text-align: center;
   font: 500 var(--rmk-meta-size) / 1.4 var(--rmk-font-mono);
   letter-spacing: 0.14em;
@@ -181,6 +195,11 @@
   opacity: 0;
   transition: opacity 0.6s;
   pointer-events: none;
+}
+
+.floor__hint em {
+  font-style: normal;
+  color: var(--rmk-amber);
 }
 
 .floor.is-up:not(.is-flying) .floor__hint {

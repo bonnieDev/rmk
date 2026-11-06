@@ -24,10 +24,10 @@ import {
   midCam,
   toTransform,
   toWorld,
-  wait,
   type Cam,
   type Layout,
 } from './camera'
+import { useRoam } from './useRoam'
 import './Floor.css'
 
 export interface FloorSheet {
@@ -86,6 +86,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const [announce, setAnnounce] = useState('')
   const [lastId, setLastId] = useState(start.id)
 
+  const floorRef = useRef<HTMLDivElement>(null)
   const worldRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const guidesRef = useRef<SVGSVGElement>(null)
@@ -94,6 +95,11 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const focusRef = useRef<string | null>(start.id)
   const upRef = useRef(false)
   const busyRef = useRef(false)
+  /** the roaming glide's frame (useRoam) */
+  const momentumRef = useRef(0)
+  const stopMomentum = () => cancelAnimationFrame(momentumRef.current)
+  /** set while the line-up beat holds: calling it cancels the dive */
+  const grabRef = useRef<(() => void) | null>(null)
   /** after a flight, move keyboard focus to the new sheet's heading */
   const landedRef = useRef(false)
   const onLandRef = useRef(onLand)
@@ -110,6 +116,32 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   }
 
   const scale = () => (layoutRef.current.narrow ? floor.narrow.timeScale : 1)
+
+  /**
+   * The line-up hold. A press anywhere during it cancels the dive: the guides
+   * fade, the camera stays put, and the press is already a drag (useRoam).
+   * Resolves true if it was grabbed.
+   */
+  const holdOrGrab = (ms: number) =>
+    new Promise<boolean>((resolve) => {
+      floorRef.current?.classList.add('is-lineup')
+      const done = (grabbed: boolean) => {
+        window.clearTimeout(timer)
+        grabRef.current = null
+        floorRef.current?.classList.remove('is-lineup')
+        resolve(grabbed)
+      }
+      const timer = window.setTimeout(() => done(false), ms)
+      grabRef.current = () => {
+        // stay up here, synchronously, so the drag can start on this press
+        clearGuides(guidesRef.current!)
+        upRef.current = true
+        busyRef.current = false
+        setFlying(false)
+        setAnnounce('View from above. Every project is laid out on the floor; choose one to open it.')
+        done(true)
+      }
+    })
 
   /** Reduced motion: no flight, a short cross-fade straight to the end */
   const fadeTo = async (c: Cam) => {
@@ -156,6 +188,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
       const fromId = focusRef.current
       if (toId === fromId && !upRef.current) return
       busyRef.current = true
+      stopMomentum()
 
       // where the click came from, in world coordinates
       const origin0 = fromId ? L.sheets[fromId] : undefined
@@ -171,7 +204,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
       } else if (upRef.current) {
         // already above: line it up, then dive
         drawGuides(guidesRef.current!, L, from, T, camRef.current.s, `${labelOf(toId)?.num} ${labelOf(toId)?.label}`)
-        await wait(500 * scale())
+        if (await holdOrGrab(500 * scale())) return
         setUp(false)
         clearGuides(guidesRef.current!)
         await flight(worldRef.current!, L, camRef.current, focusCam(T), floor.timing.dive * scale(), easeInOut)
@@ -190,7 +223,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
           setCam(mid)
           // 2. the lines line it up
           drawGuides(guidesRef.current!, L, from, T, mid.s, `${labelOf(toId)?.num} ${labelOf(toId)?.label}`)
-          await wait(floor.timing.lineUp * scale())
+          if (await holdOrGrab(floor.timing.lineUp * scale())) return
           // 3. dive onto it, turning to match the sheet so it lands flat
           setUp(false)
           clearGuides(guidesRef.current!)
@@ -205,6 +238,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const overview = useCallback(async () => {
     if (busyRef.current || upRef.current) return
     busyRef.current = true
+    stopMomentum()
     const L = layoutRef.current
     const fromId = focusRef.current ?? 'home'
     const target = aerialCam(L, L.sheets[fromId], reducedMotion())
@@ -279,6 +313,22 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
     return () => window.removeEventListener('keydown', onKey)
   }, [go, overview, lastId])
 
+  // drag, fling, zoom and tap, once the floor is revealed
+  useRoam({
+    floorRef,
+    momentum: momentumRef,
+    camRef,
+    layoutRef,
+    setCam,
+    canRoam: () => upRef.current && !busyRef.current,
+    grabLineUp: () => {
+      if (!grabRef.current) return false
+      grabRef.current()
+      return true
+    },
+    onTap: (id) => void go(id),
+  })
+
   const api = useMemo<FloorApi>(() => ({ go: (id, origin) => void go(id, origin), overview: () => void overview() }), [go, overview])
   const L = layout
   const resting = up && !flying
@@ -287,6 +337,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   return (
     <FloorContext.Provider value={api}>
       <div
+        ref={floorRef}
         className={['floor', up ? 'is-up' : '', flying ? 'is-flying' : ''].filter(Boolean).join(' ')}
         style={{ '--floor-perspective': `${floor.camera.perspective}px` } as CSSProperties}
       >
@@ -362,7 +413,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
         </div>
 
         <p className="floor__hint" aria-hidden="true">
-          You were looking down the whole time · click any sheet
+          You were looking down the whole time · <em>drag to look around</em> · click a sheet to land
         </p>
         <div className="floor__hud" role="group" aria-label="View from above" inert={!resting}>
           <button type="button" className="pill" onClick={() => void go('home')}>

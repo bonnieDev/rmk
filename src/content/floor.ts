@@ -36,9 +36,11 @@ export const floor = {
     { id: 'kinedic-drop', col: 3, row: 2, rotation: -2.8 },
   ] satisfies FloorSpot[],
   /** milliseconds */
-  timing: { pullUp: 1250, lineUp: 820, dive: 1350, aerial: 1500, back: 900 },
+  timing: { pullUp: 1250, lineUp: 1100, dive: 1350, aerial: 1500, back: 900 },
   /** perspective in px, tilts in degrees */
   camera: { perspective: 2200, pullTilt: 16, aerialTilt: 14 },
+  /** Roaming from above (§3.5): fling decay per frame, zoom range, tap slop */
+  roam: { momentumDecay: 0.92, minZoomOfFit: 0.75, maxZoom: 0.75, tapSlopPx: 5, panMarginOfGap: 0.2 },
   /** Below this width: one column, shorter flights, gentler tilt */
   narrow: { maxWidth: 860, timeScale: 0.7, tilt: 8, rotation: 1.2 },
 }

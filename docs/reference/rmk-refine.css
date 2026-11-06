@@ -1,0 +1,131 @@
+/* rmk.systems — refinement layer
+   Paste at the END of your main stylesheet (or load after it).
+   Changes skin only: palette, type, spacing, rules. No markup changes. */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  /* 1. Neutral ground — near-black, slightly warm. Not #000 on purpose:
+        lets the work carry the color instead of a navy wash. */
+  --rmk-ground: #0c0c0d;
+  --rmk-ground-raised: #141415;
+  --rmk-ground-deep: #ffffff05;
+  --rmk-paper: #ffffff06;
+
+  /* 2. Ink — four steps, all neutral. */
+  --rmk-ink: #f3f2ef;
+  --rmk-ink-2: #d6d5d1;
+  --rmk-ink-muted: #9d9c98;
+  --rmk-ink-faint: #6c6b68;
+  --rmk-line: #ffffff12;
+  --rmk-line-strong: #ffffff24;
+
+  /* 3. One accent: amber. Every other accent token points at it. */
+  --rmk-amber: #f2a93b;
+  --rmk-amber-deep: #f7c271;
+  --rmk-coral: var(--rmk-amber);
+  --rmk-coral-deep: var(--rmk-amber-deep);
+  --rmk-cyan: var(--rmk-amber);
+  --rmk-cyan-deep: var(--rmk-amber-deep);
+  --rmk-magenta: var(--rmk-amber);
+  --rmk-magenta-deep: var(--rmk-amber-deep);
+  --rmk-yellow: var(--rmk-amber);
+  --rmk-yellow-deep: var(--rmk-amber-deep);
+  --rmk-focus: var(--rmk-amber-deep);
+
+  /* 4. Type — Space Grotesk stays as the display voice; body goes quiet. */
+  --rmk-font-body: Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --rmk-meta-size: 11px;
+  --rmk-meta-track: 0.08em;
+}
+
+/* Ground: kill the navy radial + side orbs; one faint amber glow up top. */
+body { background: var(--rmk-ground); }
+.site:before {
+  background: var(--rmk-amber);
+  opacity: 0.07;
+  width: 60rem; height: 30rem;
+  top: -20rem; left: 50%; transform: translateX(-50%);
+}
+.site:after { display: none; }
+
+/* Frame: no side rails, no background column lines. Space does the dividing. */
+.site__frame {
+  border-left: 0; border-right: 0;
+  background-color: transparent;
+  background-image: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+
+/* Remove the "+" registration marks and most interior rules. */
+.entry:before, .entry:after { display: none; }
+.entry__bar > * + *,
+.entry__bar > .entry__meta,
+.record__row > * + *,
+.prose,
+.hero__manifest,
+.entry__media { border-left: 0; border-right: 0; }
+.hero__manifest { background: transparent; }
+.entry__brief-row + .entry__brief-row { border-top-color: var(--rmk-line); }
+
+/* Hero: more air. */
+.hero__mark { padding-block: clamp(72px, 10vw, 140px); }
+.hero__manifest { padding-block: clamp(72px, 10vw, 140px); }
+.manifest__row { padding: 15px 0; }
+
+/* Labels: still mono, still uppercase — but quieter. */
+.label, .entry__num, .entry__year, .entry__meta dt, .entry__brief dt,
+.prose-grid__spec dt, .entry__status, .entry__toggle, .ghost-btn, .site-foot {
+  letter-spacing: var(--rmk-meta-track);
+  font-size: var(--rmk-meta-size);
+}
+
+/* Titles: title case, heavier, tighter. One color. */
+.entry__title {
+  text-transform: none;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  font-size: clamp(34px, 4.8vw, 60px);
+  line-height: 1;
+}
+.entry__title em { color: var(--rmk-ink); font-weight: 600; }
+.entry:not(.is-active):not(.is-open) .entry__title em { color: var(--rmk-ink-muted); }
+.section__title, h2:not(.label) { letter-spacing: -0.035em; font-weight: 600; }
+
+/* Entries: more vertical rhythm. */
+.entry__bar > * { padding-block: clamp(36px, 4vw, 56px); }
+.entry__tagline { color: var(--rmk-ink-muted); font-size: 16px; line-height: 1.55; }
+
+/* Pipeline lists: plain text, not code. */
+.entry__chain li { font-family: var(--rmk-font-body); letter-spacing: 0; font-size: 13px; }
+
+/* Status: neutral text, the pip carries the signal. */
+.entry__status { color: var(--rmk-ink-muted); }
+.entry__pip { border-radius: 50%; width: 7px; height: 7px; box-shadow: none; }
+.entry__pip:not(.is-live) { background: var(--rmk-ink-faint); }
+
+/* Buttons: soft corners, quieter border. */
+.entry__toggle, .ghost-btn {
+  border-radius: 999px;
+  border-color: var(--rmk-line-strong);
+  padding: 10px 18px;
+}
+.entry__toggle:hover, .ghost-btn:hover { background: #ffffff0d; border-color: var(--rmk-ink-faint); }
+
+/* Media: let the stills sit on true ground, rounded. */
+.entry__media { background: transparent; padding: clamp(16px, 2vw, 28px); }
+.entry__cover, .entry__frame { border-radius: 12px; overflow: hidden; }
+.entry__media-cap { border-radius: 6px; margin: clamp(16px, 2vw, 28px); background: #000000b0; color: var(--rmk-ink); backdrop-filter: blur(8px); }
+.entry__stills { border-top: 0; gap: 8px; margin-top: 8px; }
+.entry__still-thumb { border: 0; border-radius: 6px; overflow: hidden; }
+.entry__still-thumb[aria-pressed=true] { box-shadow: inset 0 0 0 1.5px var(--rmk-amber); }
+
+/* Prose: bigger, calmer. */
+.prose p { font-size: 18px; line-height: 1.6; color: var(--rmk-ink-2); }
+
+/* Header: neutral glass instead of navy. */
+.masthead { background: #0c0c0dcc; border-bottom-color: var(--rmk-line); }
+.masthead__pip { border-radius: 50%; box-shadow: none; }
+
+/* Aether stills: drop the hard-coded black slab. */
+#work-aether-command .entry__media { background: transparent; }

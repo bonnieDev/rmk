@@ -5,10 +5,14 @@ minute). Projects are data in `src/data/projects.ts`; live demos are static
 pages in `public/demos/`.
 
 `dist/` is build output and every build wipes it: never keep source files
-there. Bonnie's working files go in `caps/<project>/` or the project's own
-folder. A project's `stills` can include videos (`video`: a Stream iframe
+there. Bonnie's working files go in `caps/<project>/` (git-ignored) or the
+project's own folder; design briefs and references go in `docs/`. A project's `stills` can include videos (`video`: a Stream iframe
 src, with `src` as its thumbnail); they play in the gallery with a sound
 toggle.
+
+## Active feature: floor camera
+Read docs/FLOOR-CAMERA.md before touching the homepage, project pages, routing, or global styles.
+Keep its Decision log current (see "Staying in the loop").
 
 `public/demos/skull-live/` is a built copy of SNBN Presents: Skull from
 `~/Documents/_Otherly/snbn` (run `npx vite build` there, copy `dist/snbn.js`,

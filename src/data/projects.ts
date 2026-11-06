@@ -228,6 +228,16 @@ export const projects: Project[] = [
         alt: 'Character turnarounds on a dark sheet. Top: Kitty, a fluffy tabby kitten in a striped rainbow tutu and neck scarf, from the front, three-quarter, side and back. Bottom: Pip, a white lop-eared bunny in a raglan tee with a bunny print and rolled grey jeans, from the same four angles.',
       },
       {
+        src: '/projects/kitty-n-pip/viewmaster.jpg',
+        caption: 'Another find · the View-Master',
+        alt: 'Kitty and Pip sit on amber shag carpet in the sunlit 1970s living room, staring wide-eyed at a red View-Master toy viewer on the floor between them, with the rotary phone, a crocheted afghan couch and baskets of yarn around them.',
+      },
+      {
+        src: '/projects/kitty-n-pip/portrait.jpg',
+        caption: 'Key art',
+        alt: 'Kitty and Pip sit side by side on blue velvet, looking up, with large soft-focus portraits of their faces glowing in the dark blue background.',
+      },
+      {
         src: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/440039f37b9e59937dde130236738710/thumbnails/thumbnail.jpg?time=1s&height=200',
         video: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/440039f37b9e59937dde130236738710/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F440039f37b9e59937dde130236738710%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
         caption: 'Motion test · The Approach',
@@ -238,16 +248,6 @@ export const projects: Project[] = [
         video: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/be1d87dd214e015f98d636b0190a8303/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2Fbe1d87dd214e015f98d636b0190a8303%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
         caption: 'Motion test · The Approach to Lotus Trance',
         alt: 'motion test from the approach to the Lotus Trance: Kitty and Pip reach the rotary phone, then sit cross-legged with eyes closed beside the handset on the carpet',
-      },
-      {
-        src: '/projects/kitty-n-pip/viewmaster.jpg',
-        caption: 'Another find · the View-Master',
-        alt: 'Kitty and Pip sit on amber shag carpet in the sunlit 1970s living room, staring wide-eyed at a red View-Master toy viewer on the floor between them, with the rotary phone, a crocheted afghan couch and baskets of yarn around them.',
-      },
-      {
-        src: '/projects/kitty-n-pip/portrait.jpg',
-        caption: 'Key art',
-        alt: 'Kitty and Pip sit side by side on blue velvet, looking up, with large soft-focus portraits of their faces glowing in the dark blue background.',
       },
       {
         src: '/projects/kitty-n-pip/moodboard.jpg',

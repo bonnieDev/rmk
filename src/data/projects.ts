@@ -205,16 +205,16 @@ export const projects: Project[] = [
     tagline:
       'A silent, all-ages series about two tiny friends who find the forgotten objects of the human world — one adorable misunderstanding at a time.',
     role: 'Art direction · Character design · Generative video · Brand',
-    pipeline: ['Character sheets', 'Generative video', 'Edit + grade', 'Series bible'],
+    pipeline: ['Character sheets + turnarounds', 'Series bible', 'Shot-by-shot storyboard', 'Generative video', 'Edit + grade'],
     status: { label: 'In production', accent: 'coral' },
     year: '2026',
     brief: {
       problem:
         'Episodic character animation normally needs a crew per minute of screen time. The series had to hold a consistent cast across many shorts without one — silent comedy leaves nowhere for continuity errors to hide.',
       pipeline:
-        'Locked character sheets drive generative video passes, which are cut and graded to a house look. The bible fixes silhouette, palette and prop language up front so every downstream shot inherits the same rules.',
+        'Every episode runs the same loop. Kitty and Pip find something nobody uses anymore, the kind of thing kids still spot in thrift stores or on TV and wonder about. They mess with it, they think they’re in trouble, and Grandma Cabbit comes in, fixes it, and everything is OK. Locked character sheets and turnarounds drive the generative video passes, which are cut and graded to a house look. The bible fixes silhouette, palette and prop language up front so every downstream shot inherits the same rules.',
       milestone:
-        'Cast and visual language locked; shorts in production against the bible.',
+        'Episode 01, “The Resonant Bell,” is about a rotary telephone. It’s storyboarded in eight shots, each with its framing, action and sound, and early motion tests are under way. Cast and visual language locked.',
     },
     stills: [
       {

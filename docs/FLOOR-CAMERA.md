@@ -224,3 +224,5 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |
 | 2026-11-06 | Headline is "Visual designer, systems builder." The "crew" / "director's chair" lines are gone from the headline, About and Record. | Bonnie: saying AI replaces a crew is insensitive to people who lost jobs to AI. |
+| 2026-11-06 | Each project leads with a plain "what it is" line in big type, with the name small above it in amber (sheet, index rows, and under each sheet from above). | Bonnie: nobody knows what her project names mean. |
+| 2026-11-06 | Bunny Anarchy's media is the playable Bunny Anarcade (`/demos/bunny-anarcade.html`); the game still is its poster. | Bonnie asked for the real game on its sheet. |

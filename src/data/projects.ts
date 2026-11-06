@@ -409,6 +409,7 @@ export const projects: Project[] = [
       milestone:
         'bunnyanarchy.co is live with the Anarcade and Reggie, and the shop is also part of Otherly, my multi-brand store. Final character drawings are in progress.',
     },
+    demoEmbed: '/demos/bunny-anarcade.html',
     stills: [
       {
         src: '/projects/bunny-anarchy/game.jpg',

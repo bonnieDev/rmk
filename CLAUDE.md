@@ -23,6 +23,12 @@ Keep its Decision log current (see "Staying in the loop").
 `dist/snbn.css` and the art it needs). The real one is on otherly.shop, which
 Shopify won't let other sites embed.
 
+`public/demos/bunny-anarcade/` is a copy of the Bunny Anarcade from
+`~/Documents/_bunnyanarchy/game` (`game.bundle.js`, `game.css`, and
+`launcher.js` with the bundle path changed to `bunny-anarcade/`). After
+changing the game there, run `npm run build` in that folder and copy the
+three files again. The page around it is `public/demos/bunny-anarcade.html`.
+
 ### Kinedic Bloom hosting
 
 rmk.systems is where all of Bonnie's sites load Kinedic Bloom from, because the
@@ -91,7 +97,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`, `from`.

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bunny Anarcade — live demo</title>
+    <!--
+      A playable copy of the Bunny Anarcade for rmk.systems. The real one is on
+      bunnyanarchy.co. Source: ~/Documents/_bunnyanarchy/game (game.bundle.js,
+      game.css and launcher.js copied into demos/bunny-anarcade/; the launcher
+      loads the bundle from there). The shop grid the game hides is a link to
+      the real shop here. Copyright © Bonnie Remeika. All rights reserved.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="bunny-anarcade/game.css" />
+    <style>
+      :root { --ink: #0b0a0c; --display: 'Anton', sans-serif; --body: 'Space Grotesk', sans-serif; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; background: var(--ink); color: #fff; font-family: var(--body); overflow: hidden; }
+
+      /* fill the portfolio's demo frame: the canvas takes whatever is left */
+      main { height: 100%; }
+      /* bottom room clears the portfolio's "Live demo" caption */
+      #drop { height: 100%; padding: 10px 16px 54px 10px; }
+      .ba-arcade { display: flex; flex-direction: column; height: 100%; max-width: none; margin: 0; }
+      .ba-arcade .ba-top { padding: 0.8rem 1rem; }
+      .ba-arcade h3 { font-size: clamp(1.6rem, 4vw, 2.6rem); }
+      .ba-arcade [data-panel] { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+      .ba-arcade .ba-stage { flex: 1; min-height: 0; }
+      .ba-arcade [data-canvas] { height: 100%; min-height: 160px; }
+      .ba-arcade .ba-touch { padding: 0.6rem; }
+
+      /* before play: the still, and the way to the real shop */
+      .drop-grid {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 1rem;
+        border-top: 2px solid var(--game-pink);
+        background: #0b0a0c url('/projects/bunny-anarchy/game.jpg') center / cover no-repeat;
+      }
+      .drop-grid a {
+        font: 400 1rem var(--display);
+        letter-spacing: 0.06em;
+        padding: 0.6rem 1rem;
+        border: 2px solid #fff;
+        background: #0b0a0c;
+        color: #fff;
+        text-decoration: none;
+      }
+      .drop-grid a:hover { background: #fff; color: #0b0a0c; }
+      .drop-grid a:focus-visible { outline: 3px solid #ffe84d; outline-offset: 4px; }
+      .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section id="drop" aria-label="Bunny Anarcade">
+        <div class="ba-arcade" aria-label="Bunny Anarcade">
+          <div class="ba-top">
+            <div><h3>BUNNY ANARCADE</h3><p class="ba-version">SYS.ANARCHY // V.1.0.8</p></div>
+            <button type="button" data-play disabled aria-controls="ba-game-panel">[ PLAY ]</button>
+            <button type="button" data-stop hidden>EXIT / STOP THE MADNESS</button>
+          </div>
+          <div class="ba-controls"><span>← → / A D MOVE</span><span>SPACE HOP</span><span>CATCH THE DROP</span><span>ESC QUIT</span></div>
+          <p data-status role="status">OPTIONAL CHAOS. THE SHOP IS OPEN.</p>
+          <noscript><p>Enable JavaScript to play.</p></noscript>
+          <div id="ba-game-panel" data-panel hidden tabindex="0" role="region" aria-label="Rabbit game. Catch the falling merch. Left and right arrows or A and D to move, space to hop, Escape to quit.">
+            <div class="ba-stage">
+              <div data-canvas></div>
+              <div class="ba-hud" aria-hidden="true">
+                <span>SCORE <b data-score>0</b></span>
+                <span>STREAK <b data-streak>0</b></span>
+                <span class="ba-lives" data-lives>♥♥♥</span>
+              </div>
+              <div class="ba-over" data-over hidden role="group" aria-labelledby="ba-over-title">
+                <h4 id="ba-over-title">WOT.</h4>
+                <p>SCORE <b data-final>0</b> · BEST <b data-best>0</b></p>
+                <p class="ba-over-note">Reggie will never let you forget this.</p>
+                <div class="ba-over-actions">
+                  <button type="button" data-again>PLAY AGAIN</button>
+                  <button type="button" data-shop>SHOP THE DROP</button>
+                </div>
+              </div>
+            </div>
+            <div class="ba-touch" aria-label="Game controls">
+              <button type="button" data-control="left" aria-label="Move left">←</button>
+              <button type="button" data-control="hop">HOP</button>
+              <button type="button" data-control="right" aria-label="Move right">→</button>
+            </div>
+          </div>
+          <div class="drop-grid">
+            <a href="https://otherly.shop/collections/bunny-anarchy" target="_blank" rel="noopener" data-shop-link>
+              SHOP THE REAL DROP ↗<span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script defer src="bunny-anarcade/launcher.js"></script>
+    <script>
+      // Report to the portfolio's GA through the parent page, as the other demos do.
+      // Each action once per visit; never a score or anything personal.
+      ;(function () {
+        var once = {}
+        function rmkTrack(action) {
+          if (once[action]) return
+          once[action] = true
+          try {
+            if (window.parent !== window && window.parent.gtag) window.parent.gtag('event', 'demo_interact', { demo: 'bunny-anarcade', action: action })
+          } catch (e) {}
+        }
+        var actions = { '[data-play]': 'start', '[data-again]': 'play_again', '[data-stop]': 'exit', '[data-shop]': 'shop', '[data-shop-link]': 'shop' }
+        document.addEventListener('click', function (e) {
+          for (var sel in actions) if (e.target.closest && e.target.closest(sel)) rmkTrack(actions[sel])
+        })
+        new MutationObserver(function () {
+          if (!document.querySelector('[data-over]').hidden) rmkTrack('game_over')
+        }).observe(document.querySelector('[data-over]'), { attributes: true, attributeFilter: ['hidden'] })
+      })()
+    </script>
+  </body>
+</html>

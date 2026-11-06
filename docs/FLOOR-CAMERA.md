@@ -158,7 +158,7 @@ Palette (from `rmk-refine.css`). No pure `#000` or `#fff` by default; that's Bon
 - Floor: `#141413` plus fine SVG noise (≈9% alpha) and one warm overhead light pool. In aerial, a faint 1px grid at `W/8` fades in.
 - Sheet shadow (lying flat under overhead light): `0 2px 3px #0000008c, 0 30px 60px #000000a6` (was three layers; see the Decision log).
 - **The RMK mark is heavy:** each cell gets a same-color 1.5 stroke (closes the gaps) and stacked drop-shadows, so the cells read as physical blocks. Blue/cyan cells become amber, and the copper cell becomes `#c9772f`. The click-to-remake behavior must keep working.
-- **Point-of-view headline** under the mark: "Worlds that used to need a *crew.*" (amber on "crew."), from her About copy. The sub-line is a draft; Bonnie will rewrite it.
+- **Point-of-view headline** under the mark: "Visual designer, *systems builder.*" (amber on "systems builder."), her words. The sub-line is a draft; Bonnie will rewrite it.
 - Floor labels (aerial only): mono, printed below each sheet. The one under Home reads "Index · you were here".
 - Hint at the top in aerial: "You were looking down the whole time · click any sheet".
 
@@ -223,3 +223,4 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-06 | **No auto-dive.** After the pull-up and line-up the camera waits at floor level until the visitor clicks the lined-up sheet (or another one); `timing.lineUp` removed. "Next →" waits the same way; "← Back", "← Index" and back/forward hop straight there. Supersedes the 1100ms grab-to-stay hold. | Bonnie: "when you're on floor level it can't just go on its own. people need to have control… it only goes there if you click on it." |
 | 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |
+| 2026-11-06 | Headline is "Visual designer, systems builder." The "crew" / "director's chair" lines are gone from the headline, About and Record. | Bonnie: saying AI replaces a crew is insensitive to people who lost jobs to AI. |

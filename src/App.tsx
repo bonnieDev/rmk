@@ -62,7 +62,7 @@ const RECORD = [
     id: 'ai-native',
     label: 'AI-native',
     span: 'Current',
-    body: 'One person in the director’s chair: art direction, generative video, AI agents, code, and worlds that used to need a crew.',
+    body: 'Art direction, generative video, AI agents, code, and worlds.',
   },
 ] as const
 
@@ -186,7 +186,7 @@ function HomeSheet({ live }: { live: boolean }) {
         <div className="hero__lead">
           <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} className="rmk-logo--heavy" />
           <h1 className="pov" id="hero-title" tabIndex={-1}>
-            Worlds that used to need a <em>crew.</em>
+            Visual designer, <em>systems builder.</em>
           </h1>
           <p className="pov-sub">
             I work on both sides of the line between design and engineering, and I don’t hand off in the
@@ -360,8 +360,8 @@ function AboutSheet({ live }: { live: boolean }) {
               experience honest while I’m deep in the technical problem.
             </p>
             <p>
-              What’s in front of me now is AI-native work: one person in the director’s chair, shipping code,
-              motion, worlds, and products that used to need a crew. There’s still no degree for that. I recognize
+              What’s in front of me now is AI-native work: shipping code,
+              motion, worlds, and products. There’s still no degree for that. I recognize
               the room.
             </p>
             <p className="prose__close">I’m in.</p>

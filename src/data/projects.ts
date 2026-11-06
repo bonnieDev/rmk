@@ -244,12 +244,6 @@ export const projects: Project[] = [
         alt: 'motion test of Shot 01: Kitty and Pip crawl across amber shag carpet toward a black rotary telephone in a sunlit 1970s living room',
       },
       {
-        src: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/be1d87dd214e015f98d636b0190a8303/thumbnails/thumbnail.jpg?time=1s&height=200',
-        video: 'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/be1d87dd214e015f98d636b0190a8303/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2Fbe1d87dd214e015f98d636b0190a8303%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
-        caption: 'Motion test · The Approach to Lotus Trance',
-        alt: 'motion test from the approach to the Lotus Trance: Kitty and Pip reach the rotary phone, then sit cross-legged with eyes closed beside the handset on the carpet',
-      },
-      {
         src: '/projects/kitty-n-pip/moodboard.jpg',
         caption: 'Initial moodboard',
         alt: 'The initial Kitty & Pip moodboard: a collage of early kitten and bunny looks in dresses, tutus and hoodies, some beside rotary telephones, with Kitty & Pip in script across the middle.',

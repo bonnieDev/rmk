@@ -36,6 +36,8 @@ export interface FloorSheet {
   num: string
   /** name printed on the floor and read out on landing */
   label: string
+  /** what it is, in plain words, printed under the name */
+  what?: string
   /** live: this sheet is the one in focus, so it can run video and demos */
   render: (live: boolean) => ReactNode
 }
@@ -461,13 +463,14 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
                   >
                     <b>{s.id === 'home' ? '00' : s.num}</b>
                     {s.id === 'home' ? 'Index · you were here' : s.label}
+                    {s.what ? <span className="floor__what">{s.what}</span> : null}
                   </p>
                   {resting ? (
                     <button
                       type="button"
                       className={`floor__hit${pending === s.id ? ' is-target' : ''}`}
                       data-for={s.id}
-                      aria-label={`Open ${s.id === 'home' ? 'the index' : s.label}`}
+                      aria-label={`Open ${s.id === 'home' ? 'the index' : s.what ? `${s.label}: ${s.what}` : s.label}`}
                       style={place}
                       onClick={() => void go(s.id)}
                     />

@@ -46,13 +46,17 @@ export function ProjectSheet({ project, num, next, live }: ProjectSheetProps) {
           </span>
         </p>
         <h1 className="psheet__title" id={titleId} tabIndex={-1}>
-          {project.title}
-          {project.titleEm ? (
-            <>
-              {' '}
-              <em>{project.titleEm}</em>
-            </>
-          ) : null}
+          <span className="psheet__name">
+            {project.title}
+            {project.titleEm ? (
+              <>
+                {' '}
+                <em>{project.titleEm}</em>
+              </>
+            ) : null}
+          </span>
+          <span className="visually-hidden">: </span>
+          <span className="psheet__what">{project.what}</span>
         </h1>
         <p className="psheet__tag">{project.tagline}</p>
 

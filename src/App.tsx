@@ -91,6 +91,7 @@ export default function App() {
         id: p.id,
         num: num(i),
         label: fullTitleOf(p),
+        what: p.what,
         render: (live: boolean) => (
           <ProjectSheet project={p} num={num(i)} next={projects[(i + 1) % projects.length]} live={live} />
         ),
@@ -261,14 +262,18 @@ function HomeSheet({ live }: { live: boolean }) {
                 onBlur={() => setHovered(null)}
               >
                 <span className="row__n">{num(i)}</span>{' '}
-                <span className="row__t">
-                  {p.title}
-                  {p.titleEm ? (
-                    <>
-                      {' '}
-                      <em>{p.titleEm}</em>
-                    </>
-                  ) : null}
+                <span className="row__body">
+                  <span className="row__name">
+                    {p.title}
+                    {p.titleEm ? (
+                      <>
+                        {' '}
+                        <em>{p.titleEm}</em>
+                      </>
+                    ) : null}
+                  </span>
+                  <span className="visually-hidden">: </span>
+                  <span className="row__t">{p.what}</span>
                 </span>{' '}
                 <span className="row__c">{p.category}</span>
                 <span className="row__thumbs" aria-hidden="true">

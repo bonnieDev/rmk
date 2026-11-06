@@ -39,21 +39,33 @@
   background: var(--rmk-amber);
 }
 
+/* The name is small; what it is gets the weight, so nobody has to know
+   what "Aether Command" means to know what they're looking at. */
 .psheet__title {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   margin-top: 18px;
-  font: 600 clamp(48px, 7vw, 112px) / 0.92 var(--rmk-font-display);
-  letter-spacing: -0.05em;
+  max-width: 18ch;
+  font: 600 clamp(40px, 5.6vw, 92px) / 0.96 var(--rmk-font-display);
+  letter-spacing: -0.045em;
   color: var(--rmk-ink);
+}
+
+.psheet__name {
+  font: 600 clamp(18px, 1.6vw, 24px) / 1.2 var(--rmk-font-display);
+  letter-spacing: -0.01em;
+  color: var(--rmk-amber-2);
+}
+
+.psheet__name em {
+  font-style: normal;
 }
 
 .psheet__title:focus {
   outline: none;
 }
 
-.psheet__title em {
-  font-style: normal;
-  color: var(--rmk-ink-muted);
-}
 
 .psheet__tag {
   margin-top: 22px;

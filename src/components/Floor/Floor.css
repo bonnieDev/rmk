@@ -142,6 +142,14 @@
   opacity: 1;
 }
 
+.floor__what {
+  display: block;
+  margin-top: 0.7em;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--rmk-ink-muted);
+}
+
 .floor__tag b {
   margin-right: 0.6em;
   font-weight: 500;

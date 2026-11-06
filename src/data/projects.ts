@@ -44,6 +44,8 @@ export interface Project {
   titleEm?: string
   /** Catalog classification, e.g. ORIGINAL IP — rendered as `01 / ORIGINAL IP` */
   category: string
+  /** What it is, in plain words. Shown big, with the name small above it */
+  what: string
   tagline: string
   role: string
   /** Pipeline / tools, rendered as a delimited technical chain */
@@ -99,6 +101,7 @@ export const projects: Project[] = [
     title: 'Aether',
     titleEm: 'Command',
     category: 'SYSTEM ARCHITECTURE',
+    what: 'An AI research tool for genetic history',
     tagline:
       'A research interface for reasoning with AI across 12,000+ years of genetic and migration data — the person controls what the model can see.',
     role: 'Art direction · Product design · Front-end · AI',
@@ -138,6 +141,7 @@ export const projects: Project[] = [
     title: 'Otherly',
     titleEm: '& SNBN',
     category: 'COMMERCE SYSTEM',
+    what: 'One store for all my brands',
     tagline:
       'One Shopify store for every brand I make, with a shopping cartoon broadcasting from Purgatory inside it. The hosts refuse to do sales pitches, so a Marketing Ghoul possesses them to read the product facts.',
     role: 'Art direction · Brand · Illustration · Merch design · Interaction design · Theme architecture · Built with Claude Code',
@@ -180,6 +184,7 @@ export const projects: Project[] = [
     title: 'Skull',
     titleEm: '& Beau',
     category: 'ORIGINAL IP',
+    what: 'Cartoon characters for grown-ups',
     tagline:
       'Hello Kitty for grown-ups. Two skeletons in love, a sentient travel cup and a Rorschach self-help guru, now running their own shopping network from Purgatory. Skull also thinks she’s a pop star.',
     role: 'Worldbuilding · Characters · Music · Creative direction · Built with Claude Code',
@@ -206,6 +211,7 @@ export const projects: Project[] = [
     title: 'Kitty',
     titleEm: '& Pip',
     category: 'ORIGINAL IP',
+    what: 'A silent, all-ages video series',
     tagline:
       'A silent, all-ages series about two tiny friends who find the forgotten objects of the human world — one adorable misunderstanding at a time.',
     role: 'Art direction · Character design · Generative video · Brand',
@@ -265,6 +271,7 @@ export const projects: Project[] = [
     title: 'Cher',
     titleEm: 'Bomba',
     category: 'MOTION',
+    what: 'An animated short with an original song',
     tagline:
       'A cherry, a bomb, and one very big lift. A short for Bunny Anarchy: funny, cute, and a little unruly, set to an original song by Moia.',
     role: 'Motion design · Edit',
@@ -291,6 +298,7 @@ export const projects: Project[] = [
     title: 'Kinedic',
     titleEm: 'Drop',
     category: 'BRAND MOTION',
+    what: 'A logo animation, built in code',
     tagline:
       'A mark that arrives instead of appearing: one drop falls, the page ripples, and the logo rises out of the impact. Vectors and code, no video.',
     role: 'Brand · Motion · Front-end',
@@ -313,6 +321,7 @@ export const projects: Project[] = [
     title: 'Frost',
     titleEm: 'Byte',
     category: 'EDUCATION · NARRATIVE',
+    what: 'An educational character and story world',
     tagline:
       'A programmer torn out of time and reborn as Frostbyte, a being of cold logic haunted by feelings she can’t name. With the Tablet of Light she reads history like a database, and every day she and her viewers, the Sparks, solve a mystery together.',
     role: 'Worldbuilding · Learning design · Research method',
@@ -339,6 +348,7 @@ export const projects: Project[] = [
     title: 'Listening',
     titleEm: 'Room',
     category: 'SCORE SYSTEM',
+    what: 'A map with its own score',
     tagline:
       'An original score for a map, where nobody picks the track \u2014 the year you are looking at and the place you are looking at pick it for you.',
     role: 'Composition \u00b7 Systems \u00b7 Front-end',
@@ -361,6 +371,7 @@ export const projects: Project[] = [
     title: 'The Digital',
     titleEm: 'Decoder',
     category: 'EXPLAINER DESIGN',
+    what: 'A tech explainer you can play with',
     tagline:
       'Tech literacy in plain English, set as a newspaper you can play with. Issue No. 1 makes quantum computing’s threat to encryption land without a technical background.',
     role: 'Writing · Editorial design · Front-end',
@@ -383,6 +394,7 @@ export const projects: Project[] = [
     title: 'Bunny',
     titleEm: 'Anarchy',
     category: 'ORIGINAL IP',
+    what: 'A fashion and art brand',
     tagline:
       'Fashion, art and controlled chaos built around one idea: empowerment does not have a dress code.',
     role: 'Brand · Character design · Front-end',
@@ -420,6 +432,7 @@ export const projects: Project[] = [
     title: 'lil',
     titleEm: 'swaps',
     category: 'BEHAVIOR SYSTEM',
+    what: 'A card game about real climate fixes',
     tagline:
       'A collectible-card game built on current environmental research — every card is a change someone actually made, ranked by how much it measurably cut.',
     role: 'Product design · Front-end · WebGL',
@@ -441,6 +454,7 @@ export const projects: Project[] = [
     title: 'Kinedic',
     titleEm: 'Bloom',
     category: 'INTERACTION SYSTEM',
+    what: 'An interface that adapts to you',
     tagline:
       'An interface that adapts to the person using it, reading friction as it happens instead of asking people to declare their limitations up front.',
     role: 'Interaction design · Systems',

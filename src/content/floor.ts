@@ -39,8 +39,20 @@ export const floor = {
   timing: { pullUp: 1250, lineUp: 1100, dive: 1350, aerial: 1500, back: 900 },
   /** perspective in px, tilts in degrees */
   camera: { perspective: 2200, pullTilt: 16, aerialTilt: 14 },
-  /** Roaming from above (§3.5): fling decay per frame, zoom range, tap slop */
-  roam: { momentumDecay: 0.92, minZoomOfFit: 0.75, maxZoom: 0.75, tapSlopPx: 5, panMarginOfGap: 0.2 },
+  /**
+   * Roaming from above (§3.5): fling decay per frame, zoom range, and what
+   * counts as a click that lands: moves under tapSlopPx, lasts at most
+   * tapMaxMs, and comes at least settleMs after a drag ends.
+   */
+  roam: {
+    momentumDecay: 0.92,
+    minZoomOfFit: 0.75,
+    maxZoom: 0.75,
+    tapSlopPx: 5,
+    tapMaxMs: 300,
+    settleMs: 350,
+    panMarginOfGap: 0.2,
+  },
   /** Below this width: one column, shorter flights, gentler tilt */
   narrow: { maxWidth: 860, timeScale: 0.7, tilt: 8, rotation: 1.2 },
 }

@@ -56,7 +56,7 @@ Bonnie's brain expects to drag the floor around once it's revealed. The reveal i
 3. **Momentum.** On release it keeps gliding, velocity × 0.92 per frame, until under 0.2px/frame. Velocity is a smoothed average of the last moves; a pause before release means no glide. Off under reduced motion.
 4. **Zoom around the cursor.** The wheel zooms and the floor point under the cursor stays put. A trackpad pinch (wheel + ctrlKey) uses ≈0.01 per deltaY vs 0.0015; Safari's trackpad pinch arrives as gesture events and is handled too. Two-finger pinch on touch. Wheel `preventDefault` only while up.
 5. **Clamp.** Zoom from 0.75 × the fit-all scale up to 0.75. The camera center stays within the grid's bounds plus 20% of a gap, so you can't get lost.
-6. **Tap to land.** A press that moves under 5px is a tap: fly to the sheet under it. A drag never fires a click; the click that follows a drag or a handled tap is swallowed.
+6. **A distinct click lands.** It has to move under 5px, last at most 300ms, start and end on the same sheet, and come at least 350ms after a drag ends. A press that stops a glide or grabs the line-up only stops the floor; it never lands. A drag never fires a click; the click that follows a drag or a handled tap is swallowed.
 7. **Hint** in aerial: "You were looking down the whole time · *drag to look around* · click a sheet to land" (the middle in amber).
 
 Keyboard is unchanged: from above, Tab moves through the sheet buttons and Enter lands; Esc goes back.
@@ -217,5 +217,6 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-05 | Hero sub-line uses Bonnie's own sentence from About ("I work on both sides of the line between design and engineering, and I don't hand off in the middle.") instead of the draft. | Never publish claims she hasn't made. She can rewrite it. |
 | 2026-11-05 | Retired: chalk annotation layer, changeover cue, cue marks on titles, the old drawer catalog and "Expand all". | They read window scroll, which the floor no longer has, and they were the HUD look §2 asks to drop. Components kept in src/components (AnnotationLayer, CueMark). |
 | 2026-11-05 | **Roaming:** drag to pan, zoom, tap to land; grabbing during the line-up beat cancels the dive. Line-up hold 820 → 1100ms. Pan clamps to the real 5 × 3 grid (the prompt said 3 × 3; same intent). | Bonnie: "my brain wants to drag… first the surprise of floor view and then while I'm here." |
+| 2026-11-05 | Landing from the floor needs a distinct click: quick (≤300ms), still (<5px), same sheet, not right after a drag (350ms), and never the press that stops a glide or grabs the line-up. | Bonnie: "it switches too fast when you are on floor drag. a distinct click is needed." |
 | 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |

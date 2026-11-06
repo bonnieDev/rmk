@@ -105,6 +105,16 @@ export function useRoam(o: RoamOptions) {
     let v = { x: 0, y: 0 }
     let pinch = 0
     let suppressClick = false
+    /*
+     * Landing needs a distinct click: quick, still, and starting and ending
+     * on the same sheet. A press that stops a glide, grabs the line-up, or
+     * comes right after a drag only stops the floor; it never lands.
+     */
+    let gliding = false
+    let lastDragEnd = -Infinity
+    let downT = 0
+    let downSheet: string | null = null
+    let noTap = false
 
     const dragging = (on: boolean) => O().floorRef.current?.classList.toggle('is-dragging', on)
 
@@ -117,8 +127,16 @@ export function useRoam(o: RoamOptions) {
       if (e.pointerType === 'mouse' && e.button !== 0) return
       if ((e.target as Element | null)?.closest?.('.floor__hud')) return
       // grabbing during the line-up keeps you up here, already dragging
-      if (!O().grabLineUp() && !O().canRoam()) return
+      const grabbed = O().grabLineUp()
+      if (!grabbed && !O().canRoam()) return
+      const now = performance.now()
+      if (pointers.size === 0) {
+        noTap = grabbed || gliding || now - lastDragEnd < floor.roam.settleMs
+        downT = now
+        downSheet = sheetAt(e.clientX, e.clientY)
+      }
       stopMomentum()
+      gliding = false
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
       try {
         O().floorRef.current?.setPointerCapture(e.pointerId)
@@ -174,20 +192,23 @@ export function useRoam(o: RoamOptions) {
       }
       if (pointers.size) return
       dragging(false)
+      if (moved) lastDragEnd = performance.now()
       suppressClick = true
       // only the click that belongs to this press is swallowed
       window.setTimeout(() => (suppressClick = false), 80)
       if (!moved) {
-        if (e.type === 'pointerup') {
+        const quick = performance.now() - downT <= floor.roam.tapMaxMs
+        if (e.type === 'pointerup' && !noTap && quick) {
           const id = sheetAt(e.clientX, e.clientY)
-          if (id) O().onTap(id)
+          if (id && id === downSheet) O().onTap(id)
         }
         return
       }
       // a fling keeps gliding, then settles
       if (reducedMotion() || performance.now() - lastT > 80) return
       const glide = () => {
-        if (!O().canRoam() || Math.hypot(v.x, v.y) < 0.2) return
+        gliding = O().canRoam() && Math.hypot(v.x, v.y) >= 0.2
+        if (!gliding) return
         pan(v.x, v.y)
         v = { x: v.x * floor.roam.momentumDecay, y: v.y * floor.roam.momentumDecay }
         momentum.current = requestAnimationFrame(glide)

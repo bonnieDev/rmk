@@ -1,0 +1,88 @@
+/* The bar across the top of every sheet */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--rmk-space-3);
+  height: 56px;
+  padding: 0 var(--rmk-sheet-pad);
+  background: #0c0c0dd9;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--rmk-line);
+}
+
+.masthead__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.masthead__word {
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  font: 500 13px / 1 var(--rmk-font-mono);
+  letter-spacing: 0.14em;
+  color: var(--rmk-ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+button.masthead__word:hover {
+  color: var(--rmk-amber-2);
+}
+
+.masthead__nav {
+  display: flex;
+  gap: 28px;
+}
+
+.masthead__nav button {
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  font: 500 var(--rmk-meta-size) / 1 var(--rmk-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rmk-ink-muted);
+  cursor: pointer;
+}
+
+.masthead__nav button:hover {
+  color: var(--rmk-ink);
+}
+
+.masthead__state {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 500 var(--rmk-meta-size) / 1 var(--rmk-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rmk-ink-muted);
+}
+
+@media (max-width: 720px) {
+  .masthead {
+    grid-template-columns: minmax(0, 1fr) auto;
+    height: 52px;
+  }
+
+  .masthead__nav {
+    gap: 16px;
+  }
+
+  .masthead__state {
+    display: none;
+  }
+}

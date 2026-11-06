@@ -1,0 +1,166 @@
+/* =========================================================
+   PROJECT SHEET — one project as its own page on the floor
+   ========================================================= */
+
+.psheet {
+  padding: clamp(40px, 7vh, 88px) var(--rmk-sheet-pad) 80px;
+}
+
+.psheet__kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  font: 500 var(--rmk-meta-size) / 1.4 var(--rmk-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rmk-ink-muted);
+}
+
+.psheet__kicker b {
+  font-weight: 500;
+  color: var(--rmk-amber);
+}
+
+.psheet__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.psheet__pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rmk-ink-faint);
+}
+
+.psheet__pip.is-live {
+  background: var(--rmk-amber);
+}
+
+.psheet__title {
+  margin-top: 18px;
+  font: 600 clamp(48px, 7vw, 112px) / 0.92 var(--rmk-font-display);
+  letter-spacing: -0.05em;
+  color: var(--rmk-ink);
+}
+
+.psheet__title:focus {
+  outline: none;
+}
+
+.psheet__title em {
+  font-style: normal;
+  color: var(--rmk-ink-muted);
+}
+
+.psheet__tag {
+  margin-top: 22px;
+  max-width: 52ch;
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.5;
+  color: var(--rmk-ink-2);
+}
+
+.psheet__media {
+  margin-top: clamp(32px, 5vh, 56px);
+}
+
+/* Stands in for the media on sheets not in focus (and from above) */
+.psheet__poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  border-radius: 14px;
+  background: #000;
+}
+
+.psheet__poster--type {
+  display: grid;
+  place-items: center;
+  background: var(--rmk-ground-raised);
+}
+
+.psheet__poster--type span {
+  font: 700 clamp(40px, 6vw, 88px) / 1 var(--rmk-font-display);
+  letter-spacing: -0.05em;
+  color: var(--rmk-ink);
+}
+
+.psheet__brief {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 48px);
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rmk-line);
+}
+
+.psheet__brief dt,
+.psheet__spec dt {
+  margin-bottom: 10px;
+  font: 500 var(--rmk-meta-size) / 1.4 var(--rmk-font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rmk-ink-faint);
+}
+
+.psheet__brief dd {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--rmk-ink-2);
+}
+
+.psheet__spec {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 48px);
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--rmk-line);
+}
+
+.psheet__spec dd {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--rmk-ink-2);
+}
+
+.psheet__chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+}
+
+.psheet__chain li + li::before {
+  content: '·';
+  margin: 0 0.5em;
+  color: var(--rmk-ink-faint);
+}
+
+.psheet__site {
+  color: var(--rmk-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rmk-line-strong);
+  text-underline-offset: 0.25em;
+}
+
+.psheet__site:hover {
+  text-decoration-color: var(--rmk-amber);
+}
+
+.psheet__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 56px;
+}
+
+@media (max-width: 860px) {
+  .psheet__brief,
+  .psheet__spec {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

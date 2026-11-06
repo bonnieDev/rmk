@@ -1,47 +1,43 @@
 /**
- * RMK design tokens — technical specification system
+ * RMK design tokens — neutral ground, one amber accent
  * CSS custom properties are the single source of truth.
  * Components read these; TS mirrors them for programmatic color picks.
  */
 :root {
-  /* --- Canvas: the abyss field, shared with kinedic --- */
-  --rmk-ground: #070b16;
-  --rmk-ground-raised: #0f1a2e;
-  /* Panes are glass, not paper — they sit over the field and blur it */
-  --rmk-paper: rgba(255, 255, 255, 0.05);
-  --rmk-ground-deep: rgba(255, 255, 255, 0.025);
+  /* --- Ground: near-black, slightly warm. Never pure #000 or #fff:
+     the work carries the color, not a navy wash. --- */
+  --rmk-ground: #0c0c0d;
+  --rmk-ground-raised: #18181a;
+  --rmk-floor: #141413;
+  --rmk-paper: #ffffff06;
+  --rmk-ground-deep: #ffffff05;
 
-  /* Orbs: the light behind the glass that reads as paint streaks */
-  --rmk-orb-copper: #b87333;
-  --rmk-orb-blue: #2563eb;
+  /* --- Ink: four neutral steps. Faint is lifted from the brief's #6c6b68
+     so small labels still pass 4.5:1 on the ground (WCAG 1.4.3). --- */
+  --rmk-ink: #f3f2ef;
+  --rmk-ink-2: #d6d5d1;
+  --rmk-ink-muted: #a3a29e;
+  --rmk-ink-faint: #8c8b87;
 
-  /* --- Ink: light on dark --- */
-  --rmk-ink: #eaf2ff;
-  --rmk-ink-2: #cfe0f5;
-  --rmk-ink-muted: #a3b6d0;
-  --rmk-ink-faint: #7d93b0;
-
-  /* --- Structure: hairlines are light at low alpha, not grey --- */
-  --rmk-line: rgba(255, 255, 255, 0.1);
-  --rmk-line-strong: rgba(255, 255, 255, 0.2);
+  /* --- Structure --- */
+  --rmk-line: #ffffff14;
+  --rmk-line-strong: #ffffff26;
   --rmk-hair: 1px;
 
-  /*
-   * --- Accents: the four hues, lit for a dark field ---
-   * The parchment set went muddy here, so these are brighter siblings rather
-   * than a port. `-deep` still means "the legible-as-text variant" — which on
-   * a dark ground means lighter, not darker.
-   */
-  --rmk-yellow: #ffc94d;
-  --rmk-yellow-deep: #ffd97a;
-  --rmk-coral: #ff7a45;
-  --rmk-coral-deep: #ff9e75;
-  --rmk-cyan: #00d4ff;
-  --rmk-cyan-deep: #6fe3ff;
-  --rmk-magenta: #ff5c8a;
-  --rmk-magenta-deep: #ff8fb0;
+  /* --- One accent: amber (tiger soul). The old hue names all point at it
+     so nothing anywhere can bring back a rainbow. --- */
+  --rmk-amber: #f2a93b;
+  --rmk-amber-2: #f7c271;
+  --rmk-yellow: var(--rmk-amber);
+  --rmk-yellow-deep: var(--rmk-amber-2);
+  --rmk-coral: var(--rmk-amber);
+  --rmk-coral-deep: var(--rmk-amber-2);
+  --rmk-cyan: var(--rmk-amber);
+  --rmk-cyan-deep: var(--rmk-amber-2);
+  --rmk-magenta: var(--rmk-amber);
+  --rmk-magenta-deep: var(--rmk-amber-2);
 
-  --rmk-focus: #6fe3ff;
+  --rmk-focus: var(--rmk-amber-2);
 
   /* Logo module palette — rotates through remake cycles */
   --rmk-module-1: var(--rmk-ink);
@@ -55,15 +51,15 @@
   --rmk-mark-compact-max: 104px;
 
   /* --- Typography: geometric grotesque + industrial mono. No serifs. --- */
-  --rmk-font-display: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --rmk-font-body: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --rmk-font-display: "Space Grotesk", Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --rmk-font-body: Inter, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --rmk-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Mono metadata voice — used verbatim across labels, ticks, tags */
   /* Floor for the mono metadata voice. Tracked uppercase at 10px was
      unreadable; 12px is the accessible minimum and the grid absorbs it. */
   --rmk-meta-size: 12px;
-  --rmk-meta-track: 0.18em;
+  --rmk-meta-track: 0.1em;
 
   /* --- Logo geometry --- */
   --rmk-remake-duration: 220ms;
@@ -72,6 +68,8 @@
   /* --- Layout frame --- */
   --rmk-max: 1380px;
   --rmk-gutter: clamp(16px, 3.4vw, 36px);
+  /* side padding inside every sheet */
+  --rmk-sheet-pad: clamp(20px, 4vw, 56px);
 
   /* --- Spacing scale --- */
   --rmk-space-1: 4px;

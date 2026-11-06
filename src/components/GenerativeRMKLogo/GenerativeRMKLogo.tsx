@@ -82,12 +82,12 @@ function MarkCells({
         const geo = cellGeometry(cell.shape, x, y)
         if (geo.kind === 'circle') {
           nodes.push(
-            <circle key={key} cx={x + CELL / 2} cy={y + CELL / 2} r={CELL / 2} fill={fill} />,
+            <circle key={key} cx={x + CELL / 2} cy={y + CELL / 2} r={CELL / 2} fill={fill} stroke={fill} />,
           )
         } else if (geo.kind === 'path') {
-          nodes.push(<path key={key} d={geo.d} fill={fill} />)
+          nodes.push(<path key={key} d={geo.d} fill={fill} stroke={fill} />)
         } else {
-          nodes.push(<rect key={key} x={x} y={y} width={CELL} height={CELL} fill={fill} />)
+          nodes.push(<rect key={key} x={x} y={y} width={CELL} height={CELL} fill={fill} stroke={fill} />)
         }
       }
     }

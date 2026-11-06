@@ -1,0 +1,168 @@
+/* =========================================================
+   PROJECT MEDIA — video, live demo, or a gallery of stills.
+   The work sits on true ground with soft corners; the frame
+   grows to fill its column, never an empty panel.
+   ========================================================= */
+
+.entry__media {
+  --entry-stills-h: 64px;
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry__frame,
+.entry__cover {
+  flex: none;
+  width: 100%;
+  min-height: 0;
+  /* the whole frame fits on screen under the masthead */
+  max-height: calc(100vh - 140px);
+  aspect-ratio: 16 / 10;
+  height: auto;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  /* shown whole, never cropped */
+  object-fit: contain;
+  display: block;
+}
+
+/* Screen captures are ~16:9.3; show them whole rather than cropping. */
+.entry__cover--still {
+  aspect-ratio: 1440 / 836;
+}
+
+/* Videos keep their own 16:9: stretched, the player would letterbox. */
+.entry__frame--video {
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
+}
+
+.entry__media-cap {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  max-width: calc(100% - 24px);
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #0c0c0dcc;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--rmk-ink);
+  font-family: var(--rmk-font-mono);
+  font-size: var(--rmk-meta-size);
+  letter-spacing: var(--rmk-meta-track);
+  text-transform: uppercase;
+}
+
+/* With a thumbnail strip along the bottom, the caption moves to the top
+   so it never sits on the thumbnails. */
+.entry__media-cap--top {
+  top: 12px;
+  bottom: auto;
+}
+
+/* --- Thumbnails: one row, however many stills; they swap the big one
+   in place — no lightbox, no dead end. --- */
+.entry__stills {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.entry__still-thumb {
+  display: block;
+  height: var(--entry-stills-h);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--rmk-ground-raised);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 160ms ease;
+}
+
+.entry__still-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.entry__still-thumb:hover,
+.entry__still-thumb[aria-pressed='true'] {
+  opacity: 1;
+}
+
+.entry__still-thumb[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 2px var(--rmk-amber);
+}
+
+.entry__still-thumb:focus-visible {
+  outline: 2px solid var(--rmk-focus);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* Sound toggle for videos with their own soundtrack: dressed like the
+   caption, in the opposite corner. */
+.entry__sound {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--rmk-ink);
+  color: var(--rmk-ground);
+  font-family: var(--rmk-font-mono);
+  font-size: var(--rmk-meta-size);
+  letter-spacing: var(--rmk-meta-track);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.entry__sound[aria-pressed='true'] {
+  background: var(--rmk-amber);
+}
+
+.entry__sound:focus-visible {
+  outline: 2px solid var(--rmk-focus);
+  outline-offset: 2px;
+}
+
+/* A caption on the top edge shares it with the sound toggle: it stops short
+   of the toggle so the toggle is never covered (WCAG 2.4.11). */
+.entry__media:has(.entry__sound) .entry__media-cap--top {
+  max-width: calc(100% - 11rem);
+}
+
+/* Skull & Beau's demo is a dark stage with room for the show. */
+#work-skull-and-beau .entry__frame {
+  background: #050406;
+  aspect-ratio: 16 / 10;
+  min-height: 460px;
+}
+
+@media (max-width: 720px) {
+  .entry__media {
+    --entry-stills-h: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry__still-thumb {
+    transition: none;
+  }
+}

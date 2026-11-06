@@ -18,39 +18,40 @@ export function track(event: string, params: Params = {}) {
   window.gtag?.('event', event, params)
 }
 
-/**
- * The path through the page: one `section_view` the first time each section
- * comes into view (hero, each project, About, Record), numbered in the order
- * the visitor reached them, then one `page_exit` when they leave, naming the
- * last section they saw. Returns a cleanup function.
+/*
+ * The path through the site: one `section_view` the first time each place is
+ * reached (hero, each project's sheet, About, then the Index and Record as
+ * they scroll into view), numbered in the order the visitor reached them,
+ * then one `page_exit` when they leave, naming the last place they saw.
  */
-export function trackJourney(): () => void {
-  const started = performance.now()
-  const seen = new Set<string>()
-  let last = 'hero'
-  let exited = false
+const started = performance.now()
+const seen = new Set<string>()
+let last = 'hero'
 
-  const nameOf = (el: Element) => {
-    if (el.classList.contains('hero')) return 'hero'
-    if (el.id.startsWith('work-')) return el.id.slice('work-'.length)
-    return el.id === 'resume' ? 'record' : el.id
-  }
+/** A place was reached: a sheet landed, or a section scrolled into view */
+export function sectionReached(section: string) {
+  last = section
+  if (seen.has(section)) return
+  seen.add(section)
+  track('section_view', { section, order: seen.size })
+}
+
+/** Watches for the in-sheet sections and for leaving. Returns cleanup. */
+export function trackJourney(): () => void {
+  let exited = false
 
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue
-        const section = nameOf(entry.target)
-        last = section
-        if (seen.has(section)) continue
-        seen.add(section)
-        track('section_view', { section, order: seen.size })
+        // only the sheet in focus counts; from above, everything is "in view"
+        if (!entry.isIntersecting || !entry.target.closest('.sheet.is-focus')) continue
+        sectionReached(entry.target.id === 'resume' ? 'record' : entry.target.id)
       }
     },
     // counts once a section's top third is on screen, not on a glancing scroll
     { threshold: 0, rootMargin: '0px 0px -35% 0px' },
   )
-  document.querySelectorAll('.hero, #index, .entry, #about, #resume').forEach((el) => observer.observe(el))
+  document.querySelectorAll('#index, #resume').forEach((el) => observer.observe(el))
 
   const exit = () => {
     if (exited) return
@@ -82,7 +83,7 @@ export function trackJourney(): () => void {
 
 /**
  * Every click on something you can interact with, named by where it was and
- * what it was: one `ui_click` with `part` ("Kinedic Drop: Technical brief"),
+ * what it was: one `ui_click` with `part` ("Kinedic Drop: Next: Frostbyte"),
  * `section` and `control`. Clicks on images count too, by their alt text.
  * Never anything a visitor typed. Returns a cleanup function.
  */
@@ -97,11 +98,10 @@ export function trackClicks(): () => void {
   }
 
   const sectionOf = (el: Element): string => {
-    const entry = el.closest('article.entry')
-    if (entry) {
-      const title = entry.querySelector('.entry__title')
-      return (title && clean(textOf(title))) || entry.id.replace(/^work-/, '')
-    }
+    // a project's own sheet is named by its title
+    const project = el.closest('[data-section]')
+    if (project) return project.getAttribute('data-section') ?? 'Project'
+    if (el.closest('.floor__hud, .floor__hit')) return 'Floor'
     if (el.closest('.masthead')) return 'Masthead'
     if (el.closest('.hero')) return 'Hero'
     if (el.closest('#index')) return 'Index'

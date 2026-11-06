@@ -2,7 +2,10 @@
 
 Bonnie's portfolio. Vite + React, deployed by pushing `main` (live in about a
 minute). Projects are data in `src/data/projects.ts`; live demos are static
-pages in `public/demos/`.
+pages in `public/demos/`. The site is a floor of sheets seen through a camera
+(`src/components/Floor`, positions and timings in `src/content/floor.ts`):
+Home, one sheet per project (`ProjectSheet`), and About. A new project needs
+an entry in `projects.ts` and a spot in `floor.ts`.
 
 `dist/` is build output and every build wipes it: never keep source files
 there. Bonnie's working files go in `caps/<project>/` (git-ignored) or the
@@ -76,11 +79,11 @@ without asking.
 
 | Event | Parameters | Fires when |
 |---|---|---|
-| `ui_click` | `part`, `section`, `control` | Any click on a link, button or image, named by where and what ("Kinedic Drop: Technical brief"). Labels skip decorative and screen-reader-only text |
-| `section_view` | `section`, `order` | A section is first reached (hero, index, each project id, about, record) |
+| `ui_click` | `part`, `section`, `control` | Any click on a link, button or image, named by where and what ("Kitty & Pip: Next: Cher Bomba"). A project's sheet is named by its title; the view-from-above controls are "Floor". Labels skip decorative and screen-reader-only text |
+| `section_view` | `section`, `order` | A place is first reached: a sheet lands (hero for Home, each project id, about), or Home's index / About's record scrolls into view on the sheet in focus |
 | `page_exit` | `last_section`, `sections_seen`, `seconds_on_page` | Tab hidden or page closed (sent as beacon; can repeat if they return) |
-| `project_open` | `project`, `position` | A project's brief is opened |
-| `expand_all` | — | "Expand all" |
+| `project_open` | `project`, `position` | A project's sheet is landed on (row click, Next, from above, back/forward, or a deep link) |
+| `view_from_above` | `from` (sheet id) | The camera pulls all the way up (masthead button or Esc) |
 | `nav_click` | `section` | Masthead navigation |
 | `resume_open` | — | Résumé link |
 | `email_click` | `from` (manifest / record / footer) | Any email link |
@@ -90,7 +93,7 @@ without asking.
 | `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
-`video`, `percent`, `song_title`, `demo`, `action`, `last_section`.
+`video`, `percent`, `song_title`, `demo`, `action`, `last_section`, `from`.
 
 Outbound links and PDF downloads are recorded automatically by GA's enhanced
 measurement. Don't duplicate them.
@@ -109,12 +112,18 @@ as a bug, not a polish note.
 
 - **Skip link** to `#main`; `<html lang="en">`.
 - **Reduced motion:** every animation has a `prefers-reduced-motion`
-  fallback (logo, annotation chalk, cue marks, the etched attractor, the
-  Kinedic drop and ripple). New motion must ship with one, usually showing
-  the finished state instead of animating.
+  fallback (logo, the Kinedic drop and ripple). The floor camera never flies:
+  a 240ms cross-fade lands on the sheet, and the view from above is flat (no
+  tilt). New motion must ship with one, usually showing the finished state.
+- **The floor:** only the sheet in focus is reachable; the rest are `inert`
+  and `aria-hidden`. Every flight starts from a real `<button>`; on landing
+  the sheet's `h1` takes focus and a polite live region says its name. From
+  above, each sheet is a labeled button ("Open Kitty & Pip") and focus starts
+  on the sheet you came from. Esc toggles in and out. The skip link focuses
+  the current sheet's heading.
 - **Keyboard and focus:** visible `:focus-visible` outlines using
-  `--rmk-focus`. Toggles use real `<button>`s with `aria-expanded` /
-  `aria-controls` (project briefs) or `aria-pressed` (stills, video sound).
+  `--rmk-focus`. Toggles use real `<button>`s with `aria-pressed` (stills,
+  video sound).
 - **Text:** 12px minimum (`--rmk-meta-size`, see `src/tokens/tokens.css`).
 - **Images:** every still has a descriptive `alt` in `projects.ts`, written to
   say what the image shows. Decorative canvases and glows are `aria-hidden`.
@@ -126,8 +135,10 @@ as a bug, not a polish note.
   (`src/sound.ts`). A demo with sound loads `public/demos/one-sound.js`
   before its own scripts and sets `window.rmkSoundStop` to its own pause
   (Listening Room pauses; Skull's stage presses its Pause so cues stay in time).
-- **Media fills its column:** the media column is as tall as the brief, and
-  the frame or image grows to fill it on a dark mat (never an empty panel).
+- **Media fits the screen:** a project's frame or still is 16:10 at most as
+  tall as the screen under the masthead, shown whole on a black mat.
+- **Contrast:** the palette is checked: faint labels #8c8b87 are 5.7:1 on
+  the ground, muted 7.7:1, amber 9.8:1.
 
 ### Known gaps (not yet fixed)
 
@@ -138,7 +149,11 @@ as a bug, not a polish note.
   (WCAG 2.1.1, 2.5.7).
 - **Demos in general** were built as standalone pages. Audit each one for
   keyboard access, labels and contrast before calling it done.
-- **Color contrast** hasn't been formally audited. Check the dim metadata
-  tones (`--rmk-ink-faint` and similar) against 4.5:1 for small text.
+- **Safari:** the floor was tested in Chrome only (desktop and phone size).
+  Test 3D transforms, backdrop-filter and the SVG guides in Safari, desktop
+  and iOS, on a real device.
+- **Text on the floor** (the names under each sheet and the guide readout)
+  is decorative and hidden from screen readers; the same names are on the
+  labeled sheet buttons.
 
 When you fix a gap, move it to "already does".

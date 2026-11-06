@@ -54,7 +54,7 @@ A control on every sheet's masthead, plus a floating HUD pill that appears only 
 
 ## 4. Spatial layout
 
-A 3 × 3 floor with Home in the center. Every sheet is exactly viewport-sized (`W × H` = `innerWidth × innerHeight`), so landing at scale 1 fills the screen.
+A 5 × 3 floor with Home in the center (the original 3 × 3 below sits in columns 1–3 unchanged; columns 0 and 4 hold the other five projects, see `src/content/floor.ts`). Every sheet is exactly viewport-sized (`W × H` = `innerWidth × innerHeight`), so landing at scale 1 fills the screen.
 
 ```
 [ Kitty & Pip  -2.4° ] [ Aether Command  1.1° ] [ Otherly & SNBN -1.3° ]
@@ -141,7 +141,7 @@ Palette (from `rmk-refine.css`). No pure `#000` or `#fff` by default; that's Bon
 - Project titles: title case, 600 weight, −0.04em tracking; the second word is `--muted` and turns `--ink` on hover.
 - Status pips: 7px dots. Amber for live, `--faint` otherwise. No per-project rainbow colors.
 - Floor: `#141413` plus fine SVG noise (≈9% alpha) and one warm overhead light pool. In aerial, a faint 1px grid at `W/8` fades in.
-- Sheet shadow (lying flat under overhead light): `0 2px 3px #0000008c, 0 20px 40px #00000073, 0 60px 120px #00000080`.
+- Sheet shadow (lying flat under overhead light): `0 2px 3px #0000008c, 0 30px 60px #000000a6` (was three layers; see the Decision log).
 - **The RMK mark is heavy:** each cell gets a same-color 1.5 stroke (closes the gaps) and stacked drop-shadows, so the cells read as physical blocks. Blue/cyan cells become amber, and the copper cell becomes `#c9772f`. The click-to-remake behavior must keep working.
 - **Point-of-view headline** under the mark: "One person in the *director's chair.*" (amber on "director's chair."). The sub-line is a draft; Bonnie will rewrite it.
 - Floor labels (aerial only): mono, printed below each sheet. The one under Home reads "Index · you were here".
@@ -190,4 +190,12 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-05 | RMK mark made heavier (stroked cells, physical-block shadows); blue/cyan cells → amber. | Bonnie: mark "not thick enough." |
 | 2026-11-05 | Added the point-of-view headline "One person in the director's chair." Sub-line is a placeholder. | Bonnie wants a strong point of view. |
 | 2026-11-05 | **Floor camera:** flat site until the first click, then pull up, line up, dive. 3×3 floor, Home in the center. | Bonnie: "you think you're looking at the straight site… when you click, your POV is revealed." Approved after the prototype. |
+| 2026-11-05 | **Built and shipped.** Every project gets its own sheet: a 5 × 3 floor, Home in the center, her 3 × 3 unchanged in columns 1–3; frostbyte, listening-room, lil-swaps, digital-decoder and kinedic-bloom fill the outer columns, one corner left empty. Home's index is one row per project, and every row flies. | Bonnie: "i need it to be the new design now". Claude's call on §6's open question, so all the visual work is reachable the same way. |
+| 2026-11-05 | No "View from above" on Home's masthead (Esc still works there); every other sheet has it. | §1: nothing in the first view gives the floor away. Matches the prototype. |
+| 2026-11-05 | Floor grain and light pool are painted on the fixed backdrop, not on the moving world. | On the world they cost the view from above 1 fps → 62 fps once moved. The grain no longer slides with the floor; the light stays overhead. |
+| 2026-11-05 | Sheet shadow cut to two layers. | The 120px blur cost about a quarter of the frame rate in flight. |
+| 2026-11-05 | `--rmk-ink-faint` is #8c8b87, not #6c6b68; mono labels stay 12px, not 11px. | WCAG 1.4.3: #6c6b68 is 3.6:1 on the ground; #8c8b87 is 5.7:1. 12px is the site's text minimum. |
+| 2026-11-05 | Hero sub-line uses Bonnie's own sentence from About ("I work on both sides of the line between design and engineering, and I don't hand off in the middle.") instead of the draft. | Never publish claims she hasn't made. She can rewrite it. |
+| 2026-11-05 | Retired: chalk annotation layer, changeover cue, cue marks on titles, the old drawer catalog and "Expand all". | They read window scroll, which the floor no longer has, and they were the HUD look §2 asks to drop. Components kept in src/components (AnnotationLayer, CueMark). |
+| 2026-11-05 | Video and demos run only on the sheet in focus; other sheets show a still (or the title, for demos with no still). Leaving a sheet unmounts its media, which also stops its sound. | Performance, and one sound at a time. |
 | | | |

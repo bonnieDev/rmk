@@ -84,9 +84,23 @@
 .rmk-mark__svg rect,
 .rmk-mark__svg circle,
 .rmk-mark__svg path {
+  /* each cell carries a same-color stroke; at 0 it's the plain mark */
+  stroke-width: 0;
+  stroke-linejoin: round;
   transition:
     fill 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    stroke 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
     d 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Heavy mark: the stroke closes the gaps and stacked shadows make the
+   cells read as physical blocks lying on the page. */
+.rmk-logo--heavy .rmk-mark__svg :is(rect, circle, path) {
+  stroke-width: 1.5;
+}
+
+.rmk-logo--heavy .rmk-mark__svg {
+  filter: drop-shadow(0 1.5px 1px #000a) drop-shadow(0 8px 14px #0006);
 }
 
 /*
@@ -114,12 +128,12 @@
 }
 
 .rmk-logo--hover .rmk-mark__svg :is(rect, circle, path) {
-  transition-duration: 1.4s, 1s;
+  transition-duration: 1.4s, 1.4s, 1s;
 }
 
 .rmk-logo--burst .rmk-mark__svg :is(rect, circle, path),
 .rmk-logo--fast .rmk-mark__svg :is(rect, circle, path) {
-  transition-duration: 0.12s, 0.12s;
+  transition-duration: 0.12s, 0.12s, 0.12s;
 }
 
 /* Compact header mark */
@@ -149,7 +163,7 @@
 }
 
 .rmk-ticker__word span.is-active {
-  color: var(--rmk-cyan-deep);
+  color: var(--rmk-amber);
 }
 
 .rmk-ticker__line {

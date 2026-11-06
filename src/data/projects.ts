@@ -74,22 +74,19 @@ export interface Project {
   site?: { href: string; label: string }
 }
 
-/* Mark base — carbon is invisible on the abyss field, so the mark reads light */
-const BASE = '#eaf2ff'
+/* Mark base — warm off-white, never pure white */
+const BASE = '#f3f2ef'
 
 /**
- * Mark palette — the four hues, lit for the dark field. The halo filter
- * blurs each cell's own colour, so these read as emitted light rather than
- * fill, and stay quiet despite being saturated.
+ * Mark palette — one accent: amber, plus a deeper copper and a quiet grey.
+ * The keys are the old hue names so each project's mix still reads; every
+ * value is on the site's single-accent palette.
  */
 const MARK = {
-  /* Pulled from the field itself: the cyan accent, plus lifted versions of the
-     blue and copper orbs behind the glass. The mark reads as lit BY the page
-     rather than dropped on top of it. */
-  cyan: '#00d4ff',
-  blue: '#6aa8ff',
-  copper: '#e0a06a',
-  pale: '#b9d4f2',
+  cyan: '#f2a93b',
+  blue: '#f7c271',
+  copper: '#c9772f',
+  pale: '#d6d5d1',
 } as const
 
 /**

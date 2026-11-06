@@ -12,7 +12,8 @@ import { sectionReached, track, trackClicks, trackJourney } from './analytics'
 import { listenForDemoSound } from './sound'
 import './App.css'
 
-const EMAIL = 'bonnie@rmk.systems'
+/** The only way to reach Bonnie: LinkedIn. No email on the site. */
+const LINKEDIN = 'https://www.linkedin.com/in/rmksystems'
 
 /** Hero manifest — the spec sheet beside the mark */
 const MANIFEST = [
@@ -226,10 +227,12 @@ function HomeSheet({ live }: { live: boolean }) {
               <dd>
                 <a
                   className="manifest__link"
-                  href={`mailto:${EMAIL}`}
-                  onClick={() => track('email_click', { from: 'manifest' })}
+                  href={LINKEDIN}
+                  target="_blank"
+                  rel="me noreferrer"
+                  onClick={() => track('contact_click', { from: 'manifest' })}
                 >
-                  {EMAIL}
+                  Message me on LinkedIn<span className="visually-hidden"> (opens in a new tab)</span>
                 </a>
                 {' · '}open to new roles
               </dd>
@@ -390,6 +393,15 @@ function AboutSheet({ live }: { live: boolean }) {
           <div className="record__links">
             <a
               className="pill pill--amber"
+              href={LINKEDIN}
+              rel="me noreferrer"
+              target="_blank"
+              onClick={() => track('contact_click', { from: 'record' })}
+            >
+              Message me on LinkedIn<span className="visually-hidden"> (opens in a new tab)</span>
+            </a>
+            <a
+              className="pill"
               href="/bonnie-remeika-resume.pdf"
               target="_blank"
               rel="noopener"
@@ -398,14 +410,8 @@ function AboutSheet({ live }: { live: boolean }) {
               Résumé (PDF)
               <span className="visually-hidden"> (opens in a new tab)</span>
             </a>
-            <a className="pill" href={`mailto:${EMAIL}`} onClick={() => track('email_click', { from: 'record' })}>
-              Email
-            </a>
             <a className="pill" href="https://cirkitree.xyz/" rel="me noreferrer" target="_blank">
               Cirkitree index<span className="visually-hidden"> (opens in a new tab)</span>
-            </a>
-            <a className="pill" href="https://www.linkedin.com/in/rmksystems" rel="me noreferrer" target="_blank">
-              LinkedIn<span className="visually-hidden"> (opens in a new tab)</span>
             </a>
           </div>
         </div>
@@ -435,8 +441,8 @@ function SiteFoot() {
         </a>
       </p>
       <p>
-        <a href={`mailto:${EMAIL}`} onClick={() => track('email_click', { from: 'footer' })}>
-          {EMAIL}
+        <a href={LINKEDIN} rel="me noreferrer" target="_blank" onClick={() => track('contact_click', { from: 'footer' })}>
+          Contact me on LinkedIn<span className="visually-hidden"> (opens in a new tab)</span>
         </a>
         {' · '}Ravenna, Ohio
       </p>

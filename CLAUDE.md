@@ -87,7 +87,7 @@ without asking.
 | `view_from_above` | `from` (sheet id) | The camera pulls all the way up (masthead button or Esc) |
 | `nav_click` | `section` | Masthead navigation |
 | `resume_open` | — | Résumé link |
-| `email_click` | `from` (manifest / record / footer) | Any email link |
+| `contact_click` | `from` (manifest / record / footer) | Any "contact me on LinkedIn" link. LinkedIn is the only contact on the site: no email, no phone |
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |

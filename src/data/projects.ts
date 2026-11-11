@@ -174,6 +174,16 @@ export const projects: Project[] = [
         caption: 'UI vision',
         alt: 'The lil swaps UI vision: a small ninja mascot in a green hood stands beside an Impact Arena score of 75.1 out of 100 on a lighter-to-heavier bar, with Top Offender cards fanned out at the right. Below, Your next best move suggests swapping conventional beef, and three collectible cards offer alternatives: an uncommon plant-based option at minus 8.9 points, an epic free-range chicken at minus 6.1, and a legendary beans and legumes card at minus 7.4. A Top 10 targets list follows, led by conventional beef with what it is, why it matters, where you encounter it and how to recognize it, then a daily solo SUV commute, fast-fashion hauls and plastic bottled drinks, framed by jungle foliage and hand-lettered signs.',
       },
+      {
+        src: '/projects/lil-swaps/lil-swaps-built-dealt.jpg',
+        caption: 'Built · a swap dealt',
+        alt: 'The playable lil swaps build after one swap: the Impact Arena footprint has dropped to 73.3 out of 100 with a Latest cut of minus 11.7 points, and a small Legendary card for lentils and beans now sits in the hand, marked 1 committed. Below, Your next best move shows conventional beef at 11.7 points of the footprint, with Uncommon, Epic and Legendary swap cards.',
+      },
+      {
+        src: '/projects/lil-swaps/lil-swaps-built-top10.jpg',
+        caption: 'Built · Top 10 targets',
+        alt: 'The playable lil swaps build: three swap cards for beef, each with its cut in points and a one-line reason, above the line Beef to lentils and beans, 11.7 points chopped, card added to your hand. The Top 10 targets list follows with category filters; conventional beef is marked Swapped, and the daily solo SUV commute is open to Learn why, tagged Settled science, with what it is and why it matters.',
+      },
     ],
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.cyan] },
   },

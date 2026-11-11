@@ -229,11 +229,11 @@ export const projects: Project[] = [
     year: '2026',
     brief: {
       problem:
-        'Interfaces decide what you can do before they know anything about you. The page loads assuming you can see it, read it, aim a pointer and fill in a form, and the accessibility settings that might help sit behind those same abilities. Asking people to declare their limitations once, up front, also misses that need changes by the hour: fatigue, tremor, distraction.',
+        'Interfaces decide what you can do before they know anything about you. The page loads assuming you can see it, read it, aim a pointer and fill in a form, and the accessibility settings that might help sit behind those same abilities. Asking people to declare their limitations once, up front, also misses that need changes by the hour.',
       pipeline:
         'An adaptive layer notices when someone is struggling with the page and responds in real time: it enlarges controls, widens spacing and simplifies complex questions. No declaration, no mode switch. If friction keeps climbing, the design hands off to a voice mode, so the person can finish the task by talking instead of fighting the screen.',
       milestone:
-        'v0.7 is open source and runs on desktop, phone and tablet in the live demo: larger targets, a “Shaky hands?” offer that makes everything bigger, text that gets bigger on its own when someone seems to be hunting for a way to enlarge it, keyboard mode with spoken-ready descriptions, a tab-ready check that fixes what it safely can, autofill and readable phone numbers, a friction report of what people wanted and what they hit instead, an easy form, a request for a call or a doctor’s help that goes with the form (only if the person chooses), and a break you can pause and come back to. Voice and database hooks are marked for developers to plug in.',
+        'v0.7 is open source and runs on desktop, phone and tablet in the live demo: larger targets, text that gets bigger on its own when someone seems to be hunting for a way to enlarge it, keyboard mode with spoken-ready descriptions, a tab-ready check that fixes what it safely can, autofill and readable phone numbers, a friction report of what people wanted and what they hit instead, an easy form, a request for a call or a doctor’s help that goes with the form (only if the person chooses), and a break you can pause and come back to. Voice and database hooks are marked for developers to plug in.',
     },
     demoEmbed: '/demos/kinedic-bloom.html',
     logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
@@ -287,7 +287,7 @@ export const projects: Project[] = [
     year: '2026',
     brief: {
       problem:
-        'Bot checks that read mouse movement can be beaten by replaying a real person’s recorded movement. And people with tremor, low vision or slow reactions might not pass a movement check at all.',
+        'Bot checks that read mouse movement can be beaten by replaying a real person’s recorded movement. And some disabled people might not pass a movement check at all.',
       pipeline:
         'So Tripwire is never the only gate. An unsure answer always hands off to another check, and keyboard and touch users are never judged. Raw cursor paths never leave the browser. It builds on established, patented work in behavioral biometrics. What’s mine is the build, the testing, and the safeguards.',
       milestone: 'Private prototype. Case study and demo on request.',

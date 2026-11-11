@@ -51,6 +51,13 @@ can't reach it.
 
 ---
 
+## Words to keep off the site
+
+Never say **tremor** (or shaky hands, wobbly fingers, hand shaking) anywhere on the
+site, in copy, demos or alt text: Bonnie doesn't want to give anyone the idea
+(2026-11-11). Say what the work does for people in general terms instead.
+Never name **GSK** either; that's résumé-only.
+
 ## Analytics tagging
 
 Google Analytics 4 only (tag `G-6Q2H4H5S3L`, in `index.html`). Microsoft
@@ -97,7 +104,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: none (the “Shaky hands?” button was removed 2026-11-11). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`, `group`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`, `from`.

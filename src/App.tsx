@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GenerativeRMKLogo } from './components/GenerativeRMKLogo'
 import { Floor, useFloor, type FloorSheet } from './components/Floor'
 import { ProjectSheet } from './components/ProjectSheet'
@@ -7,7 +7,7 @@ import { fullTitleOf, posterOf } from './components/ProjectMedia'
 // Retired with the floor redesign (docs/FLOOR-CAMERA.md): the chalk
 // annotations, the changeover cue, the etched attractor and the shape field.
 // Their components stay in src/components if a place for them comes back.
-import { defaultLogoPalette, projectGroups, projects, type Project } from './data/projects'
+import { projectGroups, projects, type Project } from './data/projects'
 import { sectionReached, track, trackClicks, trackJourney } from './analytics'
 import { listenForDemoSound } from './sound'
 import './App.css'
@@ -140,8 +140,23 @@ export default function App() {
 function HomeSheet({ live }: { live: boolean }) {
   const { go } = useFloor()
   const [hovered, setHovered] = useState<Project | null>(null)
-  const palette = hovered?.logoPalette ?? defaultLogoPalette
   const pace = hovered ? 'hover' : 'slow'
+  // The masthead's small mark stays out of the way while the big one is on
+  // screen, and docks into the bar once the big one scrolls off.
+  const heroMarkRef = useRef<HTMLDivElement>(null)
+  const [docked, setDocked] = useState(false)
+  useEffect(() => {
+    const el = heroMarkRef.current
+    const root = el?.closest<HTMLElement>('.sheet__scroll') ?? null
+    if (!el) return undefined
+    const io = new IntersectionObserver(([e]) => setDocked(!e.isIntersecting), {
+      root,
+      // the bar covers the top 56px
+      rootMargin: '-56px 0px 0px 0px',
+    })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
   const liveCount = projects.filter((p) => p.status.live).length
 
   const scrollTo = (id: string) => {
@@ -158,7 +173,11 @@ function HomeSheet({ live }: { live: boolean }) {
       <SheetMast
         left={
           // Home is the top of the site: the mark takes you to the top of the page
-          <button type="button" className="masthead__back" onClick={() => scrollTo('top')}>
+          <button
+            type="button"
+            className={`masthead__back masthead__back--home${docked ? ' is-docked' : ''}`}
+            onClick={() => scrollTo('top')}
+          >
             <MastMark live={live} />
             <span className="masthead__word">rmk.systems</span>
             <span className="visually-hidden">, back to top</span>
@@ -190,7 +209,9 @@ function HomeSheet({ live }: { live: boolean }) {
 
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero__lead">
-          <GenerativeRMKLogo seed="rmk" palette={palette} pace={pace} className="rmk-logo--heavy" />
+          <div ref={heroMarkRef} className="hero__mark">
+            <GenerativeRMKLogo seed="rmk" pace={pace} paused={!live} className="rmk-logo--heavy" />
+          </div>
           <h1 className="pov" id="hero-title" tabIndex={-1}>
             Visual designer, <em>systems builder.</em>
           </h1>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { defaultLogoPalette, type LogoPalette } from '../../data/projects'
+import type { LogoPalette } from '../../data/projects'
+import { useDriftPalette } from './drift'
 import {
   BURST_REMAKE_MS,
   COLS,
@@ -124,7 +125,7 @@ export function GenerativeRMKLogo({
   decorative = false,
   className = '',
   showControls = false,
-  palette = defaultLogoPalette,
+  palette: paletteProp,
   pace = 'slow',
   compact = false,
   hideTicker = false,
@@ -137,6 +138,10 @@ export function GenerativeRMKLogo({
     generate(hashStr(`${seed}·0`), { accentChance: 0.1, accentCount: 3 }),
   )
   const [reducedMotion, setReducedMotion] = useState(false)
+  // with no palette given, the mark drifts slowly around the color wheel
+  const drift = useDriftPalette(!paletteProp && !paused)
+  const palette = paletteProp ?? drift
+  const drifting = !paletteProp
 
   const stepRef = useRef(0)
   const seedRef = useRef(seed)
@@ -211,7 +216,8 @@ export function GenerativeRMKLogo({
 
   /** React to palette / pace changes from the page */
   useEffect(() => {
-    if (reducedMotion) return
+    // a drift step is only a color change, not a page event
+    if (reducedMotion || drifting) return
     const accents = palette.accents.length || 3
     const mode = normalizePace(pace)
     const rng = mulberry32(hashStr(`${seedRef.current}·react·${palette.ink}·${mode}·${genRef.current}`))
@@ -224,7 +230,7 @@ export function GenerativeRMKLogo({
       setPhase('RMK')
       setConfig((c) => recolorSubtle(c, rng, accents))
     }
-  }, [palette, pace, reducedMotion])
+  }, [palette, pace, reducedMotion, drifting])
 
   useEffect(() => {
     if (!auto || reducedMotion) return undefined

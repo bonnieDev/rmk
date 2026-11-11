@@ -127,6 +127,13 @@
   }
 }
 
+/* Idle: the palette drifts a small step every 1.5s, so fills glide across
+   each step at an even pace instead of pulsing. */
+.rmk-logo--slow .rmk-mark__svg :is(rect, circle, path) {
+  transition-duration: 1.5s, 1.5s, 0.55s;
+  transition-timing-function: linear, linear, cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
 .rmk-logo--hover .rmk-mark__svg :is(rect, circle, path) {
   transition-duration: 1.4s, 1.4s, 1s;
 }

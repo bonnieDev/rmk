@@ -231,3 +231,5 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-11 | Bounce Cal and Kinedic Tripwire join Accessibility. The floor grows to 5 × 4: Bounce Cal under Bloom, Tripwire at the right edge (its long label needs open floor beside it), Kinedic Drop below About. | Bonnie wanted both to show how she thinks without exposing her plan data or Tripwire's method. |
 | 2026-11-11 | Tech Literacy, Translated (her published book) joins Accessibility, on the floor under Bounce Cal. | Plain-language work for the USDS audience. |
 | 2026-11-11 | Kinedic Drop moves to column 3 of the bottom row, so the book's label has open floor beside it. | Labels overlapped in the view from above. |
+| 2026-11-11 | On Home the masthead's small mark hides while the big mark is on screen and docks into the bar once it scrolls off. | The logo showed twice at the top of Home. |
+| 2026-11-11 | The mark's accents drift slowly around the color wheel (4-minute cycle, shared clock); reduced motion holds amber. Off-screen sheets' marks pause. | Off-white, amber and copper together read as candy corn. |

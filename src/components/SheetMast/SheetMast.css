@@ -55,6 +55,30 @@
   --rmk-mark-compact-max: 86px;
 }
 
+/* On Home the big mark is the logo; the small one waits off to the side
+   and slides into the bar once the big one has scrolled away. */
+.masthead__back--home .masthead__mark {
+  width: 0;
+  margin-right: -12px;
+  opacity: 0;
+  transition:
+    width 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+    margin-right 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.35s;
+}
+
+.masthead__back--home.is-docked .masthead__mark {
+  width: 86px;
+  margin-right: 0;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .masthead__back--home .masthead__mark {
+    transition: none;
+  }
+}
+
 /* small, so a thicker stroke keeps it chunky */
 .masthead__mark .rmk-mark__svg :is(rect, circle, path) {
   stroke-width: 2.6;
@@ -133,9 +157,14 @@
     display: none;
   }
 
-  .masthead__mark {
+  .masthead__mark,
+  .masthead__back--home.is-docked .masthead__mark {
     width: 66px;
     --rmk-mark-compact-max: 66px;
+  }
+
+  .masthead__back--home .masthead__mark {
+    width: 0;
   }
 
   /* on a phone the destination can wait; "Back" can't */

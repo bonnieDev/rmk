@@ -51,6 +51,15 @@ can't reach it.
 
 ---
 
+## The mark
+
+The RMK mark's accent cells drift slowly around the color wheel (one trip
+every 4 minutes, `src/components/GenerativeRMKLogo/drift.ts`); every mark
+reads the same clock. Under reduced motion it holds the starting amber. The
+rest of the site keeps its one amber accent. On Home the masthead's small mark
+stays hidden while the big one is on screen and docks into the bar once it
+scrolls off (2026-11-11).
+
 ## Words to keep off the site
 
 Never say **tremor** (or shaky hands, wobbly fingers, hand shaking) anywhere on the

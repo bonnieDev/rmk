@@ -3,7 +3,7 @@
  * moves between them. Bonnie edits this file; components only read it.
  * See docs/FLOOR-CAMERA.md.
  *
- * Desktop is a 5 × 3 floor with Home in the middle. Her original 3 × 3 sits in
+ * Desktop is a 5 × 4 floor with Home in the middle of the top three rows. Her original 3 × 3 sits in
  * columns 1–3 unchanged; the outer columns hold the rest of the index.
  * Keep every rotation under 3°: curated, not a messy pile.
  */
@@ -16,7 +16,7 @@ export interface FloorSpot {
 }
 
 export const floor = {
-  grid: { cols: 5, rows: 3, gapX: 0.22, gapY: 0.3 },
+  grid: { cols: 5, rows: 4, gapX: 0.22, gapY: 0.3 },
   sheets: [
     // Complex interfaces and accessibility sit around Home; creative work on the outside
     { id: 'kitty-n-pip', col: 0, row: 0, rotation: -2.4 },
@@ -32,9 +32,13 @@ export const floor = {
     { id: 'skull-and-beau', col: 4, row: 1, rotation: 2.2 },
 
     { id: 'frostbyte', col: 0, row: 2, rotation: 1.4 },
-    { id: 'bunny-anarchy', col: 1, row: 2, rotation: -1.6 },
+    { id: 'bounce-cal', col: 1, row: 2, rotation: -1.6 },
     { id: 'about', col: 2, row: 2, rotation: 0.9 },
-    { id: 'kinedic-drop', col: 3, row: 2, rotation: -2.8 },
+    { id: 'bunny-anarchy', col: 3, row: 2, rotation: -2.8 },
+    // at the right edge: its long label has open floor beside it
+    { id: 'kinedic-tripwire', col: 4, row: 2, rotation: 1.6 },
+
+    { id: 'kinedic-drop', col: 2, row: 3, rotation: -1.9 },
   ] satisfies FloorSpot[],
   /** milliseconds */
   // no line-up hold: after the pull-up the camera waits for the visitor

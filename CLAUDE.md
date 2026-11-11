@@ -1,7 +1,7 @@
 # rmk.systems — notes for Claude
 
 Bonnie's portfolio. Vite + React, deployed by pushing `main` (live in about a
-minute). Projects are data in `src/data/projects.ts`, in three index groups shown in this order: complex interfaces, accessibility, creative work (`group`, labels in `projectGroups`; set for USDS, 2026-11); live demos are static
+minute). Projects are data in `src/data/projects.ts` (Bounce Cal stills use invented sample data only, never her real plan; Tripwire is a short public entry with no mechanism, demo or results, and its `?key=` link never goes on the site), in three index groups shown in this order: complex interfaces, accessibility, creative work (`group`, labels in `projectGroups`; set for USDS, 2026-11); live demos are static
 pages in `public/demos/`. The site is a floor of sheets seen through a camera
 (`src/components/Floor`, positions and timings in `src/content/floor.ts`):
 Home, one sheet per project (`ProjectSheet`), and About. A new project needs
@@ -93,7 +93,7 @@ without asking.
 | `view_from_above` | `from` (sheet id) | The camera pulls all the way up (masthead button or Esc) |
 | `nav_click` | `section` | Masthead navigation |
 | `resume_open` | — | Résumé link |
-| `contact_click` | `from` (manifest / record / footer) | Any "contact me on LinkedIn" link. LinkedIn is the only contact on the site: no email, no phone |
+| `contact_click` | `from` (manifest / record / footer / `project: <id>` for a project's LinkedIn button, e.g. Tripwire's case-study request) | Any "contact me on LinkedIn" link. LinkedIn is the only contact on the site: no email, no phone |
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |

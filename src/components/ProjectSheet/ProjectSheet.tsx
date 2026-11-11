@@ -3,6 +3,7 @@ import type { Project } from '../../data/projects'
 import { useFloor } from '../Floor'
 import { ProjectMedia, fullTitleOf, hasMedia, posterOf } from '../ProjectMedia'
 import { SheetMast } from '../SheetMast'
+import { track } from '../../analytics'
 import './ProjectSheet.css'
 
 interface ProjectSheetProps {
@@ -70,6 +71,11 @@ export function ProjectSheet({ project, num, next, live }: ProjectSheetProps) {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={
+                    link.href.includes('linkedin.com/in/')
+                      ? () => track('contact_click', { from: `project: ${project.id}` })
+                      : undefined
+                  }
                 >
                   {link.label}
                   <span aria-hidden="true"> ↗</span>

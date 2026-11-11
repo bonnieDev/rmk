@@ -239,6 +239,63 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
   },
   {
+    id: 'bounce-cal',
+    group: 'access',
+    title: 'Bounce',
+    titleEm: 'Cal',
+    category: 'PRIVACY BY DESIGN',
+    what: 'A planner for people who hate calendars',
+    tagline:
+      'Feed it all the things you need to do, and it breaks them into little bits you can do whenever you feel like it through the day.',
+    role: 'Product design · Front-end',
+    pipeline: ['Next.js static export', 'Plan stored on the device', 'Opt-in Google Calendar & Drive', 'Opt-in Claude, own key'],
+    status: { label: 'Private · in daily use', accent: 'cyan', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Calendars assume you’ll follow a schedule. Plenty of people can at work, and it falls apart for the rest of life. Built ADHD-first: start from the hardest case and build for the people the default forgets.',
+      pipeline:
+        'Everything goes into one text box and comes back as small bits, with no time estimates and no guilt words. The plan lives on the device: no server, no analytics. Anything that leaves the device is opt-in and labeled.',
+      milestone: 'Private. In daily use while the kinks get worked out.',
+    },
+    stills: [
+      {
+        src: '/projects/bounce-cal/bounce-cal-dig-in.jpg',
+        caption: 'Dig in · sample plan',
+        alt: 'Bounce Cal in Dig in mode, filled with a sample plan: a red track for getting the garden ready, with blue bubbles for small side tasks like feeding a bread starter, two quieter tracks for baking bread and clearing out the garage, and a card below that says Do this: Order seeds, with Done and Later buttons. The top bar reads saved on this device.',
+      },
+      {
+        src: '/projects/bounce-cal/bounce-cal-bounce.jpg',
+        caption: 'Bounce around · sample plan',
+        alt: 'Bounce Cal in Bounce around mode with the same sample plan: blue bubbles float around the tracks, each a small task such as Clean the bread tins or Fill one donation box, under the line Tap a bubble. Stay as long as it flows.',
+      },
+    ],
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
+  },
+  {
+    id: 'kinedic-tripwire',
+    group: 'access',
+    title: 'Kinedic',
+    titleEm: 'Tripwire',
+    category: 'SECURITY RESEARCH',
+    what: 'A bot check that never locks anyone out on its own',
+    tagline:
+      'A research prototype for catching replayed cursor recordings, designed so the people most likely to be wrongly flagged never are.',
+    role: 'Concept · Design · Build · Testing',
+    pipeline: ['Next.js', 'TypeScript', 'Plain CSS'],
+    status: { label: 'Private prototype', accent: 'magenta' },
+    year: '2026',
+    brief: {
+      problem:
+        'Bot checks that read mouse movement can be beaten by replaying a real person’s recorded movement. And people with tremor, low vision or slow reactions might not pass a movement check at all.',
+      pipeline:
+        'So Tripwire is never the only gate. An unsure answer always hands off to another check, and keyboard and touch users are never judged. Raw cursor paths never leave the browser. It builds on established, patented work in behavioral biometrics. What’s mine is the build, the testing, and the safeguards.',
+      milestone: 'Private prototype. Case study and demo on request.',
+    },
+    links: [{ href: 'https://www.linkedin.com/in/rmksystems', label: 'Ask for the case study and demo on LinkedIn' }],
+    logoPalette: { ink: BASE, accents: [MARK.pale, MARK.copper, MARK.cyan] },
+  },
+  {
     id: 'digital-decoder',
     group: 'access',
     title: 'The Digital',

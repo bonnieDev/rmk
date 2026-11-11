@@ -296,6 +296,34 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.pale, MARK.copper, MARK.cyan] },
   },
   {
+    id: 'tech-literacy-translated',
+    group: 'access',
+    title: 'Tech Literacy,',
+    titleEm: 'Translated',
+    category: 'PLAIN LANGUAGE',
+    what: 'A plain-language book about everyday tech',
+    tagline: 'How to understand AI, the cloud and everyday tools, using the skills you already have.',
+    role: 'Author · with AI co-writers ChatGPT, Claude and Gemini',
+    pipeline: ['Amazon KDP'],
+    status: { label: 'Published · Vol. 01', accent: 'yellow', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Jargon keeps people away from tools that could make their lives better. Volume one gets everyone past it first, starting from skills they already have.',
+      pipeline:
+        'Written by Bonnie Remeika with AI co-writers (ChatGPT, Claude, Gemini), named on the cover. Next is Tech Rosetta, a publishing site where one English source feeds every language edition, and machine-drafted translations wait for a human speaker’s approval.',
+      milestone: 'Volume one is on Amazon. The Tech Rosetta site is in progress.',
+    },
+    stills: [
+      {
+        src: '/projects/tech-literacy-translated/cover.jpg',
+        caption: 'Front cover · Vol. 01',
+        alt: 'The front cover of Tech Literacy, Translated: The Map of Everyday Tech, by Bonnie Remeika with AI co-writers ChatGPT, Claude and Gemini. An illustrated workbench with a wrench and a multimeter turns, from left to right, into glowing circuit boards and server racks.',
+      },
+    ],
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.pale] },
+  },
+  {
     id: 'digital-decoder',
     group: 'access',
     title: 'The Digital',

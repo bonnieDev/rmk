@@ -38,6 +38,7 @@ export const floor = {
     // at the right edge: its long label has open floor beside it
     { id: 'kinedic-tripwire', col: 4, row: 2, rotation: 1.6 },
 
+    { id: 'tech-literacy-translated', col: 1, row: 3, rotation: 1.3 },
     { id: 'kinedic-drop', col: 2, row: 3, rotation: -1.9 },
   ] satisfies FloorSpot[],
   /** milliseconds */

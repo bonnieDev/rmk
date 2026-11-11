@@ -230,3 +230,4 @@ Bonnie will keep changing this: copy, which projects sit where, timings, maybe t
 | 2026-11-10 | After a pull-up or the view from above, keyboard focus moves to the floor button once the floor buttons render (an effect), not on the next frame. | The next-frame focus raced React's commit and left keyboard users on `<body>` (WCAG 2.4.3). |
 | 2026-11-11 | Bounce Cal and Kinedic Tripwire join Accessibility. The floor grows to 5 × 4: Bounce Cal under Bloom, Tripwire at the right edge (its long label needs open floor beside it), Kinedic Drop below About. | Bonnie wanted both to show how she thinks without exposing her plan data or Tripwire's method. |
 | 2026-11-11 | Tech Literacy, Translated (her published book) joins Accessibility, on the floor under Bounce Cal. | Plain-language work for the USDS audience. |
+| 2026-11-11 | Kinedic Drop moves to column 3 of the bottom row, so the book's label has open floor beside it. | Labels overlapped in the view from above. |

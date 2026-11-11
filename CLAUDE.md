@@ -168,9 +168,9 @@ as a bug, not a polish note.
   Cher Bomba is music-led, so at minimum a text description is needed.
 - **Demos in general** were built as standalone pages. Audit each one for
   keyboard access, labels and contrast before calling it done.
-- **Safari:** the floor was tested in Chrome only (desktop and phone size).
-  Test 3D transforms, backdrop-filter and the SVG guides in Safari, desktop
-  and iOS, on a real device.
+- **Safari:** the floor passed in Playwright's WebKit 18 at Mac and iPhone 14
+  sizes (2026-11-11: pull-up, guides, keyboard and tap landing, view from
+  above, no errors). Still to do on a real iPhone and in real Safari.
 - **Text on the floor** (the names under each sheet and the guide readout)
   is decorative and hidden from screen readers; the same names are on the
   labeled sheet buttons.

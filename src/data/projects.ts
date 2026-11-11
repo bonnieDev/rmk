@@ -168,6 +168,13 @@ export const projects: Project[] = [
       milestone:
         'Learn → Swap → Collect playable end to end. Share, Ripple and Return designed and specified, not yet built.',
     },
+    stills: [
+      {
+        src: '/projects/lil-swaps/lil-swaps-ui-vision.jpg',
+        caption: 'UI vision',
+        alt: 'The lil swaps UI vision: a small ninja mascot in a green hood stands beside an Impact Arena score of 75.1 out of 100 on a lighter-to-heavier bar, with Top Offender cards fanned out at the right. Below, Your next best move suggests swapping conventional beef, and three collectible cards offer alternatives: an uncommon plant-based option at minus 8.9 points, an epic free-range chicken at minus 6.1, and a legendary beans and legumes card at minus 7.4. A Top 10 targets list follows, led by conventional beef with what it is, why it matters, where you encounter it and how to recognize it, then a daily solo SUV commute, fast-fashion hauls and plastic bottled drinks, framed by jungle foliage and hand-lettered signs.',
+      },
+    ],
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.cyan] },
   },
   {

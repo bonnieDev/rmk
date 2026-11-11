@@ -104,7 +104,7 @@ without asking.
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: none (the “Shaky hands?” button was removed 2026-11-11). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `ring_keys`, `ring_buttons`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: none (the “Shaky hands?” button was removed 2026-11-11). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`, `group`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`, `from`.
@@ -153,6 +153,12 @@ as a bug, not a polish note.
   (Listening Room pauses; Skull's stage presses its Pause so cues stay in time).
 - **Media fits the screen:** a project's frame or still is 16:10 at most as
   tall as the screen under the masthead, shown whole on a black mat.
+- **Decoder demo:** the ring is a labeled slider (arrow keys, Page Up/Down,
+  Home/End) with Back one / Forward one buttons, so dragging is never the
+  only way (WCAG 2.1.1, 2.5.7). Labels are tied to their fields, Encode/Decode
+  use `aria-pressed`, key changes from the buttons and both race results are
+  announced, and its text passes contrast at 12px or larger (axe clean,
+  2026-11-11).
 - **Contrast:** the palette is checked: faint labels #8c8b87 are 5.7:1 on
   the ground, muted 7.7:1, amber 9.8:1.
 
@@ -160,9 +166,6 @@ as a bug, not a polish note.
 
 - **Captions:** no video has captions or a transcript (WCAG 1.2.2 / 1.2.3).
   Cher Bomba is music-led, so at minimum a text description is needed.
-- **Decoder demo** (`digital-decoder-ring.html`): no ARIA labels, and the
-  ring can only be turned by dragging, with no keyboard alternative
-  (WCAG 2.1.1, 2.5.7).
 - **Demos in general** were built as standalone pages. Audit each one for
   keyboard access, labels and contrast before calling it done.
 - **Safari:** the floor was tested in Chrome only (desktop and phone size).

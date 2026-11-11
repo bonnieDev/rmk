@@ -85,13 +85,13 @@ body {
 }
 .masthead-tags {
   font-family: var(--f-deck);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.2em;
   padding: 0.5rem 1rem;
   display: flex;
   gap: 1.5rem;
   justify-content: center;
-  opacity: 0.5;
+  opacity: 0.65;
 }
 
 /* ─── ARTICLE WRAPPER ──────────────────────────── */
@@ -138,7 +138,7 @@ body {
   font-family: var(--f-type);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
-  color: #8a6a30;
+  color: #6e5224;
 }
 .ornament {
   color: var(--red);
@@ -273,10 +273,36 @@ p { margin-bottom: 1.1rem; font-size: 1rem; line-height: 1.8; }
 #ringCanvas:active { cursor: grabbing; }
 .ring-hint {
   font-family: var(--f-type);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--red);
   text-align: center;
   letter-spacing: 0.08em;
+}
+.ring-step {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.ring-step button {
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--f-type);
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  cursor: pointer;
+}
+.ring-step button:hover { background: var(--ink); color: var(--paper); }
+/* Keyboard focus is always visible */
+:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+#ringCanvas:focus-visible { border-radius: 50%; }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
 .ring-controls {
   flex: 1;
@@ -343,9 +369,9 @@ p { margin-bottom: 1.1rem; font-size: 1rem; line-height: 1.8; }
 }
 .code-label {
   font-family: var(--f-deck);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   letter-spacing: 0.15em;
-  color: #7a6040;
+  color: #a08a64;
   min-width: 62px;
   text-transform: uppercase;
 }
@@ -476,8 +502,8 @@ p { margin-bottom: 1.1rem; font-size: 1rem; line-height: 1.8; }
 }
 .q-state {
   font-family: 'Courier New', monospace;
-  font-size: 0.6rem;
-  color: rgba(180,140,255,0.4);
+  font-size: 0.75rem;
+  color: #8c7cc0;
   letter-spacing: 0.03em;
   transition: opacity 0.1s;
 }
@@ -555,15 +581,15 @@ footer {
 }
 .footer-sub {
   font-family: var(--f-type);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.2em;
-  opacity: 0.5;
+  opacity: 0.65;
   margin-bottom: 1rem;
 }
 .footer-copy {
   font-family: var(--f-body);
   font-size: 0.8rem;
-  opacity: 0.4;
+  opacity: 0.65;
   font-style: italic;
 }
 </style>
@@ -574,7 +600,7 @@ footer {
 <nav style="background:#0C0A08;border-bottom:1px solid rgba(244,229,184,0.08);padding:0.45rem 1.5rem;display:flex;align-items:center;gap:1rem;">
   <span style="font-family:'Abril Fatface',serif;font-size:1rem;color:#F4E5B8;">THE DIGITAL DECODER</span>
   <span style="color:rgba(244,229,184,0.2);font-size:0.8rem;">/</span>
-  <span style="font-family:'Oswald',sans-serif;font-size:0.6rem;letter-spacing:0.2em;color:#BF1515;">TECH RESILIENCE NO. 1</span>
+  <span style="font-family:'Oswald',sans-serif;font-size:0.75rem;letter-spacing:0.2em;color:#FF5A4F;">TECH RESILIENCE NO. 1</span>
 </nav>
 <header class="masthead">
   <div class="masthead-top">
@@ -623,8 +649,15 @@ footer {
       <div class="interactive-inner">
         <div class="ring-layout">
           <div class="ring-canvas-wrap">
-            <canvas id="ringCanvas" width="300" height="300"></canvas>
-            <p class="ring-hint">☜ drag the inner disc to change the key</p>
+            <canvas id="ringCanvas" width="300" height="300" tabindex="0" role="slider"
+              aria-label="Decoder ring, secret key" aria-valuemin="0" aria-valuemax="25"
+              aria-valuenow="3" aria-valuetext="Shift +3" aria-describedby="ringHint"></canvas>
+            <p class="ring-hint" id="ringHint">☜ drag the inner disc, or use the arrow keys or the buttons, to change the key</p>
+            <div class="ring-step">
+              <button type="button" id="keyBack">◀ Back one</button>
+              <button type="button" id="keyForward">Forward one ▶</button>
+            </div>
+            <p class="visually-hidden" id="ringStatus" role="status" aria-live="polite"></p>
           </div>
           <div class="ring-controls">
             <div class="shift-badge">
@@ -632,11 +665,11 @@ footer {
               <span>SHIFT +<span id="shiftVal" class="shift-val">3</span></span>
             </div>
             <div class="mode-toggle">
-              <button id="encodeBtn" class="active" onclick="setMode('encode')">ENCODE</button>
-              <button id="decodeBtn" onclick="setMode('decode')">DECODE</button>
+              <button type="button" id="encodeBtn" class="active" aria-pressed="true" onclick="setMode('encode')">ENCODE</button>
+              <button type="button" id="decodeBtn" aria-pressed="false" onclick="setMode('decode')">DECODE</button>
             </div>
             <div class="encoder-section">
-              <label id="inputLabel">Type your message to encode:</label>
+              <label id="inputLabel" for="msgInput">Type your message to encode:</label>
               <input type="text" id="msgInput" placeholder="e.g. HELLO WORLD" maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
             </div>
             <div class="code-output">
@@ -681,8 +714,8 @@ footer {
       <div class="interactive-label">★ &nbsp; THE BIG RACE: CLASSICAL vs. QUANTUM &nbsp; ★</div>
       <div class="interactive-inner">
         <div class="race-controls">
-          <label>Secret code length: <span class="bits-display" id="bitsDisplay">8</span> bits</label>
-          <input type="range" id="bitsSlider" min="4" max="16" step="2" value="8">
+          <label for="bitsSlider">Secret code length: <span class="bits-display" id="bitsDisplay">8</span> bits</label>
+          <input type="range" id="bitsSlider" min="4" max="16" step="2" value="8" aria-valuetext="8 bits">
           <div class="race-stats">
             <span class="stat">Classical must try: <strong id="classGuesses">256</strong> combos</span>
             <span class="stat">Quantum checks: <strong id="quantGuesses">~16</strong> at once</span>
@@ -702,7 +735,8 @@ footer {
             <div class="panel-status" id="quantStatus">Ready to crack...</div>
           </div>
         </div>
-        <button class="crack-btn" id="crackBtn" onclick="startRace()">CRACK THE CODE!</button>
+        <button type="button" class="crack-btn" id="crackBtn" onclick="startRace()">CRACK THE CODE!</button>
+        <p class="visually-hidden" id="raceStatus" role="status" aria-live="polite"></p>
         <p class="scale-note" id="scaleNote">Try dragging the slider up to see how the gap between classical and quantum grows exponentially.</p>
       </div>
       <p class="interactive-caption">This is a simplified model. Real encryption uses 256-bit keys — making the gap between classical and quantum even more dramatic.</p>
@@ -720,9 +754,9 @@ footer {
     </div>
 
     <hr class="section-rule">
-    <p style="text-align:center; font-family: var(--f-type); font-size:0.85rem; color:#8a6a30; margin-top:1rem;">
+    <p style="text-align:center; font-family: var(--f-type); font-size:0.85rem; color:#6e5224; margin-top:1rem;">
       — End of Article No. 1 —<br>
-      <em>This article is interactive. Drag the ring, run the race, and pass it on.</em>
+      <em>This article is interactive. Turn the ring, run the race, and pass it on.</em>
     </p>
   </div>
 </div>
@@ -1001,6 +1035,50 @@ canvas.addEventListener('touchend', () => {
   if (isDragging) { isDragging = false; snapToNearest(); }
 });
 
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let announceShift = false;
+
+// Turn the ring by whole letters: arrow keys on the ring, or the two buttons.
+// Dragging is never the only way to change the key (WCAG 2.1.1, 2.5.7).
+function turnTo(shift) {
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  isDragging = false;
+  const goal = ((shift % 26) + 26) % 26;
+  let diff = goal * (360 / 26) - (((innerRot % 360) + 360) % 360);
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  targetRot = innerRot + diff;
+  if (reduceMotion) {
+    innerRot = targetRot;
+    isSnapping = false;
+    drawRing(innerRot);
+    updateUI();
+    settled();
+  } else {
+    isSnapping = true;
+    animSnap();
+  }
+}
+function settled() {
+  if (!announceShift) return;
+  announceShift = false;
+  document.getElementById('ringStatus').textContent = 'Secret key: shift +' + getShift();
+}
+function headingShift() {
+  if (!isSnapping) return getShift();
+  return Math.round((((targetRot % 360) + 360) % 360) / (360 / 26)) % 26;
+}
+canvas.addEventListener('keydown', e => {
+  const s = headingShift();
+  const next = { ArrowRight: s + 1, ArrowUp: s + 1, ArrowLeft: s - 1, ArrowDown: s - 1,
+                 PageUp: s + 5, PageDown: s - 5, Home: 0, End: 25 }[e.key];
+  if (next === undefined) return;
+  e.preventDefault();
+  turnTo(next);
+});
+document.getElementById('keyBack').addEventListener('click', () => { announceShift = true; turnTo(headingShift() - 1); });
+document.getElementById('keyForward').addEventListener('click', () => { announceShift = true; turnTo(headingShift() + 1); });
+
 function snapToNearest() {
   const normalized = ((innerRot % 360) + 360) % 360;
   const nearestIndex = Math.round(normalized / (360 / 26)) % 26;
@@ -1022,6 +1100,7 @@ function animSnap() {
     isSnapping = false;
     drawRing(innerRot);
     updateUI();
+    settled();
     return;
   }
   innerRot += delta * 0.22;
@@ -1045,6 +1124,8 @@ function cipher(text, shift, enc) {
 function updateUI() {
   const s = getShift();
   document.getElementById('shiftVal').textContent = s;
+  canvas.setAttribute('aria-valuenow', s);
+  canvas.setAttribute('aria-valuetext', 'Shift +' + s);
 
   const map = LETTERS.split('').slice(0, 6).map(l =>
     `${l}→${LETTERS[(LETTERS.indexOf(l) + s) % 26]}`
@@ -1071,6 +1152,8 @@ function setMode(m) {
   mode = m;
   document.getElementById('encodeBtn').classList.toggle('active', m === 'encode');
   document.getElementById('decodeBtn').classList.toggle('active', m === 'decode');
+  document.getElementById('encodeBtn').setAttribute('aria-pressed', String(m === 'encode'));
+  document.getElementById('decodeBtn').setAttribute('aria-pressed', String(m === 'decode'));
   document.getElementById('inputLabel').textContent =
     m === 'encode' ? 'Type your message to encode:' : 'Type your coded message to decode:';
   document.getElementById('outLabel1').textContent = m === 'encode' ? 'ENCODED:' : 'PLAIN:';
@@ -1100,6 +1183,7 @@ let bits = 8;
 const bitsSlider = document.getElementById('bitsSlider');
 bitsSlider.addEventListener('input', () => {
   bits = parseInt(bitsSlider.value);
+  bitsSlider.setAttribute('aria-valuetext', bits + ' bits');
   resetRace();
 });
 
@@ -1160,6 +1244,7 @@ function toBin(n, pad) {
 function startRace() {
   if (raceRunning) return;
   raceRunning = true;
+  document.getElementById('raceStatus').textContent = '';
   classCurrent = 0;
   quantStep = 0;
   raceTarget = Math.floor(Math.random() * totalCombos);
@@ -1190,6 +1275,7 @@ function startRace() {
       document.getElementById('classBinary').textContent = toBin(raceTarget, bits);
       document.getElementById('classProgress').style.width = '100%';
       document.getElementById('classStatus').textContent = '✓ Found it! (after ' + raceTarget.toLocaleString() + ' tries)';
+      document.getElementById('raceStatus').textContent += ' Classical computer found the code after ' + raceTarget.toLocaleString() + ' tries.';
       document.getElementById('classStatus').classList.add('winner');
       document.getElementById('crackBtn').disabled = false;
       document.getElementById('crackBtn').textContent = 'RACE AGAIN!';
@@ -1236,6 +1322,7 @@ function startRace() {
       container.appendChild(winner);
       document.getElementById('quantProgress').style.width = '100%';
       document.getElementById('quantStatus').textContent = `⚡ SOLVED in ~${quantTotal} operations!`;
+      document.getElementById('raceStatus').textContent += ` Quantum computer solved it in about ${quantTotal} operations.`;
       document.getElementById('quantStatus').classList.add('winner');
     }
   }, quantDelay);
@@ -1255,6 +1342,9 @@ const rmkDone = new Set();
 function rmkOnce(action){ if (rmkDone.has(action)) return; rmkDone.add(action); rmkTrack('demo_interact', { action }); }
 canvas.addEventListener('mousedown', () => rmkOnce('ring_drag'));
 canvas.addEventListener('touchstart', () => rmkOnce('ring_drag'), { passive: true });
+canvas.addEventListener('keydown', e => { if (e.key.startsWith('Arrow') || ['PageUp','PageDown','Home','End'].includes(e.key)) rmkOnce('ring_keys'); });
+document.getElementById('keyBack').addEventListener('click', () => rmkOnce('ring_buttons'));
+document.getElementById('keyForward').addEventListener('click', () => rmkOnce('ring_buttons'));
 document.getElementById('msgInput').addEventListener('input', () => rmkOnce('type_message'));
 document.getElementById('crackBtn').addEventListener('click', () => rmkOnce('race'));
 </script>

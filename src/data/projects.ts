@@ -314,6 +314,7 @@ export const projects: Project[] = [
         'Written by Bonnie Remeika with AI co-writers (ChatGPT, Claude, Gemini), named on the cover. Next is Tech Rosetta, a publishing site where one English source feeds every language edition, and machine-drafted translations wait for a human speaker’s approval.',
       milestone: 'Volume one is on Amazon. The Tech Rosetta site is in progress.',
     },
+    links: [{ href: 'https://www.amazon.com/dp/B0HPSQW11Z', label: 'Get it on Amazon' }],
     stills: [
       {
         src: '/projects/tech-literacy-translated/cover.jpg',

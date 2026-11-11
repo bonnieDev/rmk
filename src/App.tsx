@@ -7,7 +7,7 @@ import { fullTitleOf, posterOf } from './components/ProjectMedia'
 // Retired with the floor redesign (docs/FLOOR-CAMERA.md): the chalk
 // annotations, the changeover cue, the etched attractor and the shape field.
 // Their components stay in src/components if a place for them comes back.
-import { defaultLogoPalette, projects, type Project } from './data/projects'
+import { defaultLogoPalette, projectGroups, projects, type Project } from './data/projects'
 import { sectionReached, track, trackClicks, trackJourney } from './analytics'
 import { listenForDemoSound } from './sound'
 import './App.css'
@@ -104,7 +104,12 @@ export default function App() {
   const onLand = useCallback((id: string) => {
     sectionReached(id === 'home' ? 'hero' : id)
     const i = projects.findIndex((p) => p.id === id)
-    if (i >= 0) track('project_open', { project: fullTitleOf(projects[i]), position: i + 1 })
+    if (i >= 0)
+      track('project_open', {
+        project: fullTitleOf(projects[i]),
+        position: i + 1,
+        group: projectGroups.find((g) => g.id === projects[i].group)?.label ?? '',
+      })
   }, [])
 
   const onOverview = useCallback((from: string) => track('view_from_above', { from }), [])
@@ -249,43 +254,52 @@ function HomeSheet({ live }: { live: boolean }) {
           </h2>
           <p className="label">{num(projects.length - 1)} entries · choose any project</p>
         </div>
-        <ol className="index__rows">
-          {projects.map((p, i) => (
-            <li key={p.id}>
-              <button
-                type="button"
-                className="row"
-                onClick={(e) => go(p.id, e.currentTarget)}
-                onMouseEnter={() => setHovered(p)}
-                onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(p)}
-                onBlur={() => setHovered(null)}
-              >
-                <span className="row__n">{num(i)}</span>{' '}
-                <span className="row__body">
-                  <span className="row__name">
-                    {p.title}
-                    {p.titleEm ? (
-                      <>
-                        {' '}
-                        <em>{p.titleEm}</em>
-                      </>
-                    ) : null}
-                  </span>
-                  <span className="visually-hidden">: </span>
-                  <span className="row__t">{p.what}</span>
-                </span>{' '}
-                <span className="row__c">{p.category}</span>
-                <span className="row__thumbs" aria-hidden="true">
-                  {thumbsOf(p).map((src) => (
-                    <img key={src} src={src} alt="" loading="lazy" decoding="async" />
-                  ))}
-                  <span className="row__arrow">→</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ol>
+        {projectGroups.map((g) => (
+          <div className="index__group" key={g.id}>
+            <h3 className="index__group-title" id={`index-${g.id}`}>
+              {g.label}
+            </h3>
+            <ol className="index__rows" aria-labelledby={`index-${g.id}`}>
+              {projects
+                .filter((p) => p.group === g.id)
+                .map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      className="row"
+                      onClick={(e) => go(p.id, e.currentTarget)}
+                      onMouseEnter={() => setHovered(p)}
+                      onMouseLeave={() => setHovered(null)}
+                      onFocus={() => setHovered(p)}
+                      onBlur={() => setHovered(null)}
+                    >
+                      <span className="row__n">{num(projects.indexOf(p))}</span>{' '}
+                      <span className="row__body">
+                        <span className="row__name">
+                          {p.title}
+                          {p.titleEm ? (
+                            <>
+                              {' '}
+                              <em>{p.titleEm}</em>
+                            </>
+                          ) : null}
+                        </span>
+                        <span className="visually-hidden">: </span>
+                        <span className="row__t">{p.what}</span>
+                      </span>{' '}
+                      <span className="row__c">{p.category}</span>
+                      <span className="row__thumbs" aria-hidden="true">
+                        {thumbsOf(p).map((src) => (
+                          <img key={src} src={src} alt="" loading="lazy" decoding="async" />
+                        ))}
+                        <span className="row__arrow">→</span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+            </ol>
+          </div>
+        ))}
       </section>
 
       <SiteFoot />

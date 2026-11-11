@@ -194,6 +194,19 @@
   border-top: 1px solid var(--rmk-line);
 }
 
+/* The index runs in three parts: complex interfaces, accessibility, creative */
+.index__group-title {
+  margin: 0;
+  padding: 36px var(--rmk-sheet-pad) 12px;
+  border-top: 1px solid var(--rmk-line-strong);
+  font-family: var(--rmk-font-mono);
+  font-size: var(--rmk-meta-size);
+  font-weight: 500;
+  letter-spacing: var(--rmk-meta-track);
+  text-transform: uppercase;
+  color: var(--rmk-amber);
+}
+
 .row {
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr) auto 220px;

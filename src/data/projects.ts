@@ -38,8 +38,18 @@ export interface ProjectStatus {
   live?: boolean
 }
 
+/** Which part of the index a project sits in, in this order */
+export type ProjectGroup = 'interfaces' | 'access' | 'creative'
+
+export const projectGroups: { id: ProjectGroup; label: string }[] = [
+  { id: 'interfaces', label: 'Complex interfaces' },
+  { id: 'access', label: 'Accessibility' },
+  { id: 'creative', label: 'Creative work' },
+]
+
 export interface Project {
   id: string
+  group: ProjectGroup
   title: string
   titleEm?: string
   /** Catalog classification, e.g. ORIGINAL IP — rendered as `01 / ORIGINAL IP` */
@@ -98,6 +108,7 @@ const MARK = {
 export const projects: Project[] = [
   {
     id: 'aether-command',
+    group: 'interfaces',
     title: 'Aether',
     titleEm: 'Command',
     category: 'SYSTEM ARCHITECTURE',
@@ -137,7 +148,31 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.pale] },
   },
   {
+    id: 'lil-swaps',
+    group: 'interfaces',
+    title: 'lil',
+    titleEm: 'swaps',
+    category: 'BEHAVIOR SYSTEM',
+    what: 'A card game about real climate fixes',
+    tagline:
+      'A collectible-card game built on current environmental research — every card is a change someone actually made, ranked by how much it measurably cut.',
+    role: 'Product design · Front-end · WebGL',
+    pipeline: ['React + Vite', 'WebGL card shaders', 'Research sweep', 'Voiced announcer'],
+    status: { label: 'Playable build', accent: 'coral', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Environmental advice fails in both directions: too shallow to act on, or too dependent on evidence that moves faster than anyone can follow. And acting produces no feedback — you change a habit and nothing visibly happens, so nothing sticks.',
+      pipeline:
+        'A research sweep distills current findings into ten ranked offenders, each carrying sourced reasoning and realistic alternatives priced in absolute footprint points. Committing one is a game action: the choice becomes a collectible whose rarity is earned by the measured reduction, dealt in WebGL with the card flip, the cut and the announcer all landing on a single frame.',
+      milestone:
+        'Learn → Swap → Collect playable end to end. Share, Ripple and Return designed and specified, not yet built.',
+    },
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.cyan] },
+  },
+  {
     id: 'otherly',
+    group: 'interfaces',
     title: 'Otherly',
     titleEm: '& SNBN',
     category: 'COMMERCE SYSTEM',
@@ -180,7 +215,56 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.pale] },
   },
   {
+    id: 'kinedic-bloom',
+    group: 'access',
+    title: 'Kinedic',
+    titleEm: 'Bloom',
+    category: 'INTERACTION SYSTEM',
+    what: 'An interface that adapts to you',
+    tagline:
+      'An interface that adapts to the person using it, reading friction as it happens instead of asking people to declare their limitations up front.',
+    role: 'Interaction design · Systems',
+    pipeline: ['Behavioral signals', 'Friction model', 'Adaptive layout', 'Tab-ready check', 'Friction report', 'Open source · GPLv3'],
+    status: { label: 'v0.7 · open source', accent: 'magenta', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'Interfaces decide what you can do before they know anything about you. The page loads assuming you can see it, read it, aim a pointer and fill in a form, and the accessibility settings that might help sit behind those same abilities. Asking people to declare their limitations once, up front, also misses that need changes by the hour: fatigue, tremor, distraction.',
+      pipeline:
+        'An adaptive layer notices when someone is struggling with the page and responds in real time: it enlarges controls, widens spacing and simplifies complex questions. No declaration, no mode switch. If friction keeps climbing, the design hands off to a voice mode, so the person can finish the task by talking instead of fighting the screen.',
+      milestone:
+        'v0.7 is open source and runs on desktop, phone and tablet in the live demo: larger targets, a “Shaky hands?” offer that makes everything bigger, text that gets bigger on its own when someone seems to be hunting for a way to enlarge it, keyboard mode with spoken-ready descriptions, a tab-ready check that fixes what it safely can, autofill and readable phone numbers, a friction report of what people wanted and what they hit instead, an easy form, a request for a call or a doctor’s help that goes with the form (only if the person chooses), and a break you can pause and come back to. Voice and database hooks are marked for developers to plug in.',
+    },
+    demoEmbed: '/demos/kinedic-bloom.html',
+    logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
+  },
+  {
+    id: 'digital-decoder',
+    group: 'access',
+    title: 'The Digital',
+    titleEm: 'Decoder',
+    category: 'EXPLAINER DESIGN',
+    what: 'A tech explainer you can play with',
+    tagline:
+      'Tech literacy in plain English, set as a newspaper you can play with. Issue No. 1 makes quantum computing’s threat to encryption land without a technical background.',
+    role: 'Writing · Editorial design · Front-end',
+    pipeline: ['Plain-language script', 'Editorial layout', 'Interactive cipher', 'Classical vs. quantum race'],
+    status: { label: 'Issue No. 1', accent: 'yellow' },
+    year: '2026',
+    brief: {
+      problem:
+        'Quantum computing’s threat to encryption is usually explained in jargon, which loses exactly the people who most need to understand it. The piece had to make the idea land for a reader with no technical background, without scaring them.',
+      pipeline:
+        'It starts from something familiar, a Cracker Jack decoder ring, and builds from there. Two interactions carry the argument: drag the ring to encode and decode a message with a real Caesar cipher, then drag a slider to watch the gap between a classical and a quantum computer grow with key length. One self-contained page, set as a vintage broadsheet.',
+      milestone:
+        'Issue No. 1, “The Digital Decoder Ring,” is complete. More tech-literacy issues to follow.',
+    },
+    demoEmbed: '/demos/digital-decoder-ring.html',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.blue] },
+  },
+  {
     id: 'skull-and-beau',
+    group: 'creative',
     title: 'Skull',
     titleEm: '& Beau',
     category: 'ORIGINAL IP',
@@ -208,6 +292,7 @@ export const projects: Project[] = [
   },
   {
     id: 'kitty-n-pip',
+    group: 'creative',
     title: 'Kitty',
     titleEm: '& Pip',
     category: 'ORIGINAL IP',
@@ -268,6 +353,7 @@ export const projects: Project[] = [
   },
   {
     id: 'cher-bomba',
+    group: 'creative',
     title: 'Cher',
     titleEm: 'Bomba',
     category: 'MOTION',
@@ -294,103 +380,8 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {
-    id: 'kinedic-drop',
-    title: 'Kinedic',
-    titleEm: 'Drop',
-    category: 'BRAND MOTION',
-    what: 'A logo animation, built in code',
-    tagline:
-      'A mark that arrives instead of appearing: one drop falls, the page ripples, and the logo rises out of the impact. Vectors and code, no video.',
-    role: 'Brand · Motion · Front-end',
-    pipeline: ['Vector mark', 'CSS keyframes', 'SVG displacement ripple', 'Next.js'],
-    status: { label: 'Live', accent: 'cyan', live: true },
-    year: '2026',
-    brief: {
-      problem:
-        'A logo that fades in says nothing about the brand. Kinedic is about potential energy becoming kinetic, so the mark had to arrive that way: held, released, and felt across the whole page.',
-      pipeline:
-        'One four-second timeline in CSS. The drop shifts from copper to blue as it falls, a flash and two rings fire on impact, and the mark, wordmark and tagline rise in sequence. The ripple is an SVG displacement filter over the live page, grown frame by frame from a map drawn once to a canvas, then removed once the wave has passed. Visitors who prefer reduced motion get the finished mark.',
-      milestone:
-        'Complete. Plays when opened; the replay control runs it again.',
-    },
-    demoEmbed: '/demos/kinedic-drop/index.html',
-    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
-  },
-  {
-    id: 'frostbyte',
-    title: 'Frost',
-    titleEm: 'Byte',
-    category: 'EDUCATION · NARRATIVE',
-    what: 'An educational character and story world',
-    tagline:
-      'A programmer torn out of time and reborn as Frostbyte, a being of cold logic haunted by feelings she can’t name. With the Tablet of Light she reads history like a database, and every day she and her viewers, the Sparks, solve a mystery together.',
-    role: 'Worldbuilding · Learning design · Research method',
-    pipeline: ['Tablet of Light (daily mysteries)', 'Teaching loop: Freeze → Reveal → Connect', 'FrostByte Codex', 'AI video'],
-    status: { label: 'In development', accent: 'yellow' },
-    year: '2026',
-    brief: {
-      problem:
-        'Most tech education either bores people or scares them. Explaining the wires, satellites and systems that run everyday life tends to leave people more anxious about technology, not more capable with it.',
-      pipeline:
-        'Frostbyte teaches in four beats: Freeze the moment so the noise drops away, Reveal the hidden layers (fiber under the street, satellites overhead), Connect them to the viewer’s own life, and close with Gratitude, never fear. The Tablet of Light app turns it into a daily mystery the Sparks solve with her. Underneath is the FrostByte Codex: in 2025 I became the first to use AI to systematically cross-check the Hermetic Principles, principle by principle, against neuroscience, quantum physics, fractal geometry, thermodynamics, chaos theory, biology and the major world faiths, diffing each tradition like two versions of code.',
-      milestone:
-        'Character, world, teaching loop and the Codex are established; the Tablet of Light app and the first teaching scenes are in development.',
-    },
-    links: [
-      { href: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7365617344020189186/', label: 'The FrostByte Codex, timestamped on LinkedIn (2025)' },
-    ],
-    videoEmbed:
-      'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/28c267ddd2cafd0073aa94aca59c2592/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F28c267ddd2cafd0073aa94aca59c2592%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
-    logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },
-  },
-  {
-    id: 'listening-room',
-    title: 'Listening',
-    titleEm: 'Room',
-    category: 'SCORE SYSTEM',
-    what: 'A map with its own score',
-    tagline:
-      'An original score for a map, where nobody picks the track \u2014 the year you are looking at and the place you are looking at pick it for you.',
-    role: 'Composition \u00b7 Systems \u00b7 Front-end',
-    pipeline: ['Score manifest', 'Time \u00d7 place resolver', 'Two-deck crossfade', 'Live audition room'],
-    status: { label: 'Playable', accent: 'magenta', live: true },
-    year: '2026',
-    brief: {
-      problem:
-        'A soundtrack keyed to time alone cannot answer a map. At 800 CE the Rhine, Baghdad and the Orkhon are all true at once, and a timeline has no way to say which one is on screen \u2014 so the score either picks one civilisation and is wrong about the others, or plays nothing.',
-      pipeline:
-        'Every track declares a year window and, where it belongs to a people rather than a period, a home ground. Time decides what is possible; place decides which of the possible, and a track playing outside the ground it names is penalised rather than merely unrewarded. One track claims no moment at all and plays when nothing specific does. The player runs two decks so the handover is a crossfade rather than a cut.',
-      milestone:
-        'Eight tracks resolving by time and place, running inside the source application; the audition room publishes the manifest so the selection logic is legible without it.',
-    },
-    demoEmbed: '/demos/listening-room.html',
-    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.copper] },
-  },
-  {
-    id: 'digital-decoder',
-    title: 'The Digital',
-    titleEm: 'Decoder',
-    category: 'EXPLAINER DESIGN',
-    what: 'A tech explainer you can play with',
-    tagline:
-      'Tech literacy in plain English, set as a newspaper you can play with. Issue No. 1 makes quantum computing’s threat to encryption land without a technical background.',
-    role: 'Writing · Editorial design · Front-end',
-    pipeline: ['Plain-language script', 'Editorial layout', 'Interactive cipher', 'Classical vs. quantum race'],
-    status: { label: 'Issue No. 1', accent: 'yellow' },
-    year: '2026',
-    brief: {
-      problem:
-        'Quantum computing’s threat to encryption is usually explained in jargon, which loses exactly the people who most need to understand it. The piece had to make the idea land for a reader with no technical background, without scaring them.',
-      pipeline:
-        'It starts from something familiar, a Cracker Jack decoder ring, and builds from there. Two interactions carry the argument: drag the ring to encode and decode a message with a real Caesar cipher, then drag a slider to watch the gap between a classical and a quantum computer grow with key length. One self-contained page, set as a vintage broadsheet.',
-      milestone:
-        'Issue No. 1, “The Digital Decoder Ring,” is complete. More tech-literacy issues to follow.',
-    },
-    demoEmbed: '/demos/digital-decoder-ring.html',
-    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.blue] },
-  },
-  {
     id: 'bunny-anarchy',
+    group: 'creative',
     title: 'Bunny',
     titleEm: 'Anarchy',
     category: 'ORIGINAL IP',
@@ -429,51 +420,81 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
   },
   {
-    id: 'lil-swaps',
-    title: 'lil',
-    titleEm: 'swaps',
-    category: 'BEHAVIOR SYSTEM',
-    what: 'A card game about real climate fixes',
+    id: 'kinedic-drop',
+    group: 'creative',
+    title: 'Kinedic',
+    titleEm: 'Drop',
+    category: 'BRAND MOTION',
+    what: 'A logo animation, built in code',
     tagline:
-      'A collectible-card game built on current environmental research — every card is a change someone actually made, ranked by how much it measurably cut.',
-    role: 'Product design · Front-end · WebGL',
-    pipeline: ['React + Vite', 'WebGL card shaders', 'Research sweep', 'Voiced announcer'],
-    status: { label: 'Playable build', accent: 'coral', live: true },
+      'A mark that arrives instead of appearing: one drop falls, the page ripples, and the logo rises out of the impact. Vectors and code, no video.',
+    role: 'Brand · Motion · Front-end',
+    pipeline: ['Vector mark', 'CSS keyframes', 'SVG displacement ripple', 'Next.js'],
+    status: { label: 'Live', accent: 'cyan', live: true },
     year: '2026',
     brief: {
       problem:
-        'Environmental advice fails in both directions: too shallow to act on, or too dependent on evidence that moves faster than anyone can follow. And acting produces no feedback — you change a habit and nothing visibly happens, so nothing sticks.',
+        'A logo that fades in says nothing about the brand. Kinedic is about potential energy becoming kinetic, so the mark had to arrive that way: held, released, and felt across the whole page.',
       pipeline:
-        'A research sweep distills current findings into ten ranked offenders, each carrying sourced reasoning and realistic alternatives priced in absolute footprint points. Committing one is a game action: the choice becomes a collectible whose rarity is earned by the measured reduction, dealt in WebGL with the card flip, the cut and the announcer all landing on a single frame.',
+        'One four-second timeline in CSS. The drop shifts from copper to blue as it falls, a flash and two rings fire on impact, and the mark, wordmark and tagline rise in sequence. The ripple is an SVG displacement filter over the live page, grown frame by frame from a map drawn once to a canvas, then removed once the wave has passed. Visitors who prefer reduced motion get the finished mark.',
       milestone:
-        'Learn → Swap → Collect playable end to end. Share, Ripple and Return designed and specified, not yet built.',
+        'Complete. Plays when opened; the replay control runs it again.',
     },
-    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.pale, MARK.cyan] },
+    demoEmbed: '/demos/kinedic-drop/index.html',
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {
-    id: 'kinedic-bloom',
-    title: 'Kinedic',
-    titleEm: 'Bloom',
-    category: 'INTERACTION SYSTEM',
-    what: 'An interface that adapts to you',
+    id: 'listening-room',
+    group: 'creative',
+    title: 'Listening',
+    titleEm: 'Room',
+    category: 'SCORE SYSTEM',
+    what: 'A map with its own score',
     tagline:
-      'An interface that adapts to the person using it, reading friction as it happens instead of asking people to declare their limitations up front.',
-    role: 'Interaction design · Systems',
-    pipeline: ['Behavioral signals', 'Friction model', 'Adaptive layout', 'Tab-ready check', 'Friction report', 'Open source · GPLv3'],
-    status: { label: 'v0.7 · open source', accent: 'magenta', live: true },
+      'An original score for a map, where nobody picks the track \u2014 the year you are looking at and the place you are looking at pick it for you.',
+    role: 'Composition \u00b7 Systems \u00b7 Front-end',
+    pipeline: ['Score manifest', 'Time \u00d7 place resolver', 'Two-deck crossfade', 'Live audition room'],
+    status: { label: 'Playable', accent: 'magenta', live: true },
     year: '2026',
     brief: {
       problem:
-        'Interfaces decide what you can do before they know anything about you. The page loads assuming you can see it, read it, aim a pointer and fill in a form, and the accessibility settings that might help sit behind those same abilities. Asking people to declare their limitations once, up front, also misses that need changes by the hour: fatigue, tremor, distraction.',
+        'A soundtrack keyed to time alone cannot answer a map. At 800 CE the Rhine, Baghdad and the Orkhon are all true at once, and a timeline has no way to say which one is on screen \u2014 so the score either picks one civilisation and is wrong about the others, or plays nothing.',
       pipeline:
-        'An adaptive layer reads continuous behavioral signals, like pointer jitter, dwell time and missed targets, then enlarges controls, widens spacing and simplifies complex questions in real time. No declaration, no mode switch. If friction keeps climbing, the design hands off to a voice mode, so the person can finish the task by talking instead of fighting the screen.',
+        'Every track declares a year window and, where it belongs to a people rather than a period, a home ground. Time decides what is possible; place decides which of the possible, and a track playing outside the ground it names is penalised rather than merely unrewarded. One track claims no moment at all and plays when nothing specific does. The player runs two decks so the handover is a crossfade rather than a cut.',
       milestone:
-        'v0.7 is open source and runs on desktop, phone and tablet in the live demo: larger targets, a “Shaky hands?” offer that makes everything bigger, text that gets bigger on its own when someone seems to be hunting for a way to enlarge it, keyboard mode with spoken-ready descriptions, a tab-ready check that fixes what it safely can, autofill and readable phone numbers, a friction report of what people wanted and what they hit instead, an easy form, a request for a call or a doctor’s help that goes with the form (only if the person chooses), and a break you can pause and come back to. Voice and database hooks are marked for developers to plug in.',
+        'Eight tracks resolving by time and place, running inside the source application; the audition room publishes the manifest so the selection logic is legible without it.',
     },
-    demoEmbed: '/demos/kinedic-bloom.html',
-    links: [{ href: 'https://github.com/bonnieDev/kinedic-bloom', label: 'github.com/bonnieDev/kinedic-bloom' }],
-    logoPalette: { ink: BASE, accents: [MARK.blue, MARK.cyan, MARK.copper] },
+    demoEmbed: '/demos/listening-room.html',
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.blue, MARK.copper] },
   },
+  {
+    id: 'frostbyte',
+    group: 'creative',
+    title: 'Frost',
+    titleEm: 'Byte',
+    category: 'EDUCATION · NARRATIVE',
+    what: 'An educational character and story world',
+    tagline:
+      'A programmer torn out of time and reborn as Frostbyte, a being of cold logic haunted by feelings she can’t name. With the Tablet of Light she reads history like a database, and every day she and her viewers, the Sparks, solve a mystery together.',
+    role: 'Worldbuilding · Learning design · Research method',
+    pipeline: ['Tablet of Light (daily mysteries)', 'Teaching loop: Freeze → Reveal → Connect', 'FrostByte Codex', 'AI video'],
+    status: { label: 'In development', accent: 'yellow' },
+    year: '2026',
+    brief: {
+      problem:
+        'Most tech education either bores people or scares them. Explaining the wires, satellites and systems that run everyday life tends to leave people more anxious about technology, not more capable with it.',
+      pipeline:
+        'Frostbyte teaches in four beats: Freeze the moment so the noise drops away, Reveal the hidden layers (fiber under the street, satellites overhead), Connect them to the viewer’s own life, and close with Gratitude, never fear. The Tablet of Light app turns it into a daily mystery the Sparks solve with her. Underneath is the FrostByte Codex: in 2025 I became the first to use AI to systematically cross-check the Hermetic Principles, principle by principle, against neuroscience, quantum physics, fractal geometry, thermodynamics, chaos theory, biology and the major world faiths, diffing each tradition like two versions of code.',
+      milestone:
+        'Character, world, teaching loop and the Codex are established; the Tablet of Light app and the first teaching scenes are in development.',
+    },
+    links: [
+      { href: 'https://www.linkedin.com/feed/update/urn:li:ugcPost:7365617344020189186/', label: 'The FrostByte Codex, timestamped on LinkedIn (2025)' },
+    ],
+    videoEmbed:
+      'https://customer-b3v92lqv0bluwpls.cloudflarestream.com/28c267ddd2cafd0073aa94aca59c2592/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=auto&letterboxColor=transparent&poster=https%3A%2F%2Fcustomer-b3v92lqv0bluwpls.cloudflarestream.com%2F28c267ddd2cafd0073aa94aca59c2592%2Fthumbnails%2Fthumbnail.jpg%3Ftime%3D1s%26height%3D600',
+    logoPalette: { ink: BASE, accents: [MARK.pale, MARK.cyan, MARK.blue] },
+  }
 ]
 
 /** Quiet default while nothing is hovered — carbon with a single warm tick */

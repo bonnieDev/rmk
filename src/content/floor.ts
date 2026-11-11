@@ -18,19 +18,20 @@ export interface FloorSpot {
 export const floor = {
   grid: { cols: 5, rows: 3, gapX: 0.22, gapY: 0.3 },
   sheets: [
-    { id: 'frostbyte', col: 0, row: 0, rotation: 1.4 },
-    { id: 'kitty-n-pip', col: 1, row: 0, rotation: -2.4 },
+    // Complex interfaces and accessibility sit around Home; creative work on the outside
+    { id: 'kitty-n-pip', col: 0, row: 0, rotation: -2.4 },
+    { id: 'digital-decoder', col: 1, row: 0, rotation: -1.2 },
     { id: 'aether-command', col: 2, row: 0, rotation: 1.1 },
-    { id: 'otherly', col: 3, row: 0, rotation: -1.3 },
+    { id: 'lil-swaps', col: 3, row: 0, rotation: -2.1 },
     { id: 'listening-room', col: 4, row: 0, rotation: 1.9 },
 
-    { id: 'lil-swaps', col: 0, row: 1, rotation: -2.1 },
-    { id: 'cher-bomba', col: 1, row: 1, rotation: 1.8 },
+    { id: 'cher-bomba', col: 0, row: 1, rotation: 1.8 },
+    { id: 'kinedic-bloom', col: 1, row: 1, rotation: 2.6 },
     { id: 'home', col: 2, row: 1, rotation: 0 },
-    { id: 'skull-and-beau', col: 3, row: 1, rotation: 2.2 },
-    { id: 'digital-decoder', col: 4, row: 1, rotation: -1.2 },
+    { id: 'otherly', col: 3, row: 1, rotation: -1.3 },
+    { id: 'skull-and-beau', col: 4, row: 1, rotation: 2.2 },
 
-    { id: 'kinedic-bloom', col: 0, row: 2, rotation: 2.6 },
+    { id: 'frostbyte', col: 0, row: 2, rotation: 1.4 },
     { id: 'bunny-anarchy', col: 1, row: 2, rotation: -1.6 },
     { id: 'about', col: 2, row: 2, rotation: 0.9 },
     { id: 'kinedic-drop', col: 3, row: 2, rotation: -2.8 },

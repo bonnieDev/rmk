@@ -127,6 +127,8 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   const layoutRef = useRef(layout)
   const camRef = useRef<Cam>(focusCam(layout.sheets[start.id]))
   const focusRef = useRef<string | null>(start.id)
+  /** a floor sheet button to focus as soon as the floor buttons render */
+  const hitFocusRef = useRef<string | null>(null)
   const upRef = useRef(false)
   const busyRef = useRef(false)
   /** the roaming glide's frame (useRoam) */
@@ -277,9 +279,9 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
           setAnnounce(
             `Floor view. ${labelOf(toId)?.label} is lined up: choose it to open it, or choose another sheet.`,
           )
-          requestAnimationFrame(() =>
-            document.querySelector<HTMLElement>(`.floor__hit[data-for="${toId}"]`)?.focus({ preventScroll: true }),
-          )
+          // keyboard goes to the lined-up sheet, so Enter goes in (focused
+          // once the floor buttons have rendered, see the effect below)
+          hitFocusRef.current = toId
           return
         }
       }
@@ -309,9 +311,7 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
     setAnnounce('View from above. Every project is laid out on the floor; choose one to open it.')
     onOverviewRef.current?.(fromId)
     // keep the keyboard where it was: on the sheet you came from
-    requestAnimationFrame(() =>
-      document.querySelector<HTMLElement>(`.floor__hit[data-for="${fromId}"]`)?.focus({ preventScroll: true }),
-    )
+    hitFocusRef.current = fromId
   }, [])
 
   // first paint: land on the address's sheet with no flight
@@ -408,6 +408,16 @@ export function Floor({ sheets, onLand, onOverview }: FloorProps) {
   )
   const L = layout
   const resting = up && !flying
+
+  // The floor's sheet buttons only exist while resting, so focus waits for
+  // them to render. Focusing on the next frame raced React's commit and left
+  // keyboard users on <body> (WCAG 2.4.3).
+  useEffect(() => {
+    if (!resting || !hitFocusRef.current) return
+    const id = hitFocusRef.current
+    hitFocusRef.current = null
+    document.querySelector<HTMLElement>(`.floor__hit[data-for="${id}"]`)?.focus({ preventScroll: true })
+  }, [resting, pending])
   const last = labelOf(lastId)
 
   return (

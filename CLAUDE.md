@@ -1,7 +1,7 @@
 # rmk.systems — notes for Claude
 
 Bonnie's portfolio. Vite + React, deployed by pushing `main` (live in about a
-minute). Projects are data in `src/data/projects.ts`; live demos are static
+minute). Projects are data in `src/data/projects.ts`, in three index groups shown in this order: complex interfaces, accessibility, creative work (`group`, labels in `projectGroups`; set for USDS, 2026-11); live demos are static
 pages in `public/demos/`. The site is a floor of sheets seen through a camera
 (`src/components/Floor`, positions and timings in `src/content/floor.ts`):
 Home, one sheet per project (`ProjectSheet`), and About. A new project needs
@@ -89,7 +89,7 @@ without asking.
 | `ui_click` | `part`, `section`, `control` | Any click on a link, button or image, named by where and what ("Kitty & Pip: Next: Cher Bomba"). A project's sheet is named by its title; the view-from-above controls are "Floor". Labels skip decorative and screen-reader-only text |
 | `section_view` | `section`, `order` | A place is first reached: a sheet lands (hero for Home, each project id, about), or Home's index / About's record scrolls into view on the sheet in focus |
 | `page_exit` | `last_section`, `sections_seen`, `seconds_on_page` | Tab hidden or page closed (sent as beacon; can repeat if they return) |
-| `project_open` | `project`, `position` | A project's sheet is landed on (row click, Next, from above, back/forward, or a deep link) |
+| `project_open` | `project`, `position`, `group` (Complex interfaces / Accessibility / Creative work) | A project's sheet is landed on (row click, Next, from above, back/forward, or a deep link) |
 | `view_from_above` | `from` (sheet id) | The camera pulls all the way up (masthead button or Esc) |
 | `nav_click` | `section` | Masthead navigation |
 | `resume_open` | — | Résumé link |
@@ -99,7 +99,7 @@ without asking.
 | `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
 | `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: `bloom_shaky_tried` only (a click on the demo's own button). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
-Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`,
+Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`, `group`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`, `from`.
 
 Outbound links and PDF downloads are recorded automatically by GA's enhanced

@@ -180,7 +180,13 @@ as a bug, not a polish note.
   visitor picks a song, and it follows "one sound at a time" (Web Audio, so it
   posts `rmk-sound-on` itself). Under reduced motion she waits for OK.
   It never hosts a commercial song: the start song slot (`START_SONG`) is for
-  music Bonnie has the rights to stream.
+  music Bonnie has the rights to stream. Since 2026-11-13 it's her own
+  "Git, Git, Giddyup" (`public/demos/color-dance/song.mp3`, made with
+  ElevenLabs Music, drops edited in at 58.12 s and 118.11 s). The source and
+  the unedited version are in `~/Documents/_colorDance`.
+  She finds bass drops when a song loads (6+ beats without low end, then low
+  end that stays) and splashes into a puddle on each, then comes back in full
+  color. No splash under reduced motion.
 
 ### Known gaps (not yet fixed)
 

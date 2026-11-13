@@ -565,7 +565,7 @@ export const projects: Project[] = [
       pipeline:
         'A song you drop in is read in the browser to find its tempo and beats, and the routine is timed to them: quiet passages pull her moves in, loud ones open them up. Her clothes are the color you pick, the picker ring and the blue slider get shoved around as she dances, and the Palette bar turns every color around the wheel.',
       milestone:
-        'Playable. Use your own song, or let her dance to the built-in beat. Made dancing to Marea (We’ve Lost Dancing) by Fred again.. and The Blessed Madonna.',
+        'Playable. She starts with “Git, Git, Giddyup”, a cowboy coding song with my lyrics, and splashes into a puddle on each bass drop. Use your own song to see her dance to anything.',
     },
     demoEmbed: '/demos/color-dance.html',
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.blue] },

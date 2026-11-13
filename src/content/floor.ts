@@ -38,6 +38,7 @@ export const floor = {
     // at the right edge: its long label has open floor beside it
     { id: 'kinedic-tripwire', col: 4, row: 2, rotation: 1.6 },
 
+    { id: 'color-dance', col: 0, row: 3, rotation: -1.4 },
     { id: 'tech-literacy-translated', col: 1, row: 3, rotation: 1.3 },
     // one column over, so the book's long label has open floor beside it
     { id: 'kinedic-drop', col: 3, row: 3, rotation: -1.9 },

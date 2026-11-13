@@ -547,6 +547,30 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.copper, MARK.blue, MARK.cyan] },
   },
   {
+    id: 'color-dance',
+    group: 'creative',
+    title: 'Color',
+    titleEm: 'Dance',
+    category: 'PLAY',
+    what: 'A color picker that gets up and dances',
+    tagline:
+      'The darkest corner of a color picker pools into ink, stands up and dances. Give her a song and she finds its beat; the page takes on whatever color you pick.',
+    role: 'Interaction · Motion · Front-end',
+    pipeline: ['Color picker', 'Beat finder', 'Choreography on the beat', 'WebGL ink'],
+    status: { label: 'Playable', accent: 'magenta', live: true },
+    year: '2026',
+    brief: {
+      problem:
+        'A color picker is the most familiar dialog there is. This one asks what happens when the color you are picking gets up and moves.',
+      pipeline:
+        'A song you drop in is read in the browser to find its tempo and beats, and the routine is timed to them: quiet passages pull her moves in, loud ones open them up. Her clothes are the color you pick, the picker ring and the blue slider get shoved around as she dances, and the Palette bar turns every color around the wheel.',
+      milestone:
+        'Playable. Use your own song, or let her dance to the built-in beat. Made dancing to Marea (We’ve Lost Dancing) by Fred again.. and The Blessed Madonna.',
+    },
+    demoEmbed: '/demos/color-dance.html',
+    logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.blue] },
+  },
+  {
     id: 'listening-room',
     group: 'creative',
     title: 'Listening',

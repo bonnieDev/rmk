@@ -112,8 +112,8 @@ without asking.
 | `contact_click` | `from` (manifest / record / footer / `project: <id>` for a project's LinkedIn button, e.g. Tripwire's case-study request) | Any "contact me on LinkedIn" link. LinkedIn is the only contact on the site: no email, no phone |
 | `video_sound_on` | `video` | Sound toggled on |
 | `video_progress` | `video`, `percent` (25/50/75/100) | Watched with sound to that point |
-| `song_play` / `song_complete` | `demo`, `song_title` | Listening Room |
-| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `ring_keys`, `ring_buttons`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Kinedic Bloom: none (the “Shaky hands?” button was removed 2026-11-11). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
+| `song_play` / `song_complete` | `demo`, `song_title` | Listening Room; Color Dance (a visitor's own song is always `own song`, never its name) |
+| `demo_interact` | `demo`, `action` | Decoder: `ring_drag`, `ring_keys`, `ring_buttons`, `type_message`, `race`. Kinedic drop: `replay`. Skull live (`skull-live.html`): `start`, `start_muted`, `song_pick`, `pause`, `resume`, `camera`, `shop`, `finish`, `section_<name>`. Bunny Anarcade (`bunny-anarcade.html`): `start`, `play_again`, `exit`, `shop`, `game_over` (never the score). Color Dance (`color-dance.html`): `start` (OK or Dance), `stop` (Cancel or Stop), `pick_color`, `pick_blue`, `palette`, `own_song` (never the file name). Kinedic Bloom: none (the “Shaky hands?” button was removed 2026-11-11). Nothing Bloom notices about a visitor is ever sent (Use Policy) |
 
 Registered custom dimensions (Bonnie to confirm in GA): `part`, `control`, `section`, `project`, `group`,
 `video`, `percent`, `song_title`, `demo`, `action`, `last_section`, `from`.
@@ -171,7 +171,24 @@ as a bug, not a polish note.
 - **Contrast:** the palette is checked: faint labels #8c8b87 are 5.7:1 on
   the ground, muted 7.7:1, amber 9.8:1.
 
+- **Color Dance demo** (2026-11-12): the color field and blue slider are
+  keyboard sliders (arrows, Shift for bigger steps; slider also Page Up/Down,
+  Home/End), so dragging is never the only way. The caption ink flips between
+  dark and light where both keep at least 4.5:1 on whatever color the page
+  turns. Phones get big Dance / Stop buttons, because the dialog's OK and
+  Cancel shrink below 24px there (2.5.8). Sound only starts on OK or after a
+  visitor picks a song, and it follows "one sound at a time" (Web Audio, so it
+  posts `rmk-sound-on` itself). Under reduced motion she waits for OK.
+  It never hosts a commercial song: the start song slot (`START_SONG`) is for
+  music Bonnie has the rights to stream.
+
 ### Known gaps (not yet fixed)
+
+- **Color Dance:** the dancer, the ink and the halftone background are
+  visual only. A screen reader hears that she appears and leaves, but not
+  the dance itself. The readouts (H/S/B, RGB, hex, CMYK) aren't announced as
+  they change. On phones the dialog is small, though everything in it can be
+  reached another way.
 
 - **Captions:** no video has captions or a transcript (WCAG 1.2.2 / 1.2.3).
   Cher Bomba is music-led, so at minimum a text description is needed.

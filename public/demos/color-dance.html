@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Color Dance</title>
+<script src="one-sound.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one color-picker dialog, centered and scaled to the window, on a page
+   whose color is the color being picked. Single theme by choice: the picker is the world. */
+:root {
+  color-scheme: light;
+  --ink: #000015;      /* the picker's darkest corner: R0 G0 B21 */
+  --paper: #fbfaf6;    /* field and button faces */
+  --panel: #e8e7e3;    /* dialog body */
+  --line: #a4a3a8;     /* hairlines */
+  --text: #24242c;     /* dialog labels */
+  --focus: #2f6fdf;    /* selection and keyboard focus */
+  --bg: #facc15;       /* page: follows the picked color */
+  --cap: #000015;      /* caption: flips with the page's lightness */
+  --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --display: "Unbounded", "Arial Black", "Helvetica Neue", Impact, sans-serif;
+}
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1 var(--ui);
+  overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  padding: 0 16px; box-sizing: border-box;
+}
+.wrap { position: relative; flex: none; }
+.dialog {
+  position: absolute; width: 572px; height: 340px;
+  transform-origin: 0 0;
+  background: color-mix(in srgb, var(--panel) 56%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(1.25); backdrop-filter: blur(10px) saturate(1.25);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(0,0,21,.16), 0 18px 44px rgba(0,0,21,.16);
+  user-select: none; -webkit-user-select: none;
+}
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#bgc { position: fixed; z-index: 0; }
+.wrap, .cap { z-index: 1; }
+
+.rx { position: absolute; will-change: transform; }
+.title { left: 14px; top: 14px; }
+.drop { left: 258px; top: 8px; width: 18px; height: 18px; color: var(--text); }
+.field {
+  position: absolute; left: 14px; top: 40px; width: 256px; height: 256px;
+  cursor: crosshair; touch-action: none;
+  background:
+    linear-gradient(to right, rgb(0 0 21), rgb(255 0 21)),
+    linear-gradient(to top, rgb(0 0 0), rgb(0 255 0));
+  background-blend-mode: screen;
+}
+.slider {
+  position: absolute; left: 290px; top: 40px; width: 24px; height: 256px;
+  cursor: ns-resize; touch-action: none;
+  background: linear-gradient(to bottom, rgb(250 204 255), rgb(250 204 0));
+}
+.arr { position: absolute; top: 40px; width: 0; height: 0; border: 4px solid transparent; margin-top: -4px; }
+.arr.l { left: 280px; border-left: 7px solid #55555c; border-right: 0; }
+.arr.r { left: 317px; border-right: 7px solid #55555c; border-left: 0; }
+
+.ink {
+  background: color-mix(in srgb, var(--ink) calc(var(--k, 0) * 100%), var(--paper));
+  color: color-mix(in srgb, var(--paper) calc(var(--k, 0) * 100%), var(--text));
+}
+.swatch { left: 334px; top: 42px; width: 62px; height: 80px; background: #facc15; box-shadow: 0 0 0 1px rgba(0,0,21,.35); }
+.cube { left: 405px; top: 80px; width: 16px; height: 16px; color: #6c6c74; }
+.mini { left: 406px; top: 102px; width: 14px; height: 14px; background: #ffcc00; box-shadow: 0 0 0 1px rgba(0,0,21,.35); }
+
+.btn {
+  left: 440px; width: 118px; height: 24px; padding: 0;
+  font: inherit; border: 1px solid #4c4c55; border-radius: 12px; cursor: pointer;
+}
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn.off { border-color: #c4c3c6; color: #9a999f; cursor: default; background: #dedcd8; }
+
+.row { display: flex; align-items: center; gap: 6px; height: 22px; white-space: nowrap; }
+.row b { font-weight: 400; width: 14px; text-align: right; }
+.row b.wide { width: 32px; }
+.rad { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #85858c; background: var(--paper); box-sizing: border-box; flex: none; }
+.rad.on { background: radial-gradient(circle, #2b2b34 0 2.6px, var(--paper) 3.2px); }
+.f {
+  width: 56px; height: 22px; box-sizing: border-box; padding: 0 5px;
+  line-height: 20px; border: 1px solid #b6b5b9; border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.f.sel { border: 2px solid var(--focus); line-height: 18px; padding: 0 4px; }
+.f.sel span { background: color-mix(in srgb, var(--focus) 30%, transparent); padding: 1px 2px; }
+.chk { width: 12px; height: 12px; border: 1px solid #85858c; border-radius: 2px; background: var(--paper); box-sizing: border-box; }
+
+.cap { position: relative; margin: 0; text-align: center; color: var(--cap); flex: none; background: var(--bg);
+       padding: 12px 22px 12px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cap h1 { margin: 0; font: 800 24px/1 var(--display); letter-spacing: .03em; text-transform: uppercase; }
+.cap .line { font: 12px/1.4 var(--ui); max-width: 64ch; }
+.cap .status { min-height: 17px; font: 600 12px/1.4 var(--ui); }
+.songzone {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  min-width: min(440px, 80vw); padding: 14px 28px 13px; cursor: pointer;
+  color: inherit; background: color-mix(in srgb, var(--cap) 9%, transparent);
+  border: 3px dashed currentColor; border-radius: 18px;
+  transition: background .15s, transform .15s;
+}
+.songzone b { font: 800 22px/1 var(--display); letter-spacing: .04em; text-transform: uppercase; }
+.songzone span { font: 500 12px/1.3 var(--display); letter-spacing: .02em; }
+.field:focus-visible, .slider:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.songzone:hover { background: color-mix(in srgb, var(--cap) 18%, transparent); transform: scale(1.02); }
+.songzone:focus-visible, .hue:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+.hue {
+  position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 54px; height: min(72%, 560px); border-radius: 27px; cursor: ns-resize; touch-action: none;
+  color: var(--cap); box-shadow: 0 0 0 3px var(--ink), 0 10px 30px rgba(0,0,21,.25);
+}
+.hue i { position: absolute; left: -7px; right: -7px; height: 16px; margin-top: -8px; border-radius: 8px;
+         background: var(--paper); box-shadow: 0 0 0 3px var(--ink); pointer-events: none; }
+.hue em { position: absolute; left: 50%; top: -30px; transform: translateX(-50%); font: 800 12px/1 var(--display);
+          letter-spacing: .08em; text-transform: uppercase; font-style: normal; white-space: nowrap; }
+/* On phones the dialog's OK and Cancel get small, so the same two actions also come as big buttons (WCAG 2.5.8) */
+.bigbtns { display: none; gap: 10px; }
+.bigbtns button { min-width: 108px; min-height: 44px; font: 800 15px/1 var(--display); text-transform: uppercase;
+                  color: var(--bg); background: var(--cap); border: 0; border-radius: 22px; cursor: pointer; }
+.bigbtns button:focus-visible { outline: 3px solid var(--cap); outline-offset: 3px; }
+@media (max-width: 639px) {
+  /* phones: a slim Palette bar at the edge, and the words keep clear of it */
+  body { padding: 0 52px 0 12px; }
+  .hue { right: 10px; width: 30px; border-radius: 15px; }
+  .hue em { top: auto; bottom: -26px; left: auto; right: -6px; transform: none; }
+  .bigbtns { display: flex; }
+  .songzone { min-width: 0; padding: 12px 16px; }
+  .songzone b { font-size: 18px; }
+}
+.veil {
+  position: fixed; inset: 0; z-index: 10; display: none; place-items: center; pointer-events: none;
+  background: color-mix(in srgb, var(--ink) 74%, transparent); color: var(--paper);
+  font: 800 clamp(28px, 6vw, 60px)/1 var(--display); text-transform: uppercase; letter-spacing: .04em;
+}
+.veil.show { display: grid; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>
+</head>
+<body>
+<canvas id="bgc" aria-hidden="true"></canvas>
+
+<div class="wrap" id="wrap">
+  <div class="dialog" id="dialog">
+    <div class="rx title">Select Color:</div>
+    <svg class="rx drop" viewBox="0 0 18 18" aria-hidden="true"><path d="M12.6 1.8a2.1 2.1 0 0 1 3 3l-2 2 .8.8-1.3 1.3-.8-.8-5.6 5.6-2.6.8-.9-.9.8-2.6 5.6-5.6-.8-.8 1.3-1.3.8.8z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+
+    <div class="field" id="field" role="slider" tabindex="0" aria-label="Color field: red runs left to right, green bottom to top. Arrow keys move the color; Shift moves it further." aria-valuemin="0" aria-valuemax="255" aria-valuenow="250" aria-valuetext="Red 250, green 204"></div>
+    <div class="slider" id="slider" role="slider" tabindex="0" aria-label="Blue" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="255" aria-valuenow="21"></div>
+    <i class="arr l" id="arrL"></i><i class="arr r" id="arrR"></i>
+
+    <div class="rx swatch" id="swatch"></div>
+    <svg class="rx cube" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5 14 5v6.5L8 15 2 11.500V5zM2 5l6 3.5L14 5M8 8.500V15" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+    <div class="rx mini" id="mini"></div>
+
+    <button class="rx btn ink" id="ok" style="top:34px" aria-label="OK: start the dance">OK</button>
+    <button class="rx btn ink" id="cancel" style="top:66px" aria-label="Cancel: send the dancer back to the corner">Cancel</button>
+    <button class="rx btn off" style="top:98px" disabled>Color Swatches</button>
+
+    <div class="rx row" style="left:334px;top:138px"><i class="rad"></i><b>H:</b><span class="f ink" id="vH">46°</span></div>
+    <div class="rx row" style="left:334px;top:164px"><i class="rad"></i><b>S:</b><span class="f ink" id="vS">91%</span></div>
+    <div class="rx row" style="left:334px;top:190px"><i class="rad"></i><b>B:</b><span class="f ink" id="vV">98%</span></div>
+    <div class="rx row" style="left:334px;top:216px"><i class="rad"></i><b>R:</b><span class="f ink" id="vR">250</span></div>
+    <div class="rx row" style="left:334px;top:242px"><i class="rad"></i><b>G:</b><span class="f ink" id="vG">204</span></div>
+    <div class="rx row" style="left:334px;top:268px"><i class="rad on"></i><b>B:</b><span class="f ink" id="vB">21</span></div>
+    <div class="rx row" style="left:334px;top:296px"><b class="wide">#</b><span class="f ink sel"><span id="vX">facc15</span></span></div>
+
+    <div class="rx row" style="left:452px;top:218px"><b>C:</b><span class="f ink" id="vC">0%</span></div>
+    <div class="rx row" style="left:452px;top:244px"><b>M:</b><span class="f ink" id="vM">18%</span></div>
+    <div class="rx row" style="left:452px;top:270px"><b>Y:</b><span class="f ink" id="vY">92%</span></div>
+    <div class="rx row" style="left:452px;top:296px"><b>K:</b><span class="f ink" id="vK">2%</span></div>
+
+  </div>
+  <canvas id="cv" aria-hidden="true"></canvas>
+</div>
+
+<div class="cap">
+  <h1>Color Dance</h1>
+  <div class="bigbtns"><button type="button" id="okBig">Dance</button><button type="button" id="cancelBig">Stop</button></div>
+  <button class="songzone" id="pick" type="button"><b>Use your own song</b><span>Drop one here or click to choose one. She dances to its beat.</span></button>
+  <span class="status" id="status" role="status"></span>
+  <span class="line" id="hint">OK starts the dance, Cancel sends it home. Drag in the picker, or use the arrow keys, to change her color.</span>
+  <span class="line">Made dancing to <i>Marea (We’ve Lost Dancing)</i>, Fred again.. &amp; The Blessed Madonna. Have it? Drop it in.</span>
+</div>
+<div class="hue" id="hue" role="slider" tabindex="0" aria-label="Palette: shift every color around the wheel" aria-valuemin="0" aria-valuemax="360" aria-valuenow="0"><em>Palette</em><i id="hueKnob"></i></div>
+<input type="file" id="file" accept="audio/*" class="sr" tabindex="-1" aria-label="Song file">
+<div class="veil" id="veil" aria-hidden="true">Drop the song</div>
+<p class="sr" aria-live="polite" id="live"></p>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const wrap = $('wrap'), dialog = $('dialog'), cv = $('cv');
+
+/* ---------- geometry, in dialog units (1 unit = 1 CSS px before scaling) ---------- */
+const DW = 572, DH = 340, M = 48;
+const FIELD = { x: 14, y: 40, w: 256, h: 256 };
+const SL = { x: 290, y: 40, w: 24, h: 256 };
+const FLOOR = 301;            // where the dancer's feet land
+const S = 1.25;               // dancer size
+const N = 38;                 // ink primitives sent to the shader
+const NC = 20;                // clothing primitives: crop top (sleeves, shoulders, chest) and flared pants
+const BEAT = 0.52;            // seconds per beat
+const INK = [0, 0, 21];
+const PC = [FIELD.x + 26, FIELD.y + FIELD.h - 20];   // where the ink pools before it stands up
+
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+const sstep = (a, b, x) => ease((x - a) / (b - a));
+
+/* ---------- poses: body units, y up. Arms: 0 hangs down, PI points straight up. ---------- */
+const KEYS = ['hx','hy','lx','ly','lz','rx','ry','rz','sp','ch','hd','la','le','ra','re','air','to','af','gp','gs','gh'];
+/* The body is posed in three dimensions (x to her left-right, y up, z toward the way she faces) and
+   then turned to the viewer, so a chest pushed forward shows whenever she is at an angle.
+   lx/ly/lz, rx/ry/rz: feet.  hx/hy: hips.  sp/ch/hd: side lean of spine, chest, head.
+   la/le, ra/re: arm and elbow angles (0 hangs down, PI points straight up).
+   to: turnout, how far a bent knee points sideways instead of forward.
+   af: how far the forearms come forward.  gp/gs/gh: how much she pumps chest and hips
+   forward-back, sways hips side to side, and moves her head, all locked to the beat. */
+const BASE = { hx:0, hy:85, lx:-9, ly:0, lz:0, rx:9, ry:0, rz:0, sp:0, ch:0, hd:0, la:.25, le:.15, ra:.25, re:.15,
+               air:0, to:.15, af:0, gp:0, gs:0, gh:0 };
+const pose = o => Object.assign({}, BASE, o);
+const mir = p => Object.assign({}, p, { hx:-p.hx, lx:-p.rx, ly:p.ry, lz:p.rz, rx:-p.lx, ry:p.ly, rz:p.lz,
+                                         sp:-p.sp, ch:-p.ch, hd:-p.hd, la:p.ra, le:p.re, ra:p.la, re:p.le });
+const G = { hy:83, lx:-11, lz:4, rx:11, rz:-4, la:.35, le:.5, ra:.35, re:.5, af:.8 };   // the resting groove
+const POSES = {
+  idle:   pose({}),
+  crouch: pose({ hy:42, lx:-15, rx:15, sp:.22, ch:.3, hd:.3, la:.4, le:.7, ra:.4, re:.7, to:.8 }),
+  rise:   pose({ hy:86, lx:-11, rx:11, ch:-.05, hd:-.2, la:2.6, le:.2, ra:2.6, re:.2 }),
+  // freeform: the feet mostly stay put and the middle of the body does the dancing
+  g:      pose(Object.assign({}, G, { gp:1, gs:.6, gh:.7 })),
+  gChest: pose(Object.assign({}, G, { gp:1.5, gs:.2, gh:.5 })),
+  gHips:  pose(Object.assign({}, G, { gp:.5, gs:1.3, gh:.6, la:.6, ra:.6, af:.5 })),
+  gHead:  pose(Object.assign({}, G, { gp:.5, gs:.4, gh:1.5 })),
+  gLow:   pose(Object.assign({}, G, { hy:77, lx:-15, rx:15, to:.5, gp:1.4, gs:.5, gh:.6 })),
+  gUp:    pose(Object.assign({}, G, { gp:.9, gs:.7, gh:.6, ra:2.7, re:.25, hx:3 })),
+  gOut:   pose(Object.assign({}, G, { gp:.7, gs:.8, gh:.6, ra:1.55, re:.1 })),
+  step:   pose(Object.assign({}, G, { hx:-8, lx:-17, rx:1, gp:.8, gs:.4, gh:.7, la:.5, le:.6, ra:.7, re:.6 })),
+  hop:    pose({ hy:85, lx:-12, rx:12, air:16, la:2.7, le:.2, ra:2.7, re:.2, gp:.3, gh:.4 }),
+  turn:   pose({ hy:86, lx:-4, rx:5, la:.5, le:-1.2, ra:.5, re:-1.2, af:.3 }),
+  // shuffle: the running man (a knee comes up as the standing foot slides back) and the T-step (travel sideways)
+  runA:   pose({ hy:82, lx:-3, ly:26, lz:14, rx:5, rz:-10, air:4, la:.5, le:.9, ra:.3, re:.4, af:.9, gp:.4, gh:.5, to:0, q:2, slide:1 }),
+  runB:   pose({ hy:80, lx:-5, lz:6, rx:5, rz:-2, la:.4, le:.6, ra:.4, re:.6, af:.8, gp:.4, gh:.5, to:0, q:2, slide:1 }),
+  tA:     pose({ hy:83, hx:-3, lx:-6, rx:16, ry:20, to:.8, sp:-.06, la:1.0, le:.3, ra:.9, re:.5, af:.2, gs:.5, gh:.5, q:2, slide:1 }),
+  tB:     pose({ hy:81, lx:-6, rx:12, la:.8, le:.4, ra:.8, re:.4, af:.3, gs:.5, gh:.5, q:2, slide:1 }),
+  // toprock: step across and open the arms, then gather
+  top:    pose({ hy:82, hx:-4, lx:-9, rx:-3, rz:16, sp:-.08, la:1.3, le:.15, ra:1.3, re:.15, gp:.5, gh:.6, q:1.6 }),
+  topMid: pose({ hy:84, lx:-11, rx:11, air:3, la:.8, le:-1.5, ra:.8, re:-1.5, af:.3, gp:.5, gh:.6, q:1.6 }),
+  finale: pose({ hx:-4, hy:85, lx:-12, rx:22, sp:-.1, hd:-.2, la:2.8, le:.1, ra:1.2, re:.2 })
+};
+for (const k of ['gUp','gOut','step','runA','runB','tA','tB','top']) POSES[k + 'M'] = mir(POSES[k]);
+
+/* choreography, one entry per beat: [pose or [on the beat, on the "and"], where she stands (dialog x),
+   full turns, which way she faces (0 front, about 1.3 in profile to the right)] */
+const SEQ = [
+  ['g', 86], ['g', 88], ['gChest', 90, 0, .9], ['gChest', 92, 0, .9],
+  ['gHips', 96], ['gHips', 100], ['gHead', 104, 0, -.8], ['gHead', 108, 0, -.8],
+  [['step', 'g'], 118], [['stepM', 'g'], 128], [['step', 'g'], 138], [['stepM', 'gUp'], 148],
+  ['gUp', 152, 0, .5], ['gChest', 156, 0, 1.3], ['gChest', 160, 0, 1.3], ['gLow', 166, 0, 1.3],
+  [['runA', 'runB'], 178, 0, 1.1], [['runAM', 'runBM'], 192, 0, 1.1], [['runA', 'runB'], 208, 0, 1.1], [['runAM', 'runBM'], 224, 0, 1.1],
+  ['gHips', 240], ['gHips', 250], ['gOut', 262], ['gOut', 270],
+  [['tA', 'tB'], 284], [['tA', 'tB'], 298], [['tA', 'tB'], 312], [['tA', 'tB'], 326],
+  ['g', 340, 0, -.9], ['gChest', 348, 0, -.9], ['gHead', 356, 0, .6], ['hop', 366],
+  ['gUp', 380, 0, .4], ['gUpM', 394, 0, -.4], [['top', 'topMid'], 408], [['topM', 'topMid'], 422],
+  [['top', 'topMid'], 436], [['topM', 'topMid'], 450], ['gHips', 462], ['gHips', 470],
+  ['gChest', 476, 0, -1.3], ['gChest', 480, 0, -1.3], ['turn', 480, 1], ['gLow', 476],
+  ['hop', 468], ['gOutM', 456], [['runAM', 'runBM'], 436, 0, -1.1], [['runA', 'runB'], 414, 0, -1.1],
+  [['runAM', 'runBM'], 392, 0, -1.1], [['runA', 'runB'], 370, 0, -1.1], ['gHead', 350], ['gHead', 336],
+  [['tAM', 'tBM'], 318], [['tAM', 'tBM'], 300], [['tAM', 'tBM'], 282], [['tAM', 'tBM'], 264],
+  ['gHips', 244, 0, .7], ['gHips', 226, 0, .7], [['step', 'g'], 206], [['stepM', 'g'], 184],
+  [['step', 'g'], 162], [['stepM', 'g'], 140], ['gChest', 118, 0, -.9], ['gChest', 104, 0, -.9],
+  ['turn', 94, -1], ['hop', 88], ['finale', 86], ['g', 86]
+];
+
+/* spring per pose channel: [stiffness, damping ratio]. Loose arms and head give follow-through. */
+const SPR = { hx:[150,.7], hy:[170,.62], lx:[200,.8], ly:[200,.8], lz:[200,.8], rx:[200,.8], ry:[200,.8], rz:[200,.8],
+              sp:[120,.6], ch:[100,.55], hd:[70,.5], la:[95,.5], le:[75,.45], ra:[95,.5], re:[75,.45], air:[110,.75],
+              to:[90,.8], af:[80,.8], gp:[40,1], gs:[40,1], gh:[40,1] };
+const L = { thigh:42*S, shin:42*S, foot:12.5*S, t1:20*S, t2:22*S, neck:17*S, headR:8.6*S,
+            sh:12*S, hipW:7*S, upper:29*S, fore:27*S, hand:8.5*S };
+
+/* ---------- state ---------- */
+let mode = 'rest';            // rest | summon | dance | dismiss
+let gather = 0, form = 0, time = 0;
+const cur = Object.assign({}, POSES.crouch), vel = {};
+KEYS.forEach(k => vel[k] = 0);
+let tgt = POSES.crouch;
+const root = { x: 84, v: 0, t: 84 };
+let phi = 0, phiV = 0, phiT = 0, yaw = 0, yawV = 0, yawT = 0, seqHalf = -9999;
+const feet = [0, 1].map(() => ({ x: 84, y: 0, lift: 0, stepping: false, s: 0, fx: 0, lead: 0 }));
+const drops = [0, 1, 2, 3].map(() => ({ x: PC[0], y: PC[1], vx: 0, vy: 0 }));
+const DROP_R = [3.2, 3.2, 3.8, 3.8];
+const segs = new Float32Array(N * 4), rads = new Float32Array(N * 2);
+let nseg = 0, box = [-9999, -9999, -9990, -9990], goo = 6;
+let tips = [];
+let ncloth = 0, clothA = 0;
+const cloth = new Float32Array(NC * 4), clothR = new Float32Array(NC * 3);
+const hair = [0, 1, 2, 3, 4, 5, 6].map(() => ({ x: 0, y: 0, vx: 0, vy: 0, ox: 0, oy: 0 }));
+const HAIR_R = [4.6, 4.2, 3.6, 3.0, 2.3, 1.6, .9];
+let hairInit = false;
+
+const home = { x: FIELD.x + 250 / 255 * FIELD.w, y: FIELD.y + (1 - 204 / 255) * FIELD.h, b: 21 };
+const pk = { x: home.x, y: home.y, vx: 0, vy: 0 };
+const sl = { y: SL.y + (1 - home.b / 255) * SL.h, v: 0 };
+let dark = 0;
+const raw = { r: 250, g: 204, b: 21 };            // what the picker ring and blue slider say
+const shown = { r: 250, g: 204, b: 21 };          // the same color after the palette bar's shift
+let hueDeg = 0, hueRows = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+const hueM = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+const hueRowsFor = deg => {
+  const t = deg * Math.PI / 180, c = Math.cos(t), sn = Math.sin(t), a = (1 - c) / 3, b = sn / Math.sqrt(3);
+  return [[c + a, a - b, a + b], [a + b, c + a, a - b], [a - b, a + b, c + a]];
+};
+const hueApply = (m, r, g, b) => [clamp(m[0][0] * r + m[0][1] * g + m[0][2] * b, 0, 255), clamp(m[1][0] * r + m[1][1] * g + m[1][2] * b, 0, 255), clamp(m[2][0] * r + m[2][1] * g + m[2][2] * b, 0, 255)];
+function setHue(deg) {
+  hueDeg = ((deg % 360) + 360) % 360;
+  const m = hueRows = hueRowsFor(hueDeg);
+  hueM.set([m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2]]);   // column-major for GL
+}
+const bg = { r: 250, g: 204, b: 21 };
+
+/* ---------- distance to the dancer, for everything that reacts on the DOM side ---------- */
+function sdfAt(x, y) {
+  let best = 1e3, bx = 0, by = -1;
+  for (let i = 0; i < nseg; i++) {
+    const ax = segs[i*4], ay = segs[i*4+1], ex = segs[i*4+2] - ax, ey = segs[i*4+3] - ay;
+    const px = x - ax, py = y - ay;
+    const h = clamp((px * ex + py * ey) / Math.max(ex * ex + ey * ey, 1e-4), 0, 1);
+    const qx = px - ex * h, qy = py - ey * h, l = Math.hypot(qx, qy);
+    const d = l - lerp(rads[i*2], rads[i*2+1], h);
+    if (d < best) { best = d; if (l > 1e-3) { bx = qx / l; by = qy / l; } }
+  }
+  return { d: best, nx: bx, ny: by };
+}
+
+/* two-bone leg. kf is how far the knee shows to screen-right (-1..1): the rest of the bend points
+   at or away from the viewer, which just makes the leg look shorter. */
+function ik(H, F, l1, l2, kf) {
+  let dx = F[0] - H[0], dy = F[1] - H[1], d = Math.hypot(dx, dy) || 1e-3;
+  const mx = l1 + l2 - 0.5;
+  if (d > mx) { F[0] = H[0] + dx / d * mx; F[1] = H[1] + dy / d * mx; d = mx; }
+  const a = (l1 * l1 - l2 * l2 + d * d) / (2 * d), h = Math.sqrt(Math.max(l1 * l1 - a * a, 0)) * kf;
+  const ux = dx / d, uy = dy / d;
+  let px = -uy, py = ux;
+  if (px < 0 || (Math.abs(px) < .15 && py < 0)) { px = -px; py = -py; }
+  return [H[0] + ux * a + px * h, H[1] + uy * a + py * h];
+}
+
+function footUpdate(f, other, dx, dy, dt, slide) {
+  const want = root.x + dx;
+  if (dy > 3) { f.x = want; f.y = dy; f.stepping = false; f.lift = 0; return; }
+  f.y = Math.max(dy, 0);
+  if (f.stepping) {
+    f.s += dt / 0.2;
+    f.x = lerp(f.fx, want + f.lead, ease(f.s));
+    f.lift = Math.sin(Math.PI * Math.min(f.s, 1)) * 9 * S;
+    if (f.s >= 1) { f.stepping = false; f.lift = 0; }
+  } else if (slide) {
+    f.x += (want - f.x) * clamp(dt * 14, 0, 1);       // shuffling: the planted foot skates
+  } else {
+    const off = Math.abs(want - f.x);
+    if ((off > 10 * S && !other.stepping) || off > 26 * S) {
+      f.stepping = true; f.s = 0; f.fx = f.x; f.lead = clamp(root.v * 0.1, -14, 14);
+    }
+  }
+}
+
+/* ---------- build the body from the current pose ---------- */
+function solve(dt) {
+  nseg = 0; ncloth = 0; tips = [];
+  if (gather <= 0 && form <= 0) { box = [-9999, -9999, -9990, -9990]; return; }
+  const c = cur, face = phi + yaw, cyaw = Math.cos(face), syaw = Math.sin(face);
+  const live = mode === 'dance' ? 1 : 0;
+  // the beat, three ways: 'on' peaks on each beat, 'pm' swings +1 on the beat to -1 between,
+  // 'sw' alternates side to side from one beat to the next
+  const fr = posNow - Math.floor(posNow), on = 0.5 + 0.5 * Math.cos(fr * 6.2832);
+  const pm = (2 * Math.pow(on, 1.4) - 1) * live * (1 + .4 * pulse);
+  const sw = Math.cos(posNow * Math.PI) * live;
+  const hsw = Math.cos(posNow * Math.PI - .7) * live;          // the head follows the hips a moment late
+  const bounce = live * 2.4 * (1 + .8 * pulse) * on;
+  const hipX = root.x + c.hx * S, hipY = (c.hy - bounce + c.air) * S;
+
+  // isolations: hips back and chest forward on the beat, hips side to side, head side to side and nodding
+  const pvx = c.gs * 7 * S * sw, pvz = -c.gp * 6 * S * pm;
+  const chx = -c.gs * 4 * S * sw, chz = c.gp * 7 * S * pm;
+  const hdx = c.gh * 3.5 * S * hsw, hdz = c.gh * 4.5 * S * pm, hdy = -c.gh * 1.6 * S * Math.max(pm, 0);
+  const t1 = c.sp + 0.015 * Math.sin(time * 2.1), t2 = t1 + c.ch, t3 = t2 + c.hd + c.gh * .13 * hsw;
+  const st2 = Math.sin(t2), ct2 = Math.cos(t2), st3 = Math.sin(t3), ct3 = Math.cos(t3);
+
+  // ink climbs from the pool into the figure: low points arrive first
+  const fe = y => form >= 1 ? 1 : ease(form * 1.6 - clamp(y / 205, 0, 1) * 0.6);
+  const W = (x, y) => { const e = fe(y); return [lerp(PC[0], x, e), lerp(PC[1], FLOOR - y, e)]; };
+  const P3 = (x, y, z) => W(hipX + x * cyaw + z * syaw, hipY + y);     // body space, turned to the viewer
+
+  // torso, in body space with the hips at the origin
+  const sx1 = L.t1 * Math.sin(t1), wy = L.t1 * Math.cos(t1);
+  const wx = sx1 + (pvx + chx) * .5, wz = (pvz + chz) * .2;
+  const cx = sx1 + L.t2 * st2 + chx, cY = wy + L.t2 * ct2, cz = chz;
+  const nbx = cx + st2 * 4 * S, nby = cY + ct2 * 4 * S;
+  const nkx = cx + L.neck * st3 + hdx * .5, nky = cY + L.neck * ct3 + hdy * .5, nkz = cz + hdz * .5;
+  const hl = L.neck + L.headR * .9;
+  const hcx = cx + hl * st3 + hdx, hcy = cY + hl * ct3 + hdy, hcz = cz + hdz;
+  const lift = c.gs * 1.8 * S * sw;
+  const sRx = cx + ct2 * L.sh - st2 * 1.5 * S, sRy = cY - st2 * L.sh - ct2 * 1.5 * S + lift;
+  const sLx = cx - ct2 * L.sh - st2 * 1.5 * S, sLy = cY + st2 * L.sh - ct2 * 1.5 * S - lift;
+  const dir = (a, side) => { const x = side * Math.sin(a), y = -Math.cos(a); return [x * ct2 + y * st2, -x * st2 + y * ct2]; };
+  const arm = (x0, y0, a, e, side, bob) => {
+    const d1 = dir(a, side), d2 = dir(a + e, side);
+    const kf = c.af * clamp(1.9 - a, 0, 1);                // a raised arm stays out to the side
+    const f = .12 + .25 * kf, cf = Math.cos(f);
+    const ex = x0 + d1[0] * cf * L.upper, ey = y0 + d1[1] * cf * L.upper, ez = cz + Math.sin(f) * L.upper;
+    const vx = (1 - kf) * d2[0], vy = (1 - kf) * d2[1] + kf * (.25 + bob), vz = kf, vl = Math.hypot(vx, vy, vz) || 1;
+    return [ex, ey, ez, ex + vx / vl * L.fore, ey + vy / vl * L.fore, ez + vz / vl * L.fore];
+  };
+  const aR = arm(sRx, sRy, c.ra + 0.04 * live * Math.sin(time * 2.3 + 1), c.re, 1, .28 * sw + .12 * pm);
+  const aL = arm(sLx, sLy, c.la + 0.04 * live * Math.sin(time * 1.9), c.le, -1, -.28 * sw + .12 * pm);
+
+  // legs: feet plant in the world and step when the body travels; knees come from IK
+  const slide = !!tgt.slide;
+  footUpdate(feet[0], feet[1], c.lx * S * cyaw + c.lz * S * syaw, (c.ly + c.air) * S, dt, slide);
+  footUpdate(feet[1], feet[0], c.rx * S * cyaw + c.rz * S * syaw, (c.ry + c.air) * S, dt, slide);
+  const tilt = c.gs * 2 * S * sw;                              // the hip carrying the weight rides up
+  const hjx = pvx * cyaw + pvz * syaw;
+  const HL = [hipX + hjx - L.hipW * cyaw, hipY - S - tilt], HR = [hipX + hjx + L.hipW * cyaw, hipY - S + tilt];
+  const FL = [feet[0].x, feet[0].y + feet[0].lift + 3 * S], FR = [feet[1].x, feet[1].y + feet[1].lift + 3 * S];
+  const to = clamp(c.to, 0, 1), fwd = (1 - to) * syaw * .9;
+  const kL = ik(HL, FL, L.thigh, L.shin, -to * cyaw + fwd), kR = ik(HR, FR, L.thigh, L.shin, to * cyaw + fwd);
+  const toe = (F, K, side, fy) => {
+    const g = sstep(2, 12, fy);
+    let ux = F[0] - K[0], uy = F[1] - K[1]; const l = Math.hypot(ux, uy) || 1; ux /= l; uy /= l;
+    const gx = side * .3 * cyaw + .95 * syaw, gy = -.25;      // on the floor the foot points where she faces
+    const tx = lerp(gx, ux * .9 + gx * .15, g), ty = lerp(gy, uy * .9, g), tl = Math.hypot(tx, ty) || 1;
+    const len = L.foot * lerp(Math.hypot(gx, gy), 1, g);
+    return [F[0] + tx / tl * len, F[1] + ty / tl * len];
+  };
+  const tL = toe(FL, kL, -1, feet[0].y + feet[0].lift), tR = toe(FR, kR, 1, feet[1].y + feet[1].lift);
+
+  const rs = S * lerp(.5, 1, ease(form)) * sstep(0, .4, gather) * (1 + .06 * pulse);
+  const seg = (a, b, ra, rb, raw) => {
+    const k = raw ? 1 : rs;
+    if (ra * k < .25 && rb * k < .25) return;      // nothing to draw: an empty drop or a dry pool
+    const i = nseg++;
+    segs[i*4] = a[0]; segs[i*4+1] = a[1]; segs[i*4+2] = b[0]; segs[i*4+3] = b[1];
+    rads[i*2] = ra * k; rads[i*2+1] = rb * k;
+  };
+  // her clothes: the same shapes drawn again, a little thinner, in the picked color, which leaves
+  // an ink outline. The pants are a deeper shade of it.
+  const RIM = 1.2;
+  const cl = (a, b, ra, rb, stripe) => {
+    if (ncloth >= NC) return;
+    const i = ncloth++;
+    cloth[i*4] = a[0]; cloth[i*4+1] = a[1]; cloth[i*4+2] = b[0]; cloth[i*4+3] = b[1];
+    clothR[i*3] = ra * rs; clothR[i*3+1] = rb * rs; clothR[i*3+2] = stripe || 0;      // 1 marks the pants, 2 a pant leg (which carries the stripe)
+  };
+  // a limb is one tapering curve through its joint, not two sticks meeting at a hinge
+  const limb = (A, J, B, n, r0, r1, r2, k, pants) => {      // k: 0 rounds the joint away, 1 runs the curve through it
+    const qx = J[0] + k * (J[0] - (A[0] + B[0]) / 2), qy = J[1] + k * (J[1] - (A[1] + B[1]) / 2);
+    let prev = A, pr = r0;
+    for (let i = 1; i <= n; i++) {
+      const t = i / n, u = 1 - t;
+      const pt = [u * u * A[0] + 2 * u * t * qx + t * t * B[0], u * u * A[1] + 2 * u * t * qy + t * t * B[1]];
+      const r = t < .5 ? lerp(r0, r1, t * 2) : lerp(r1, r2, t * 2 - 1);
+      seg(prev, pt, pr, r); cl(prev, pt, pr - RIM, r - RIM, pants ? 1 : 0);
+      prev = pt; pr = r;
+    }
+    const tx = B[0] - qx, ty = B[1] - qy, tl = Math.hypot(tx, ty) || 1;
+    return [tx / tl, ty / tl];
+  };
+
+  const pHip = P3(pvx, 0, pvz), pWaist = P3(wx, wy, wz), pChest = P3(cx, cY, cz);
+  const pNB = P3(nbx, nby, cz), pNeck = P3(nkx, nky, nkz);
+  const pHdA = P3(hcx - st3 * 1.8 * S, hcy - ct3 * 1.8 * S, hcz), pHdB = P3(hcx + st3 * 1.8 * S, hcy + ct3 * 1.8 * S, hcz);
+  const pCrown = P3(hcx + st3 * 7 * S, hcy + ct3 * 7 * S, hcz - 5 * S);
+  const pRibs = P3(cx - st2 * 5 * S, cY - ct2 * 5 * S, cz + 3.5 * S), pSeat = P3(pvx, -2 * S, pvz - 5 * S);
+  const pSR = P3(sRx, sRy, cz), pSL = P3(sLx, sLy, cz);
+  const pER = P3(aR[0], aR[1], aR[2]), pWR = P3(aR[3], aR[4], aR[5]), pEL = P3(aL[0], aL[1], aL[2]), pWL = P3(aL[3], aL[4], aL[5]);
+  const pHipL = W(HL[0], HL[1]), pHipR = W(HR[0], HR[1]);
+  const pKL = W(kL[0], kL[1]), pKR = W(kR[0], kR[1]), pFL = W(FL[0], FL[1]), pFR = W(FR[0], FR[1]);
+  const pTL = W(tL[0], tL[1]), pTR = W(tR[0], tR[1]);
+
+  seg(pHip, pWaist, 9.4, 7.2);  seg(pWaist, pChest, 7.2, 10);
+  seg(pRibs, pRibs, 7, 7);      seg(pSeat, pSeat, 7.4, 7.4);   // ribcage and seat: these give her a profile
+  seg(pNB, pSR, 4.4, 4.6);      seg(pNB, pSL, 4.4, 4.6);       // shoulders slope down from the neck
+  seg(pHipL, pHipR, 7.6, 7.6);
+  seg(pChest, pNeck, 4.6, 2.9); seg(pHdA, pHdB, 8.6, 8.2);     // long neck, oval head
+
+  // a long high ponytail: a rope of points hung from the crown. Gravity pulls it down, her head
+  // drags it around, and the first link is held up and back so it has lift before it falls.
+  {
+    const n = hair.length, link = 6.4 * rs, sub = Math.max(dt, 1e-4);
+    hair[0].x = pCrown[0]; hair[0].y = pCrown[1];
+    if (!hairInit) { for (let i = 1; i < n; i++) { hair[i].x = pCrown[0]; hair[i].y = pCrown[1] + i * link; hair[i].vx = hair[i].vy = 0; } hairInit = true; }
+    for (let i = 1; i < n; i++) { const h = hair[i]; h.ox = h.x; h.oy = h.y; h.vy += 1200 * sub; h.x += h.vx * sub; h.y += h.vy * sub; }
+    let rx0 = st3 * .5 - syaw * .85, ry0 = -ct3 * .5; const rl = Math.hypot(rx0, ry0) || 1; rx0 /= rl; ry0 /= rl;
+    hair[1].x += (pCrown[0] + rx0 * link - hair[1].x) * .3; hair[1].y += (pCrown[1] + ry0 * link - hair[1].y) * .3;
+    for (let it = 0; it < 3; it++) for (let i = 1; i < n; i++) {
+      const a = hair[i - 1], b = hair[i];
+      if (it === 0 && i > 1) { const z = hair[i - 2]; b.x += (2 * a.x - z.x - b.x) * .012; b.y += (2 * a.y - z.y - b.y) * .012; }   // hair resists kinking, a little
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1e-3;
+      b.x = a.x + dx / d * link; b.y = a.y + dy / d * link;
+    }
+    const drag = Math.exp(-4.2 * sub);                 // hair is light: the air stops it quickly
+    for (let i = 1; i < n; i++) {
+      const h = hair[i];
+      h.vx = clamp((h.x - h.ox) / sub, -900, 900) * drag; h.vy = clamp((h.y - h.oy) / sub, -900, 900) * drag;
+      seg([hair[i-1].x, hair[i-1].y], [h.x, h.y], HAIR_R[i-1], HAIR_R[i]);
+    }
+  }
+
+  // crop top: sleeves, shoulders and the upper chest, leaving her middle bare so it shows when it moves
+  const pMid = P3(lerp(wx, cx, .62), lerp(wy, cY, .62), lerp(wz, cz, .62));
+  cl(pMid, pChest, 8.9 - RIM, 10 - RIM); cl(pRibs, pRibs, 7 - RIM, 7 - RIM);
+  cl(pNB, pSR, 4.4 - RIM, 4.6 - RIM); cl(pNB, pSL, 4.4 - RIM, 4.6 - RIM);
+  const hand = (Wp, t) => { const tip = [Wp[0] + t[0] * L.hand * rs / S, Wp[1] + t[1] * L.hand * rs / S]; seg(Wp, tip, 2.5, 1.1); return tip; };
+  const pHR = hand(pWR, limb(pSR, pER, pWR, 3, 4.6, 3.3, 2.4, .55));
+  const pHL = hand(pWL, limb(pSL, pEL, pWL, 3, 4.6, 3.3, 2.4, .55));
+  // loose wide-leg pants over chunky shoes
+  cl(pHipL, pHipR, 7.6 - RIM, 7.6 - RIM, 1); cl(pSeat, pSeat, 7.4 - RIM, 7.4 - RIM, 1);
+  limb(pHipR, pKR, pFR, 4, 9.6, 8, 10.8, .9, true); seg(pFR, pTR, 3.9, 3.3);
+  limb(pHipL, pKL, pFL, 4, 9.6, 8, 10.8, .9, true); seg(pFL, pTL, 3.9, 3.3);
+  clothA = sstep(.72, 1, form);
+
+  // flung ink: drops that only appear when a hand or foot moves fast enough to leave them behind
+  const anchors = [pHR, pHL, pTR, pTL];
+  for (let i = 0; i < 4; i++) {
+    const d = drops[i], a = anchors[i];
+    d.vx += (62 * (a[0] - d.x) - 5.4 * d.vx) * dt; d.vy += (62 * (a[1] - d.y) - 5.4 * d.vy) * dt;
+    d.x += d.vx * dt; d.y += d.vy * dt;
+    const lag = Math.hypot(a[0] - d.x, a[1] - d.y);
+    const r = clamp((lag - 7) * .35, 0, DROP_R[i]);
+    seg([d.x, d.y], [d.x, d.y], r, r);
+  }
+  // the pool in the corner, which empties as the figure fills
+  const pg = gather * (1 - ease(form));
+  const wob = 1 + .06 * Math.sin(time * 3.1);
+  seg([FIELD.x - 2, FIELD.y + FIELD.h + 2], [FIELD.x - 2 + 48 * pg, FIELD.y + FIELD.h + 2], 24 * pg * wob, 12 * pg, true);
+
+  goo = lerp(13, 2, ease(form));      // gooey while she forms, clean-edged once she dances
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (let i = 0; i < nseg; i++) {
+    const r = Math.max(rads[i*2], rads[i*2+1]);
+    x0 = Math.min(x0, segs[i*4] - r, segs[i*4+2] - r); x1 = Math.max(x1, segs[i*4] + r, segs[i*4+2] + r);
+    y0 = Math.min(y0, segs[i*4+1] - r, segs[i*4+3] - r); y1 = Math.max(y1, segs[i*4+1] + r, segs[i*4+3] + r);
+  }
+  box = [x0, y0, x1, y1];
+  if (form > .6) tips = [pHR, pHL, pWR, pWL, pER, pEL, pTR, pTL, pKR, pKL, pHdB];
+}
+
+/* ---------- the picker reacts ---------- */
+function palette(dt) {
+  // picker ring: springs home, shoved away by the body like a ball
+  const s = sdfAt(pk.x, pk.y);
+  let ax = 10 * (home.x - pk.x) - 4.2 * pk.vx, ay = 10 * (home.y - pk.y) - 4.2 * pk.vy;
+  if (s.d < 36) { const f = (36 - s.d) * 11; ax += s.nx * f; ay += s.ny * f; }
+  pk.vx += ax * dt; pk.vy += ay * dt; pk.x += pk.vx * dt; pk.y += pk.vy * dt;
+  if (pk.x < FIELD.x) { pk.x = FIELD.x; pk.vx = 0; } if (pk.x > FIELD.x + FIELD.w) { pk.x = FIELD.x + FIELD.w; pk.vx = 0; }
+  if (pk.y < FIELD.y) { pk.y = FIELD.y; pk.vy = 0; } if (pk.y > FIELD.y + FIELD.h) { pk.y = FIELD.y + FIELD.h; pk.vy = 0; }
+  const dT = sstep(16, -3, s.d) * .92;
+  dark += clamp((dT > dark ? 18 : 3) * dt, 0, 1) * (dT - dark);
+
+  // blue slider: whatever limb crosses its column drags the handle with it
+  let grab = null, gd = 26;
+  const scx = SL.x + SL.w / 2;
+  for (const t of tips) {
+    const dx = Math.abs(t[0] - scx);
+    if (dx < gd && t[1] > SL.y - 12 && t[1] < SL.y + SL.h + 12) { gd = dx; grab = t; }
+  }
+  const homeY = SL.y + (1 - home.b / 255) * SL.h;
+  const ty = grab ? clamp(grab[1], SL.y, SL.y + SL.h) : homeY;
+  const k = grab ? 110 : 5, cdamp = grab ? 14.7 : 4.5;
+  sl.v += (k * (ty - sl.y) - cdamp * sl.v) * dt; sl.y += sl.v * dt;
+  if (sl.y < SL.y) { sl.y = SL.y; sl.v = 0; } if (sl.y > SL.y + SL.h) { sl.y = SL.y + SL.h; sl.v = 0; }
+
+  raw.r = clamp((pk.x - FIELD.x) / FIELD.w, 0, 1) * 255;
+  raw.g = clamp(1 - (pk.y - FIELD.y) / FIELD.h, 0, 1) * 255;
+  raw.b = clamp(1 - (sl.y - SL.y) / SL.h, 0, 1) * 255;
+  const hc = hueApply(hueRows, raw.r, raw.g, raw.b);
+  shown.r = hc[0]; shown.g = hc[1]; shown.b = hc[2];
+  const a = clamp(dt / 0.7, 0, 1);       // the page follows slowly: no flashing
+  bg.r += (shown.r - bg.r) * a; bg.g += (shown.g - bg.g) * a; bg.b += (shown.b - bg.b) * a;
+}
+
+/* ---------- song: read a dropped file, find its beats, play it ---------- */
+const LEAD = 0.1;             // poses are asked for a little early so they land on the beat
+const CAL = 0.005;            // analysis frame center to heard onset
+const song = { ctx: null, gain: null, buf: null, src: null, name: '', ready: false, playing: false,
+               offset: 0, t0: 0, lat: 0, ticks: null, tp: BEAT, bpm: 0, ptr: 0,
+               energy: null, hit: null, efps: 100, e0: 0 };
+let silentPos = 0, posNow = 0, usingSong = false, seqBase = 0, seqIdx = -1, eS = 1, pulse = 0;
+let loadToken = 0, autoDead = false;
+const say = t => { $('status').textContent = t; };
+/* Analytics: reports to rmk.systems' own GA tag when shown there, does nothing on its own.
+   Never sends a visitor's song name or anything they choose: only that they did it. */
+const sent = {};
+function rmkSend(event, params) {
+  try { if (window.parent !== window && window.parent.gtag) window.parent.gtag('event', event, Object.assign({ demo: 'color-dance' }, params)); } catch (_) {}
+}
+function rmkTrack(action) { if (sent[action]) return; sent[action] = true; rmkSend('demo_interact', { action }); }
+function rmkSong(event) {
+  const title = song.own ? 'own song' : song.name;
+  if (sent[event + title]) return; sent[event + title] = true;
+  rmkSend(event, { song_title: title });
+}
+const songNow = () => song.offset + (song.ctx.currentTime - song.t0) - song.lat;
+
+function fftTab(n) {
+  const bits = Math.log2(n), rev = new Uint16Array(n), cos = new Float32Array(n / 2), sin = new Float32Array(n / 2);
+  for (let i = 0; i < n; i++) { let r = 0; for (let b = 0; b < bits; b++) r |= ((i >> b) & 1) << (bits - 1 - b); rev[i] = r; }
+  for (let i = 0; i < n / 2; i++) { cos[i] = Math.cos(6.283185307 * i / n); sin[i] = Math.sin(6.283185307 * i / n); }
+  return { rev, cos, sin };
+}
+function fft(re, im, tab) {
+  const n = re.length;
+  for (let size = 2; size <= n; size <<= 1) {
+    const half = size >> 1, step = n / size;
+    for (let i = 0; i < n; i += size) for (let j = 0, k = 0; j < half; j++, k += step) {
+      const wr = tab.cos[k], wi = -tab.sin[k], a = i + j, b = a + half;
+      const xr = re[b] * wr - im[b] * wi, xi = re[b] * wi + im[b] * wr;
+      re[b] = re[a] - xr; im[b] = im[a] - xi; re[a] += xr; im[a] += xi;
+    }
+  }
+}
+/* Onsets by spectral flux, tempo by autocorrelation, beat times by dynamic programming (after Ellis, 2007). */
+async function analyze(buf, progress) {
+  const sr = buf.sampleRate, q = Math.max(1, Math.round(sr / 11025)), SRe = sr / q;
+  const n = Math.floor(Math.min(buf.length, 900 * sr) / q);
+  const WIN = 512, hop = Math.round(SRe / 100), fps = SRe / hop, F = Math.floor((n - WIN) / hop) + 1;
+  if (F < fps * 4) {      // too short to hear a tempo in: keep the house beat
+    const ticks = []; for (let t = 0; t < buf.duration + BEAT; t += BEAT) ticks.push(t);
+    return { ticks: Float64Array.from(ticks), tp: BEAT, bpm: Math.round(60 / BEAT), energy: new Float32Array([1]), hit: new Float32Array([0]), efps: 1, e0: 0 };
+  }
+  const mono = new Float32Array(n);
+  for (let c = 0; c < buf.numberOfChannels; c++) {
+    const d = buf.getChannelData(c);
+    for (let i = 0, j = 0; i < n; i++) { let s = 0; for (let k = 0; k < q; k++) s += d[j++]; mono[i] += s; }
+  }
+  let peak = 1e-9; for (let i = 0; i < n; i++) { const a = Math.abs(mono[i]); if (a > peak) peak = a; }
+  const g = 1 / peak, tab = fftTab(WIN), hann = new Float32Array(WIN);
+  for (let i = 0; i < WIN; i++) hann[i] = 0.5 - 0.5 * Math.cos(6.283185307 * i / (WIN - 1));
+  const re = new Float32Array(WIN), im = new Float32Array(WIN), prev = new Float32Array(WIN / 2);
+  const flux = new Float32Array(F), bass = new Float32Array(F), rms = new Float32Array(F);
+  for (let f = 0; f < F; f++) {
+    const o = f * hop; let e = 0;
+    for (let i = 0; i < WIN; i++) { const x = mono[o + i] * g; e += x * x; re[tab.rev[i]] = x * hann[i]; }
+    im.fill(0); fft(re, im, tab);
+    let fl = 0, bl = 0;
+    for (let k = 1; k < WIN / 2; k++) {
+      const m = Math.log(1 + 100 * Math.sqrt(re[k] * re[k] + im[k] * im[k]) / 128), d = m - prev[k];
+      if (d > 0) { fl += d; if (k < 9) bl += d; }
+      prev[k] = m;
+    }
+    flux[f] = fl; bass[f] = bl; rms[f] = Math.sqrt(e / WIN);
+    if (f % 1500 === 1499) { progress(f / F); await new Promise(r => setTimeout(r, 0)); }
+  }
+  // onset strength: flux above its local average, in units of its own spread
+  const o = new Float32Array(F), ps = new Float64Array(F + 1), w = Math.round(fps * .4);
+  for (let i = 0; i < F; i++) ps[i + 1] = ps[i] + flux[i];
+  let ss = 0;
+  for (let i = 0; i < F; i++) { const a = Math.max(0, i - w), b = Math.min(F, i + w + 1), v = flux[i] - (ps[b] - ps[a]) / (b - a); o[i] = v > 0 ? v : 0; ss += o[i] * o[i]; }
+  const sd = Math.sqrt(ss / F) || 1; for (let i = 0; i < F; i++) o[i] /= sd;
+  // tempo
+  const lmin = Math.floor(fps * .3), lmax = Math.ceil(fps * 1.0), LM = Math.min(4 * lmax + 4, F - 2);
+  const acf = new Float32Array(4 * lmax + 6);
+  for (let l = 1; l <= LM; l++) { let s = 0; const m = F - l; for (let t = 0; t < m; t++) s += o[t] * o[t + l]; acf[l] = s / m; }
+  let best = lmin, bs = -1;
+  for (let l = lmin; l <= lmax; l++) {
+    const pr = Math.exp(-.5 * Math.pow(Math.log2(60 * fps / l / 120) / .9, 2));
+    const sc = (acf[l] + .5 * acf[2 * l] + .25 * acf[4 * l]) * pr;
+    if (sc > bs) { bs = sc; best = l; }
+  }
+  let l4 = 4 * best, b4 = -1e9;
+  for (let l = 4 * best - 3; l <= 4 * best + 3; l++) if (acf[l] > b4) { b4 = acf[l]; l4 = l; }
+  const y0 = acf[l4 - 1], y1 = acf[l4], y2 = acf[l4 + 1], den = y0 - 2 * y1 + y2;
+  let P = (l4 + (den < 0 ? .5 * (y0 - y2) / den : 0)) / 4;
+  if (!(Math.abs(P - best) < best * .04)) P = best;
+  // beats
+  const lo = Math.max(1, Math.round(P / 2)), hi = Math.round(2 * P), cost = new Float32Array(hi + 1);
+  for (let d = lo; d <= hi; d++) { const x = Math.log(d / P); cost[d] = -100 * x * x; }
+  const cum = new Float32Array(F), bk = new Int32Array(F);
+  for (let t = 0; t < F; t++) {
+    let bv = -1e30, bi = -1;
+    for (let u = Math.max(0, t - hi), b = t - lo; u <= b; u++) { const v = cum[u] + cost[t - u]; if (v > bv) { bv = v; bi = u; } }
+    cum[t] = o[t] + (bi >= 0 ? bv : 0); bk[t] = bi;
+    if (t % 20000 === 19999) await new Promise(r => setTimeout(r, 0));
+  }
+  let te = F - 1, bv = -1e30;
+  for (let t = Math.max(0, F - Math.round(P)); t < F; t++) if (cum[t] > bv) { bv = cum[t]; te = t; }
+  const beats = []; for (let t = te; t >= 0; t = bk[t]) beats.push(t);
+  beats.reverse();
+  let ticks = beats.map(f => (f * hop + WIN / 2) / SRe + CAL), tp = P / fps;
+  // keep the dance between about 83 and 166 steps a minute: halve a fast pulse, double a slow one
+  if (tp < .36) {
+    const near = f => Math.max(bass[Math.max(f - 2, 0)], bass[Math.max(f - 1, 0)], bass[f], bass[Math.min(f + 1, F - 1)], bass[Math.min(f + 2, F - 1)]);
+    let s0 = 0, s1 = 0; beats.forEach((f, i) => { if (i & 1) s1 += near(f); else s0 += near(f); });
+    const par = s1 > s0 ? 1 : 0; ticks = ticks.filter((_, i) => (i & 1) === par); tp *= 2;
+  } else if (tp > .72) {
+    const t2 = []; for (let i = 0; i < ticks.length; i++) { t2.push(ticks[i]); if (i + 1 < ticks.length) t2.push((ticks[i] + ticks[i + 1]) / 2); }
+    ticks = t2; tp /= 2;
+  }
+  if (ticks.length < 2) ticks = [0, tp];
+  // loudness by section, and how hard each onset lands
+  const energy = new Float32Array(F), hit = new Float32Array(F), pe = new Float64Array(F + 1), we = Math.round(fps * .75);
+  for (let i = 0; i < F; i++) pe[i + 1] = pe[i] + rms[i];
+  for (let i = 0; i < F; i++) { const a = Math.max(0, i - we), b = Math.min(F, i + we + 1); energy[i] = (pe[b] - pe[a]) / (b - a); }
+  const se = Float32Array.from(energy).sort(), p10 = se[Math.floor(F * .1)], p95 = se[Math.floor(F * .95)];
+  for (let i = 0; i < F; i++) energy[i] = clamp((energy[i] - p10) / Math.max(p95 - p10, 1e-6), 0, 1);
+  const so = Float32Array.from(o).sort(), p99 = so[Math.floor(F * .99)] || 1;
+  for (let i = 0; i < F; i++) hit[i] = clamp(o[i] / p99, 0, 1);
+  return { ticks: Float64Array.from(ticks), tp, bpm: Math.round(60 * fps / P), energy, hit, efps: fps, e0: WIN / 2 / SRe };
+}
+function tickPos(t) {
+  const tk = song.ticks, n = tk.length;
+  if (t <= tk[0]) return (t - tk[0]) / song.tp;
+  if (t >= tk[n - 1]) return n - 1 + (t - tk[n - 1]) / song.tp;
+  let i = Math.min(song.ptr, n - 2);
+  while (i < n - 2 && tk[i + 1] <= t) i++;
+  while (i > 0 && tk[i] > t) i--;
+  song.ptr = i;
+  return i + (t - tk[i]) / (tk[i + 1] - tk[i]);
+}
+/* one clock for the choreography: the song's beats when it plays, the house beat when it doesn't */
+function clock(dt) {
+  const on = song.playing;
+  let pl;
+  if (on) { const t = songNow(); posNow = tickPos(t); pl = tickPos(t + LEAD); }
+  else { silentPos += dt / BEAT; posNow = silentPos; pl = silentPos + LEAD / BEAT; }
+  if (on !== usingSong) { usingSong = on; seqBase = Math.floor(pl) - seqIdx; }
+  return pl;
+}
+function halt() {
+  if (song.src) { const s = song.src; song.src = null; s.onended = null; try { s.stop(); } catch (_) {} }
+  if (song.playing) { song.offset += song.ctx.currentTime - song.t0; song.playing = false; }
+}
+function startSong(auto) {
+  if (!song.ready || song.playing) return;
+  const c = song.ctx, token = loadToken;
+  const go = () => {
+    if (token !== loadToken || song.playing || !song.ready || c.state !== 'running' || (auto && autoDead)) return;
+    const s = c.createBufferSource(); s.buffer = song.buf; s.connect(song.gain);
+    if (song.offset >= song.buf.duration - .1) song.offset = 0;
+    s.onended = () => {
+      if (song.src !== s || !song.playing) return;
+      song.playing = false; song.src = null; song.offset = 0;
+      rmkSong('song_complete');
+      say('“' + song.name + '” is over. OK plays it again.'); dismiss();
+    };
+    s.start(0, song.offset);
+    song.t0 = c.currentTime; song.lat = clamp((c.outputLatency || 0) + (c.baseLatency || 0), 0, .35);
+    song.src = s; song.playing = true; song.ptr = 0;
+    try { if (window.parent !== window) window.parent.postMessage({ type: 'rmk-sound-on' }, location.origin); } catch (_) {}   // one sound at a time on rmk.systems
+    rmkSong('song_play');
+    say('Dancing to “' + song.name + '” at ' + song.bpm + ' BPM.');
+    summon();
+  };
+  let p = null; try { p = c.resume(); } catch (_) {}
+  if (c.state === 'running') go(); else if (p && p.then) p.then(go, () => {});
+}
+/* The song she dances to first. It loads quietly and never plays by itself: OK starts it. */
+const START_SONG = { src: 'color-dance/song.mp3', title: '' };     // title empty = no start song yet, house beat only
+async function loadStartSong() {
+  if (!START_SONG.title) return;
+  try {
+    const r = await fetch(START_SONG.src);
+    if (!r.ok) throw new Error(r.status);
+    const blob = await r.blob();
+    if (loadToken === 0) loadSong(blob, { name: START_SONG.title, start: true });   // a visitor's own song wins
+  } catch (err) { console.warn('Color Dance: start song unavailable', err); }
+}
+async function loadSong(file, opt) {
+  if (!file) return;
+  opt = opt || {};
+  const token = ++loadToken;
+  let name = (opt.name || file.name || 'your song').replace(/\.[a-z0-9]{2,5}$/i, '').replace(/[_\s]+/g, ' ').trim() || 'your song';
+  if (name.length > 46) name = name.slice(0, 45).trim() + '…';
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) throw new Error('no Web Audio');
+    if (!song.ctx) { song.ctx = new AC(); song.gain = song.ctx.createGain(); song.gain.gain.value = .9;
+      song.an = song.ctx.createAnalyser(); song.an.fftSize = 2048; song.an.smoothingTimeConstant = .55; song.an.minDecibels = -88; song.an.maxDecibels = -18;
+      song.gain.connect(song.an); song.an.connect(song.ctx.destination); }
+    halt(); song.ready = false; song.offset = 0;
+    if (!opt.start) say('Listening to “' + name + '”…');
+    const data = await file.arrayBuffer();
+    const buf = await new Promise((res, rej) => { const p = song.ctx.decodeAudioData(data, res, rej); if (p && p.catch) p.catch(rej); });
+    const an = await analyze(buf, f => { if (token === loadToken && !opt.start) say('Finding the beat in “' + name + '”… ' + Math.round(f * 100) + '%'); });
+    if (token !== loadToken) return;
+    Object.assign(song, an, { buf, name, ready: true, offset: 0, ptr: 0, own: !opt.start });
+    if (opt.start) { $('hint').textContent = 'Press OK to dance to “' + name + '”. Cancel stops the music and sends her home. Drag in the picker, or use the arrow keys, to change her color.'; return; }
+    rmkTrack('own_song');
+    say('“' + name + '” is ready at ' + song.bpm + ' BPM. Press OK to play.');
+    autoDead = false; startSong(true);
+  } catch (err) {
+    console.warn('Color Dance: could not read song', err);
+    if (token === loadToken && !opt.start) say('That file did not open as audio. Try an MP3, WAV, M4A or OGG.');
+  }
+}
+
+/* ---------- simulation step ---------- */
+function sim(dt) {
+  time += dt;
+  const pl = clock(dt);
+  if (song.playing) {
+    const fi = clamp(Math.round((songNow() - song.e0) * song.efps), 0, song.energy.length - 1);
+    eS += (song.energy[fi] - eS) * clamp(dt * 1.6, 0, 1);
+    pulse = Math.max(pulse * Math.exp(-dt * 6), song.hit[fi]);
+  } else { eS += (1 - eS) * clamp(dt * 2, 0, 1); pulse *= Math.exp(-dt * 6); }
+  if (mode === 'summon') {
+    if (gather < 1) gather = Math.min(1, gather + dt / 1.5);
+    else if (form < 1) form = Math.min(1, form + dt / 2.6);
+    else { mode = 'dance'; seqIdx = -1; seqHalf = -9999; seqBase = Math.floor(pl); }
+    tgt = form < .45 ? POSES.crouch : form < .92 ? POSES.rise : POSES.idle;
+    root.t = 84; yawT = 0;
+  } else if (mode === 'dismiss') {
+    if (form > 0) form = Math.max(0, form - dt / 1.8);
+    else if (gather > 0) gather = Math.max(0, gather - dt / 1.2);
+    else mode = 'rest';
+    tgt = POSES.crouch; root.t = 78; yawT = 0; phiT = Math.round(phi / 6.2832) * 6.2832;
+  }
+  if (mode === 'dance') {
+    const h = Math.floor(pl * 2) - 2 * seqBase;       // half-beats since the routine began
+    if (h !== seqHalf) {
+      seqHalf = h;
+      const idx = Math.floor(h / 2), half = h - idx * 2;
+      const e = SEQ[((idx % SEQ.length) + SEQ.length) % SEQ.length];
+      if (idx !== seqIdx) { seqIdx = idx; root.t = e[1]; yawT = e[3] || 0; if (e[2]) phiT += e[2] * 6.2832; }
+      tgt = POSES[Array.isArray(e[0]) ? e[0][half] : e[0]];
+    }
+  }
+  // quiet passages shrink the moves toward standing; loud ones open them all the way
+  const amp = mode === 'dance' && song.playing ? lerp(.55, 1.08, eS) : 1;
+  const q = tgt.q || 1;
+  for (const k of KEYS) {
+    const kk = SPR[k][0] * q, z = SPR[k][1], goal = BASE[k] + (tgt[k] - BASE[k]) * amp;
+    vel[k] += (kk * (goal - cur[k]) - 2 * z * Math.sqrt(kk) * vel[k]) * dt;
+    cur[k] += vel[k] * dt;
+  }
+  root.v += (16 * (root.t - root.x) - 8 * root.v) * dt; root.x += root.v * dt;
+  phiV += (38 * (phiT - phi) - 12.4 * phiV) * dt; phi += phiV * dt;
+  yawV += (46 * (yawT - yaw) - 11.5 * yawV) * dt; yaw += yawV * dt;
+  solve(dt);
+  palette(dt);
+}
+
+function summon() {
+  if (mode === 'summon' || mode === 'dance') return;
+  if (mode === 'rest') {
+    Object.assign(cur, POSES.crouch); KEYS.forEach(k => vel[k] = 0);
+    root.x = root.t = 84; root.v = 0; phi = phiT = phiV = 0; yaw = yawT = yawV = 0;
+    feet[0].x = root.x + cur.lx * S; feet[1].x = root.x + cur.rx * S;
+    feet.forEach(f => { f.y = 0; f.lift = 0; f.stepping = false; });
+    drops.forEach(d => { d.x = PC[0]; d.y = PC[1]; d.vx = d.vy = 0; });
+    hairInit = false;
+  }
+  mode = 'summon';
+  $('live').textContent = 'The dark corner of the palette gathers into a dancer.';
+}
+function dismiss() {
+  if (mode === 'rest' || mode === 'dismiss') return;
+  if (mode === 'summon' && form <= 0) { mode = 'dismiss'; return; }
+  mode = 'dismiss';
+  $('live').textContent = 'The dancer melts back into the corner.';
+}
+
+/* ---------- WebGL ---------- */
+const COMMON = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#define N ${N}
+uniform vec4 uSeg[N];
+uniform vec2 uRad[N];
+uniform vec4 uBox;
+uniform float uGoo;
+uniform mat3 uHue;
+uniform vec2 uRes;
+uniform vec2 uOrigin;
+uniform float uScale;
+const float REACH = 64.0;
+const vec3 INK = vec3(0.0, 0.0, 0.0824);
+void body(vec2 p, out float d, out vec2 n) {
+  vec2 c = clamp(p, uBox.xy, uBox.zw);
+  float bd = length(p - c);
+  if (bd > REACH) { d = bd; n = (p - c) / bd; return; }
+  d = 1.0e4; n = vec2(0.0, -1.0);
+  for (int i = 0; i < N; i++) {
+    vec2 a = uSeg[i].xy, ba = uSeg[i].zw - uSeg[i].xy, pa = p - a;
+    float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1.0e-4), 0.0, 1.0);
+    vec2 q = pa - ba * h;
+    float l = length(q);
+    float di = l - mix(uRad[i].x, uRad[i].y, h);
+    float m = clamp(0.5 + 0.5 * (d - di) / uGoo, 0.0, 1.0);
+    d = mix(d, di, m) - uGoo * m * (1.0 - m);
+    n = mix(n, q / max(l, 1.0e-3), m);
+  }
+  float nl = length(n);
+  n = nl > 1.0e-4 ? n / nl : vec2(0.0, -1.0);
+}
+`;
+const VS = `attribute vec2 aPos; void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+const FS_INK = COMMON + `
+uniform sampler2D uPrev;
+uniform vec2 uInkRes;
+uniform float uDecay;
+uniform float uDrip;
+uniform float uRise;
+uniform float uTime;
+uniform float uB;
+uniform vec4 uField;
+uniform vec2 uAnchor;
+void main() {
+  vec2 fc = gl_FragCoord.xy, t = 1.0 / uInkRes;
+  vec2 cp = fc * uRes / uInkRes;
+  vec2 p = (vec2(cp.x, uRes.y - cp.y) - uOrigin) / uScale;
+  vec2 fp = p - uField.xy;
+  bool inField = fp.x >= 0.0 && fp.y >= 0.0 && fp.x <= uField.z && fp.y <= uField.w;
+  // inside the picker the stain runs down like ink; outside it lifts and wavers like hair
+  vec2 off = inField ? vec2(0.0, uDrip) : vec2(sin(p.y * 0.07 + uTime * 1.7) * 0.6, -1.0) * uRise;
+  vec2 uv = (fc + off) * t;
+  vec4 a = texture2D(uPrev, uv) * 0.5 + 0.125 * (
+    texture2D(uPrev, uv + vec2(t.x, 0.0)) + texture2D(uPrev, uv - vec2(t.x, 0.0)) +
+    texture2D(uPrev, uv + vec2(0.0, t.y)) + texture2D(uPrev, uv - vec2(0.0, t.y)));
+  float na = max(a.a - uDecay * (inField ? 1.0 : 0.6), 0.0);
+  a.rgb *= na / max(a.a, 1.0e-3); a.a = na;
+  float d; vec2 n; body(p, d, n);
+  float m = 1.0 - smoothstep(-1.5, 9.0, d); m *= m;
+  // the whole picker gradient, scaled to her: green by her raised left hand, red by her right foot
+  vec2 g = clamp((p - uAnchor) / vec2(150.0, 215.0) + vec2(0.5, 1.0), 0.0, 1.0);
+  vec3 col = clamp(uHue * vec3(g.x, 1.0 - g.y, uB), 0.0, 1.0);
+  gl_FragColor = vec4(col, 1.0) * m + a * (1.0 - m);
+}`;
+const FS_MAIN = COMMON + `
+uniform sampler2D uInk;
+uniform vec4 uField;
+uniform vec4 uSlider;
+uniform float uB;
+uniform vec2 uRG;
+uniform vec2 uPick;
+uniform float uDrain;
+uniform float uTime;
+uniform float uKick;
+#define NC ${NC}
+uniform vec4 uCloth[NC];
+uniform vec3 uClothR[NC];
+uniform vec3 uClothCol;
+uniform float uClothA;
+// distance to the clothes; whether the nearest piece is the pants; how close we are to a leg's center line
+float dress(vec2 p, out float core, out float pants) {
+  float d = 1.0e4, near = 1.0e4; core = 0.0; pants = 0.0;
+  for (int i = 0; i < NC; i++) {
+    vec2 a = uCloth[i].xy, ba = uCloth[i].zw - uCloth[i].xy, pa = p - a;
+    float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1.0e-4), 0.0, 1.0);
+    float r = mix(uClothR[i].x, uClothR[i].y, h);
+    float di = length(pa - ba * h) - r;
+    core = max(core, step(1.5, uClothR[i].z) * clamp(-di / max(r, 0.5), 0.0, 1.0));
+    if (di < near) { near = di; pants = min(uClothR[i].z, 1.0); }
+    float m = clamp(0.5 + 0.5 * (d - di) / 1.4, 0.0, 1.0);
+    d = mix(d, di, m) - 1.4 * m * (1.0 - m);
+  }
+  return d;
+}
+void main() {
+  vec2 fc = gl_FragCoord.xy;
+  vec2 p = (vec2(fc.x, uRes.y - fc.y) - uOrigin) / uScale;
+  float d; vec2 n; body(p, d, n);
+  float dp = max(d, 0.0);
+  float infl = 1.0 - clamp(dp / REACH, 0.0, 1.0); infl *= infl;
+  vec4 tr = texture2D(uInk, fc / uRes);
+  float trail = tr.a;
+  // the color is shoved outward by the body, with a ripple riding the push
+  vec2 q = p - n * infl * (15.0 + 5.0 * uKick + (3.0 + 6.0 * uKick) * sin(dp * 0.21 - uTime * 5.5));
+  float aa = 0.75 / uScale;
+
+  vec2 fp = q - uField.xy, fe = min(fp, uField.zw - fp);
+  float fcov = clamp(min(fe.x, fe.y) / aa * 0.5 + 0.5, 0.0, 1.0);
+  vec2 sp = q - uSlider.xy, se = min(sp, uSlider.zw - sp);
+  float scov = clamp(min(se.x, se.y) / aa * 0.5 + 0.5, 0.0, 1.0);
+
+  vec3 col = vec3(0.0); float cov = 0.0;
+  if (fcov > 0.0) {
+    vec2 f = clamp(fp / uField.zw, 0.0, 1.0);
+    col = vec3(f.x, 1.0 - f.y, uB);
+    // the black that left to become the dancer is missing from its corner
+    col.rg += uDrain * 0.24 * exp(-length(col.rg) * 3.4);
+    col = clamp(uHue * col, 0.0, 1.0);
+    float ring = abs(length(q - uPick) - 5.2);
+    col = mix(col, vec3(0.06, 0.06, 0.1), 1.0 - smoothstep(0.5, 1.2, ring));
+    cov = fcov;
+  } else if (scov > 0.0) {
+    col = clamp(uHue * vec3(uRG, 1.0 - clamp(sp.y / uSlider.w, 0.0, 1.0)), 0.0, 1.0);
+    cov = scov;
+  }
+  // only the core of the stain darkens the picker, so her outline stays readable against it
+  float shade = clamp(0.72 * smoothstep(0.3, 0.95, trail) + 0.26 * exp(-dp / 6.0), 0.0, 0.9);
+  col = mix(col, INK, shade);
+  vec4 o = mix(tr * 0.88, vec4(col, 1.0), cov);
+  o = mix(o, vec4(INK, 1.0), 1.0 - smoothstep(-aa, aa, d));
+  if (uClothA > 0.0 && d < 1.0) {      // sleeves and pants in the color she is picking
+    float core, pants;
+    float dc = dress(p, core, pants);
+    vec3 cc = uClothCol * (0.8 + 0.2 * clamp(-dc / 5.0, 0.0, 1.0)) * mix(1.0, 0.7, pants);
+    cc = mix(cc, mix(uClothCol, vec3(0.98, 0.97, 0.93), 0.7), smoothstep(0.8, 0.9, core));
+    o = mix(o, vec4(cc, 1.0), (1.0 - smoothstep(-aa, aa, dc)) * uClothA);
+  }
+  gl_FragColor = o;
+}`;
+
+let gl = null, progInk, progMain, uI, uM, inkTex = [], inkFbo = [], inkW = 0, inkH = 0, flip = 0;
+let scale = 1, res = 1;
+
+function compile(g, type, src) {
+  const s = g.createShader(type); g.shaderSource(s, src); g.compileShader(s);
+  if (!g.getShaderParameter(s, g.COMPILE_STATUS)) throw new Error(g.getShaderInfoLog(s));
+  return s;
+}
+function program(g, fs) {
+  const p = g.createProgram();
+  g.attachShader(p, compile(g, g.VERTEX_SHADER, VS)); g.attachShader(p, compile(g, g.FRAGMENT_SHADER, fs));
+  g.bindAttribLocation(p, 0, 'aPos'); g.linkProgram(p);
+  if (!g.getProgramParameter(p, g.LINK_STATUS)) throw new Error(g.getProgramInfoLog(p));
+  return p;
+}
+function locs(p, names) { const o = {}; names.forEach(n => o[n] = gl.getUniformLocation(p, n)); return o; }
+
+function initGL() {
+  try {
+    gl = cv.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false });
+    if (!gl) return false;
+    progInk = program(gl, FS_INK); progMain = program(gl, FS_MAIN);
+    const shared = ['uSeg', 'uRad', 'uBox', 'uGoo', 'uRes', 'uOrigin', 'uScale', 'uHue'];
+    uI = locs(progInk, shared.concat(['uPrev', 'uInkRes', 'uDecay', 'uDrip', 'uRise', 'uTime', 'uB', 'uField', 'uAnchor']));
+    uM = locs(progMain, shared.concat(['uInk', 'uField', 'uSlider', 'uB', 'uRG', 'uPick', 'uDrain', 'uTime', 'uKick', 'uCloth', 'uClothR', 'uClothCol', 'uClothA']));
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST);
+    inkTex = []; inkFbo = []; inkW = inkH = 0;
+    return true;
+  } catch (err) { console.warn('Color Dance: WebGL unavailable', err); gl = null; return false; }
+}
+function initInk() {
+  inkTex.forEach(t => gl.deleteTexture(t)); inkFbo.forEach(f => gl.deleteFramebuffer(f));
+  inkTex = []; inkFbo = [];
+  inkW = Math.max(2, Math.round(cv.width / 3)); inkH = Math.max(2, Math.round(cv.height / 3));
+  for (let i = 0; i < 2; i++) {
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, inkW, inkH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const f = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+    gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+    inkTex.push(t); inkFbo.push(f);
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+/* ---------- the page behind the dialog: a halftone screen that breathes with the beat ---------- */
+const FS_BG = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec3 uBg;
+uniform vec2 uRes;      // device px
+uniform float uPx;      // device px per CSS px
+uniform float uBeat;    // 0..1, how hard the current beat landed
+uniform float uAmt;     // 0..1, is the analyser showing
+uniform float uB;       // the picker's blue channel
+uniform mat3 uHue;      // the palette bar's shift
+uniform sampler2D uLv;  // band levels, bass at the left
+const float TOP = 0.8;  // a full-scale band reaches this far up the page
+void main() {
+  vec2 p = gl_FragCoord.xy / uPx;
+  vec2 g = vec2(p.x + p.y, p.y - p.x) * 0.7071 / 24.0;        // dots on a 45 degree screen, like print
+  vec2 id = floor(g) + 0.5;
+  vec2 cp = vec2(id.x - id.y, id.x + id.y) * 0.7071 * 24.0;    // this dot's center
+  vec2 size = uRes / uPx;
+  float u = clamp(cp.x / size.x, 0.0, 1.0), v = cp.y / size.y;
+  float lv = texture2D(uLv, vec2(u, 0.5)).r * TOP;
+  float lit = (1.0 - smoothstep(lv - 0.035, lv + 0.012, v)) * uAmt;
+  float crest = smoothstep(lv - 0.09, lv, v) * lit;
+  float l = length(fract(g) - 0.5);
+  float r = 0.17 + 0.05 * uBeat + lit * (0.13 + 0.1 * crest);
+  float a = 1.0 - smoothstep(r - 0.035, r + 0.035, l);
+  float lum = dot(uBg, vec3(0.2126, 0.7152, 0.0722));
+  vec3 quiet = lum > 0.2 ? uBg * 0.86 : mix(uBg, vec3(0.98, 0.98, 0.96), 0.13);
+  // lit dots take the picker's own gradient: red rises left to right, green rises with height
+  vec3 loud = clamp(uHue * vec3(u, 0.3 + 0.7 * clamp(v / TOP, 0.0, 1.0), uB), 0.0, 1.0);
+  loud = mix(loud, vec3(0.99, 0.98, 0.95), 0.3 * crest);
+  gl_FragColor = vec4(mix(uBg, mix(quiet, loud, lit), a), 1.0);
+}`;
+const NB = 28;                                    // analyser bands, about 40 Hz to 12 kHz
+const lv = new Float32Array(NB), lvPx = new Uint8Array(NB * 4);
+let lvTex = null, bins = null, bgAmt = 0;
+const bgc = $('bgc');
+let bgl = null, bgProg = null, bgU = null, bgBeat = 0, bgRes = 1;
+function initBg() {
+  try {
+    bgl = bgc.getContext('webgl', { alpha: false, antialias: false });
+    if (!bgl) return;
+    bgProg = program(bgl, FS_BG);
+    bgU = {}; ['uBg', 'uRes', 'uPx', 'uBeat', 'uAmt', 'uB', 'uLv', 'uHue'].forEach(n => bgU[n] = bgl.getUniformLocation(bgProg, n));
+    lvTex = bgl.createTexture();
+    bgl.bindTexture(bgl.TEXTURE_2D, lvTex);
+    bgl.texImage2D(bgl.TEXTURE_2D, 0, bgl.RGBA, NB, 1, 0, bgl.RGBA, bgl.UNSIGNED_BYTE, lvPx);
+    bgl.texParameteri(bgl.TEXTURE_2D, bgl.TEXTURE_MIN_FILTER, bgl.LINEAR);
+    bgl.texParameteri(bgl.TEXTURE_2D, bgl.TEXTURE_MAG_FILTER, bgl.LINEAR);
+    bgl.texParameteri(bgl.TEXTURE_2D, bgl.TEXTURE_WRAP_S, bgl.CLAMP_TO_EDGE);
+    bgl.texParameteri(bgl.TEXTURE_2D, bgl.TEXTURE_WRAP_T, bgl.CLAMP_TO_EDGE);
+    const buf = bgl.createBuffer();
+    bgl.bindBuffer(bgl.ARRAY_BUFFER, buf);
+    bgl.bufferData(bgl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), bgl.STATIC_DRAW);
+    bgl.enableVertexAttribArray(0); bgl.vertexAttribPointer(0, 2, bgl.FLOAT, false, 0, 0);
+  } catch (err) { console.warn('Color Dance: background pattern unavailable', err); bgl = null; bgc.style.display = 'none'; }
+}
+/* band levels: the real spectrum when a song plays, a made-up one in step with the house beat when it doesn't */
+function levels(dt) {
+  const dancing = mode === 'dance' && !calm, fr = posNow - Math.floor(posNow);
+  const real = song.playing && song.an && !calm;
+  if (real) { if (!bins) bins = new Uint8Array(song.an.frequencyBinCount); song.an.getByteFrequencyData(bins); }
+  const hz = real ? song.ctx.sampleRate / song.an.fftSize : 1;
+  const half = (posNow * 2) - Math.floor(posNow * 2), step = Math.floor(posNow * 2);
+  for (let i = 0; i < NB; i++) {
+    let t = 0;
+    if (real) {
+      const f0 = 40 * Math.pow(300, i / NB), f1 = 40 * Math.pow(300, (i + 1) / NB);
+      const b0 = Math.max(1, Math.floor(f0 / hz)), b1 = Math.min(bins.length - 1, Math.max(b0, Math.floor(f1 / hz)));
+      let sum = 0; for (let b = b0; b <= b1; b++) sum += bins[b];
+      t = clamp(Math.pow(sum / (b1 - b0 + 1) / 255, 1.5) * (1 + .7 * i / NB), 0, 1);
+    } else if (dancing) {
+      const x = i / NB, rnd = Math.abs(Math.sin((step + 1) * 12.9898 + i * 78.233) * 43758.5453) % 1;
+      const bass = Math.exp(-fr * 4.5) * Math.exp(-x * 5), mids = (.3 + .35 * rnd) * Math.exp(-half * 3) * Math.exp(-Math.pow((x - .45) / .3, 2));
+      const highs = (.2 + .3 * rnd) * Math.exp(-half * 7) * sstep(.5, 1, x);
+      t = clamp(.95 * bass + mids + highs, 0, 1);
+    }
+    lv[i] += (t - lv[i]) * clamp(dt * (t > lv[i] ? 34 : 7), 0, 1);     // jump up, fall back slowly
+    lvPx[i * 4] = Math.round(lv[i] * 255);
+  }
+  bgAmt += (((real || dancing) ? 1 : 0) - bgAmt) * clamp(dt * 3, 0, 1);
+  const want = dancing ? Math.max(real ? pulse : 0, Math.exp(-fr * 4.5) * (real ? .3 + .5 * eS : .55)) : 0;
+  bgBeat += (want - bgBeat) * clamp(dt * 30, 0, 1);
+}
+function renderBg(dt) {
+  if (!bgl) return;
+  levels(dt);
+  bgl.viewport(0, 0, bgc.width, bgc.height);
+  bgl.useProgram(bgProg);
+  bgl.activeTexture(bgl.TEXTURE0); bgl.bindTexture(bgl.TEXTURE_2D, lvTex);
+  bgl.texSubImage2D(bgl.TEXTURE_2D, 0, 0, 0, NB, 1, bgl.RGBA, bgl.UNSIGNED_BYTE, lvPx);
+  bgl.uniform1i(bgU.uLv, 0);
+  bgl.uniform3f(bgU.uBg, bg.r / 255, bg.g / 255, bg.b / 255);
+  bgl.uniform2f(bgU.uRes, bgc.width, bgc.height);
+  bgl.uniform1f(bgU.uPx, bgRes);
+  bgl.uniform1f(bgU.uBeat, bgBeat);
+  bgl.uniform1f(bgU.uAmt, bgAmt);
+  bgl.uniform1f(bgU.uB, raw.b / 255);
+  bgl.uniformMatrix3fv(bgU.uHue, false, hueM);
+  bgl.drawArrays(bgl.TRIANGLES, 0, 3);
+}
+
+function layout() {
+  const narrow = document.documentElement.clientWidth < 640;
+  const vw = document.documentElement.clientWidth - 32 - (narrow ? 44 : 150), vh = document.documentElement.clientHeight;
+  const capH = narrow ? 300 : 256;
+  scale = clamp(Math.min(vw / (DW + 2 * M), (vh - capH) / (DH + 2 * M)), 0.42, 3.2);
+  const W = (DW + 2 * M) * scale, H = (DH + 2 * M) * scale;
+  wrap.style.width = W + 'px'; wrap.style.height = H + 'px';
+  dialog.style.left = M * scale + 'px'; dialog.style.top = M * scale + 'px';
+  dialog.style.transform = 'scale(' + scale + ')';
+  let r = Math.min(window.devicePixelRatio || 1, 2);
+  const px = W * H * r * r, cap = 2.4e6;
+  if (px > cap) r *= Math.sqrt(cap / px);
+  res = r;
+  const cw = Math.round(W * r), ch = Math.round(H * r);
+  if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; if (gl) initInk(); }
+  const iw = window.innerWidth, ih = window.innerHeight;
+  bgRes = Math.min(window.devicePixelRatio || 1, 1.5);
+  bgc.width = Math.round(iw * bgRes); bgc.height = Math.round(ih * bgRes);
+}
+
+function shared(u) {
+  gl.uniform4fv(u.uSeg, segs); gl.uniform2fv(u.uRad, rads);
+  gl.uniform4f(u.uBox, box[0], box[1], box[2], box[3]);
+  gl.uniform1f(u.uGoo, goo);
+  gl.uniformMatrix3fv(u.uHue, false, hueM);
+  gl.uniform2f(u.uRes, cv.width, cv.height);
+  gl.uniform2f(u.uOrigin, M * scale * res, M * scale * res);
+  gl.uniform1f(u.uScale, scale * res);
+}
+function render(dt) {
+  if (!gl) return;
+  for (let i = nseg; i < N; i++) { segs[i*4] = segs[i*4+2] = -9999; segs[i*4+1] = segs[i*4+3] = -9999; rads[i*2] = rads[i*2+1] = 0; }
+  const src = flip, dst = 1 - flip; flip = dst;
+  // ink pass: the dancer stamps a stain that blurs, runs downward and dries
+  gl.useProgram(progInk);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, inkFbo[dst]);
+  gl.viewport(0, 0, inkW, inkH);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, inkTex[src]);
+  shared(uI);
+  gl.uniform1i(uI.uPrev, 0);
+  gl.uniform2f(uI.uInkRes, inkW, inkH);
+  gl.uniform1f(uI.uDecay, dt * 0.6);
+  gl.uniform1f(uI.uDrip, dt * 9 * scale * res / 3);
+  gl.uniform1f(uI.uRise, dt * 15 * scale * res / 3);
+  gl.uniform1f(uI.uTime, time);
+  gl.uniform1f(uI.uB, raw.b / 255);
+  gl.uniform4f(uI.uField, FIELD.x, FIELD.y, FIELD.w, FIELD.h);
+  gl.uniform2f(uI.uAnchor, root.x + cur.hx * S, FLOOR);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  // picture
+  gl.useProgram(progMain);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, cv.width, cv.height);
+  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.bindTexture(gl.TEXTURE_2D, inkTex[dst]);
+  shared(uM);
+  gl.uniform1i(uM.uInk, 0);
+  gl.uniform4f(uM.uField, FIELD.x, FIELD.y, FIELD.w, FIELD.h);
+  gl.uniform4f(uM.uSlider, SL.x, SL.y, SL.w, SL.h);
+  gl.uniform1f(uM.uB, raw.b / 255);
+  gl.uniform2f(uM.uRG, raw.r / 255, raw.g / 255);
+  gl.uniform2f(uM.uPick, pk.x, pk.y);
+  gl.uniform1f(uM.uDrain, ease(gather * .5 + form * .5));
+  gl.uniform1f(uM.uTime, time);
+  gl.uniform1f(uM.uKick, pulse);
+  for (let i = ncloth; i < NC; i++) { cloth[i*4] = cloth[i*4+2] = -9999; cloth[i*4+1] = cloth[i*4+3] = -9999; clothR[i*3] = clothR[i*3+1] = clothR[i*3+2] = 0; }
+  gl.uniform4fv(uM.uCloth, cloth); gl.uniform3fv(uM.uClothR, clothR);
+  gl.uniform3f(uM.uClothCol, shown.r / 255, shown.g / 255, shown.b / 255);
+  gl.uniform1f(uM.uClothA, ncloth ? clothA : 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+/* ---------- DOM side: numbers, swatches, and everything the dancer bumps ---------- */
+const rx = [];
+function measure() {
+  rx.length = 0;
+  dialog.querySelectorAll('.rx').forEach(el => {
+    let x = 0, y = 0, n = el;
+    while (n && n !== dialog) { x += n.offsetLeft || 0; y += n.offsetTop || 0; n = n.offsetParent; }
+    const bb = el.getBoundingClientRect();
+    const w = el.offsetWidth || bb.width / scale, h = el.offsetHeight || bb.height / scale;
+    if (!el.offsetParent && el.style) { x = parseFloat(getComputedStyle(el).left) || 0; y = parseFloat(getComputedStyle(el).top) || 0; }
+    rx.push({ el, cx: x + w / 2, cy: y + h / 2, r: Math.min(w, h, 28) / 2, x: 0, y: 0, a: 0, vx: 0, vy: 0, va: 0, k: 0, on: false });
+  });
+}
+function bump(dt) {
+  for (const e of rx) {
+    const s = sdfAt(e.cx, e.cy), de = s.d - e.r;
+    let tx = 0, ty = 0, ta = 0;
+    if (de < 20) { const m = (20 - de) * .55; tx = s.nx * m; ty = s.ny * m; ta = s.nx * m * .5; }
+    e.vx += (170 * (tx - e.x) - 11 * e.vx) * dt; e.x += e.vx * dt;
+    e.vy += (170 * (ty - e.y) - 11 * e.vy) * dt; e.y += e.vy * dt;
+    e.va += (170 * (ta - e.a) - 11 * e.va) * dt; e.a += e.va * dt;
+    const kT = clamp((10 - de) / 16, 0, 1);
+    e.k += clamp((kT > e.k ? 14 : 1.6) * dt, 0, 1) * (kT - e.k);
+    const moving = Math.abs(e.x) + Math.abs(e.y) + Math.abs(e.a) > .02 || e.k > .004;
+    if (moving || e.on) {
+      e.el.style.transform = moving ? 'translate(' + e.x.toFixed(2) + 'px,' + e.y.toFixed(2) + 'px) rotate(' + e.a.toFixed(2) + 'deg)' : '';
+      e.el.style.setProperty('--k', moving ? e.k.toFixed(3) : '0');
+      e.on = moving;
+    }
+  }
+}
+const out = { H: $('vH'), S: $('vS'), V: $('vV'), R: $('vR'), G: $('vG'), B: $('vB'), X: $('vX'), C: $('vC'), M: $('vM'), Y: $('vY'), K: $('vK') };
+const put = (el, s) => { if (el._s !== s) { el._s = s; el.textContent = s; } };
+const hex2 = v => (v < 16 ? '0' : '') + v.toString(16);
+let lastBg = '';
+function readout() {
+  const r = Math.round(lerp(shown.r, INK[0], dark)), g = Math.round(lerp(shown.g, INK[1], dark)), b = Math.round(lerp(shown.b, INK[2], dark));
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), dl = mx - mn;
+  let h = 0;
+  if (dl) { h = mx === r ? ((g - b) / dl) % 6 : mx === g ? (b - r) / dl + 2 : (r - g) / dl + 4; h *= 60; if (h < 0) h += 360; }
+  put(out.H, Math.floor(h) + '°'); put(out.S, Math.floor(mx ? dl / mx * 100 : 0) + '%'); put(out.V, Math.floor(mx / 255 * 100) + '%');
+  put(out.R, '' + r); put(out.G, '' + g); put(out.B, '' + b);
+  put(out.X, hex2(r) + hex2(g) + hex2(b));
+  const kk = 1 - mx / 255, den = 1 - kk || 1;
+  put(out.C, Math.round((1 - r / 255 - kk) / den * 100) + '%'); put(out.M, Math.round((1 - g / 255 - kk) / den * 100) + '%');
+  put(out.Y, Math.round((1 - b / 255 - kk) / den * 100) + '%'); put(out.K, Math.round(kk * 100) + '%');
+  const css = 'rgb(' + r + ',' + g + ',' + b + ')';
+  if (swatch._c !== css) {
+    swatch._c = css; swatch.style.background = css;
+    const ws = v => Math.round(v / 51) * 51;             // nearest web-safe color, as the cube icon offers
+    mini.style.background = 'rgb(' + ws(r) + ',' + ws(g) + ',' + ws(b) + ')';
+  }
+  const ay = (sl.y - SL.y).toFixed(1);
+  if (arrL._y !== ay) { arrL._y = ay; arrL.style.transform = arrR.style.transform = 'translateY(' + ay + 'px)'; }
+  const br = Math.round(bg.r), bgn = Math.round(bg.g), bb = Math.round(bg.b), key = br + ',' + bgn + ',' + bb;
+  if (key !== lastBg) {
+    lastBg = key;
+    const lum = (0.2126 * br + 0.7152 * bgn + 0.0722 * bb) / 255;
+    document.documentElement.style.setProperty('--bg', 'rgb(' + key + ')');
+    // flip where both inks give the same contrast (about 4.6:1 at worst), so the caption always passes AA
+    const lin = v => { v /= 255; return v <= .04045 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    const rel = 0.2126 * lin(br) + 0.7152 * lin(bgn) + 0.0722 * lin(bb);
+    document.documentElement.style.setProperty('--cap', rel > 0.18 ? '#000015' : '#fbfaf6');
+  }
+  if (!gl) {   // no WebGL: keep the plain picker truthful
+    slider.style.background = 'linear-gradient(to bottom, rgb(' + Math.round(shown.r) + ' ' + Math.round(shown.g) + ' 255), rgb(' + Math.round(shown.r) + ' ' + Math.round(shown.g) + ' 0))';
+  }
+}
+const swatch = $('swatch'), mini = $('mini'), arrL = $('arrL'), arrR = $('arrR'), field = $('field'), slider = $('slider');
+
+/* ---------- input ---------- */
+function dragOn(el, fn) {
+  el.addEventListener('pointerdown', e => { try { el.setPointerCapture(e.pointerId); } catch (_) {} fn(e); e.preventDefault(); });
+  el.addEventListener('pointermove', e => { if (e.buttons || e.pointerType === 'touch') fn(e); });
+}
+dragOn(field, e => {
+  const r = field.getBoundingClientRect();
+  home.x = FIELD.x + clamp((e.clientX - r.left) / r.width, 0, 1) * FIELD.w;
+  home.y = FIELD.y + clamp((e.clientY - r.top) / r.height, 0, 1) * FIELD.h;
+  pk.x = home.x; pk.y = home.y; pk.vx = pk.vy = 0;
+});
+dragOn(slider, e => {
+  const r = slider.getBoundingClientRect();
+  const t = clamp((e.clientY - r.top) / r.height, 0, 1);
+  home.b = (1 - t) * 255; sl.y = SL.y + t * SL.h; sl.v = 0;
+});
+/* keyboard: the field and the blue slider move by arrow keys too, never drag-only (WCAG 2.1.1, 2.5.7) */
+function syncAria() {
+  const r = Math.round(clamp((home.x - FIELD.x) / FIELD.w, 0, 1) * 255), g = Math.round(clamp(1 - (home.y - FIELD.y) / FIELD.h, 0, 1) * 255);
+  field.setAttribute('aria-valuenow', r); field.setAttribute('aria-valuetext', 'Red ' + r + ', green ' + g);
+  slider.setAttribute('aria-valuenow', Math.round(home.b));
+}
+field.addEventListener('keydown', e => {
+  const st = (e.shiftKey ? 25 : 5) / 255;
+  const d = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[e.key];
+  if (!d) return;
+  e.preventDefault();
+  home.x = FIELD.x + clamp((home.x - FIELD.x) / FIELD.w + d[0], 0, 1) * FIELD.w;
+  home.y = FIELD.y + clamp((home.y - FIELD.y) / FIELD.h + d[1], 0, 1) * FIELD.h;
+  syncAria(); paintHue(); rmkTrack('pick_color');
+});
+slider.addEventListener('keydown', e => {
+  const k = e.key, s = e.shiftKey ? 25 : 5;
+  const b = k === 'ArrowUp' || k === 'ArrowRight' ? home.b + s : k === 'ArrowDown' || k === 'ArrowLeft' ? home.b - s :
+            k === 'PageUp' ? home.b + 51 : k === 'PageDown' ? home.b - 51 : k === 'Home' ? 0 : k === 'End' ? 255 : null;
+  if (b === null) return;
+  e.preventDefault();
+  home.b = clamp(b, 0, 255); sl.y = SL.y + (1 - home.b / 255) * SL.h; sl.v = 0;
+  syncAria(); paintHue(); rmkTrack('pick_blue');
+});
+field.addEventListener('pointerup', () => { syncAria(); rmkTrack('pick_color'); });
+slider.addEventListener('pointerup', () => { syncAria(); rmkTrack('pick_blue'); });
+window.rmkSoundStop = () => { if (song.playing) { halt(); say('“' + song.name + '” is paused because other sound started. OK picks it up again.'); } };
+
+$('ok').addEventListener('click', () => { rmkTrack('start'); autoDead = false; if (song.ready && !song.playing) startSong(false); summon(); });
+$('cancel').addEventListener('click', () => {
+  rmkTrack('stop');
+  autoDead = true;
+  if (song.playing) { halt(); say('“' + song.name + '” is paused. OK picks it up again.'); }
+  dismiss();
+});
+$('okBig').addEventListener('click', () => $('ok').click());
+$('cancelBig').addEventListener('click', () => $('cancel').click());
+const hueEl = $('hue'), hueKnob = $('hueKnob');
+function paintHue() {       // the bar shows what the home color becomes at each stop
+  const hr = clamp((home.x - FIELD.x) / FIELD.w, 0, 1) * 255, hg = clamp(1 - (home.y - FIELD.y) / FIELD.h, 0, 1) * 255;
+  const stops = [];
+  for (let i = 0; i <= 12; i++) { const c = hueApply(hueRowsFor(i * 30), hr, hg, home.b); stops.push('rgb(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ')'); }
+  hueEl.style.background = 'linear-gradient(to bottom,' + stops.join(',') + ')';
+  hueKnob.style.top = (hueDeg / 360 * 100) + '%';
+  hueEl.setAttribute('aria-valuenow', Math.round(hueDeg));
+}
+dragOn(hueEl, e => {
+  const r = hueEl.getBoundingClientRect();
+  setHue(clamp((e.clientY - r.top) / r.height, 0, .999) * 360); paintHue(); rmkTrack('palette');
+});
+hueEl.addEventListener('keydown', e => {
+  const d = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 10 : e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -10 : 0;
+  if (d) { setHue(hueDeg + d); paintHue(); rmkTrack('palette'); e.preventDefault(); }
+});
+field.addEventListener('pointerup', paintHue); slider.addEventListener('pointerup', paintHue);
+paintHue();
+const fileIn = $('file'), veil = $('veil');
+$('pick').addEventListener('click', () => fileIn.click());
+fileIn.addEventListener('change', () => { loadSong(fileIn.files[0]); fileIn.value = ''; });
+const hasFiles = e => e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0;
+window.addEventListener('dragover', e => { if (hasFiles(e)) { e.preventDefault(); veil.classList.add('show'); } });
+window.addEventListener('dragleave', e => { if (!e.relatedTarget) veil.classList.remove('show'); });
+window.addEventListener('drop', e => {
+  veil.classList.remove('show');
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  loadSong(e.dataTransfer.files[0]);
+});
+
+/* ---------- run ---------- */
+let last = 0;
+function frame(now) {
+  const dt = clamp((now - last) / 1000, 0, 1 / 24); last = now;
+  const h = dt / 2; sim(h); sim(h);
+  bump(dt); readout(); render(dt); renderBg(dt);
+  requestAnimationFrame(frame);
+}
+const calm = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+initGL(); initBg();
+layout(); measure();
+window.addEventListener('resize', () => { layout(); });
+cv.addEventListener('webglcontextlost', e => e.preventDefault());
+cv.addEventListener('webglcontextrestored', () => { if (initGL()) { cv.width = 0; layout(); } });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { layout(); measure(); });
+readout();
+loadStartSong();
+requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
+
+if (calm) $('hint').textContent = 'Motion is waiting for you. Press OK to start the dance, Cancel to send it home.';
+else if (!window.__noauto) setTimeout(summon, 1400);
+
+// for stepping through the dance by hand: colorDance.advance(seconds)
+window.colorDance = { summon, dismiss, song, loadSong, hair, state: () => mode, advance(sec) { for (let i = 0, n = Math.round(sec * 60); i < n; i++) { sim(1 / 60); bump(1 / 60); } readout(); render(1 / 60); renderBg(1 / 60); } };
+})();
+</script>
+</body>
+</html>

@@ -65,7 +65,7 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: clamp(24px, 4vw, 64px);
   align-items: center;
   padding: clamp(48px, 8vh, 96px) var(--rmk-sheet-pad) clamp(40px, 6vh, 72px);
@@ -112,17 +112,28 @@
   color: var(--rmk-ink-muted);
 }
 
-.hero__manifest {
+/* The manifest: a spec strip under the hero, one column per fact */
+.manifest-strip {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: clamp(24px, 2.6vw, 36px);
-  border-radius: 18px;
-  background: var(--rmk-ground-raised);
-  box-shadow:
-    0 1px 1.5px #0008,
-    0 10px 24px #0006,
-    inset 0 1px 0 #ffffff0d;
+  gap: 14px;
+  padding: 28px var(--rmk-sheet-pad) 32px;
+  border-top: 1px solid var(--rmk-line);
+}
+
+.manifest-strip .manifest {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px 32px;
+  align-items: start;
+}
+
+.manifest-strip .manifest__row {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 8px;
+  padding: 0;
+  border-bottom: 0;
 }
 
 .manifest__row {

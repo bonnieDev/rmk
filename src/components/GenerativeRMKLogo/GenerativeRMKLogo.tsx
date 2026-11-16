@@ -318,7 +318,9 @@ export function GenerativeRMKLogo({
             shift — and without a screen reader announcing it character by
             character. The whole phrase is one label.
           */}
-          <p className="rmk-ticker__line" aria-label={TAGLINE}>
+          <p className="rmk-ticker__line">
+            {/* a paragraph can't carry an aria-label, so the phrase is hidden text */}
+            <span className="visually-hidden">{TAGLINE}</span>
             {TAGLINE.split('').map((ch, i) => (
               <span
                 key={i}

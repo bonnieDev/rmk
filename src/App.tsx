@@ -4,6 +4,7 @@ import { Floor, useFloor, type FloorSheet } from './components/Floor'
 import { ProjectSheet } from './components/ProjectSheet'
 import { MastMark, SheetMast } from './components/SheetMast'
 import { fullTitleOf, posterOf } from './components/ProjectMedia'
+import { Showcase } from './components/Showcase'
 // Retired with the floor redesign (docs/FLOOR-CAMERA.md): the chalk
 // annotations, the changeover cue, the etched attractor and the shape field.
 // Their components stay in src/components if a place for them comes back.
@@ -221,51 +222,53 @@ function HomeSheet({ live }: { live: boolean }) {
           </p>
         </div>
 
-        <div className="hero__manifest">
-          <p className="label">System manifest</p>
-          <dl className="manifest">
-            {MANIFEST.map((row) => (
-              <div className="manifest__row" key={row.key}>
-                <dt>{row.key}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-            <div className="manifest__row manifest__row--stack">
-              <dt>Discipline</dt>
-              <dd>
-                <ol className="discipline">
-                  {DISCIPLINE.map((line, i) => (
-                    <li key={line}>
-                      <span className="discipline__n" aria-hidden="true">
-                        {num(i)}
-                      </span>
-                      {line}
-                    </li>
-                  ))}
-                </ol>
-              </dd>
+        <Showcase onPick={(id, el) => go(id, el)} onHover={setHovered} />
+      </section>
+
+      <section className="manifest-strip" aria-labelledby="manifest-title">
+        <h2 className="label" id="manifest-title">System manifest</h2>
+        <dl className="manifest">
+          {MANIFEST.map((row) => (
+            <div className="manifest__row" key={row.key}>
+              <dt>{row.key}</dt>
+              <dd>{row.value}</dd>
             </div>
-            <div className="manifest__row">
-              <dt>Record</dt>
-              <dd>25 years · 8 provisional patents</dd>
-            </div>
-            <div className="manifest__row">
-              <dt>Contact</dt>
-              <dd>
-                <a
-                  className="manifest__link"
-                  href={LINKEDIN}
-                  target="_blank"
-                  rel="me noreferrer"
-                  onClick={() => track('contact_click', { from: 'manifest' })}
-                >
-                  Message me on LinkedIn<span className="visually-hidden"> (opens in a new tab)</span>
-                </a>
-                {' · '}open to new roles
-              </dd>
-            </div>
-          </dl>
-        </div>
+          ))}
+          <div className="manifest__row manifest__row--stack">
+            <dt>Discipline</dt>
+            <dd>
+              <ol className="discipline">
+                {DISCIPLINE.map((line, i) => (
+                  <li key={line}>
+                    <span className="discipline__n" aria-hidden="true">
+                      {num(i)}
+                    </span>
+                    {line}
+                  </li>
+                ))}
+              </ol>
+            </dd>
+          </div>
+          <div className="manifest__row">
+            <dt>Record</dt>
+            <dd>25 years · 8 provisional patents</dd>
+          </div>
+          <div className="manifest__row">
+            <dt>Contact</dt>
+            <dd>
+              <a
+                className="manifest__link"
+                href={LINKEDIN}
+                target="_blank"
+                rel="me noreferrer"
+                onClick={() => track('contact_click', { from: 'manifest' })}
+              >
+                Message me on LinkedIn<span className="visually-hidden"> (opens in a new tab)</span>
+              </a>
+              {' · '}open to new roles
+            </dd>
+          </div>
+        </dl>
       </section>
 
       <section id="index" className="index" aria-labelledby="index-title">

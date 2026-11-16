@@ -149,6 +149,8 @@ as a bug, not a polish note.
 - **Keyboard and focus:** visible `:focus-visible` outlines using
   `--rmk-focus`. Toggles use real `<button>`s with `aria-pressed` (stills,
   video sound).
+- **Home's showcase tiles** (big pictures in the first view) are real `<button>`s named by their visible caption; the picture is decorative there (`alt=""`), since the project sheet carries the full description. Captions sit on a dark fade so they stay readable on any image. Clicks report as `ui_click` with section `Hero`.
+- **The logo's ticker line** reads its phrase from visually-hidden text, not an `aria-label` on the `<p>` (axe: aria-prohibited-attr, fixed 2026-11-16).
 - **Text:** 12px minimum (`--rmk-meta-size`, see `src/tokens/tokens.css`).
 - **Images:** every still has a descriptive `alt` in `projects.ts`, written to
   say what the image shows. Decorative canvases and glows are `aria-hidden`.

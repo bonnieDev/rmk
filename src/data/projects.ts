@@ -232,6 +232,36 @@ export const projects: Project[] = [
     logoPalette: { ink: BASE, accents: [MARK.cyan, MARK.copper, MARK.pale] },
   },
   {
+    id: 'camel-symbolic-airlock',
+    group: 'interfaces',
+    title: 'CaMeL Symbolic',
+    titleEm: 'Airlock',
+    category: 'AI SAFETY',
+    what: 'A stop-and-ask step for AI agents',
+    tagline:
+      'When a request to an AI agent could mean more than one thing, it stops and asks. No tool runs until a person picks what they meant.',
+    role: 'Concept · Design direction · Built with Gemini and Claude',
+    pipeline: ['TypeScript', 'Model Context Protocol', 'Node.js', 'React'],
+    status: { label: 'Open-source prototype', accent: 'coral' },
+    year: '2026',
+    brief: {
+      problem:
+        'Ordinary words are overloaded. “Clean the staging folder” can mean archive, deduplicate or delete, and an AI agent picks a likely meaning the person never pictured. Most agent security guards against outside attackers. This asks what happens when the request is honest but unclear.',
+      pipeline:
+        'Two layers sit between a plain-language request and a tool call. A vague request stops and offers clear choices, and nothing runs until a person picks one. That choice is signed, so text an AI reads along the way can suggest an action but can’t authorize one. It borrows the idea of trusted control flow from CaMeL (Google DeepMind and ETH Zurich) as a much simpler sketch, and isn’t affiliated with its authors.',
+      milestone: 'Design prototype, open source under MIT, with tests over a real MCP connection. Not security-audited yet.',
+    },
+    stills: [
+      {
+        src: '/projects/camel-symbolic-airlock/logo.jpg',
+        caption: 'The airlock mark',
+        alt: 'The CaMeL Symbolic Airlock logo: an amber camel standing in front of a round steel vault door with a locking wheel at its center, on a dark grid.',
+      },
+    ],
+    links: [{ href: 'https://github.com/bonnieDev/camel-symbolic-airlock', label: 'See the code on GitHub' }],
+    logoPalette: { ink: BASE, accents: [MARK.copper, MARK.cyan, MARK.pale] },
+  },
+  {
     id: 'kinedic-bloom',
     group: 'access',
     title: 'Kinedic',

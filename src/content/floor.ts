@@ -42,6 +42,8 @@ export const floor = {
     { id: 'tech-literacy-translated', col: 1, row: 3, rotation: 1.3 },
     // one column over, so the book's long label has open floor beside it
     { id: 'kinedic-drop', col: 3, row: 3, rotation: -1.9 },
+    // right edge again, so its long label has open floor beside it
+    { id: 'camel-symbolic-airlock', col: 4, row: 3, rotation: 2.1 },
   ] satisfies FloorSpot[],
   /** milliseconds */
   // no line-up hold: after the pull-up the camera waits for the visitor

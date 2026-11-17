@@ -14,6 +14,6 @@ export interface ShowcaseTile {
 export const showcase: ShowcaseTile[] = [
   { id: 'aether-command', src: '/projects/aether-command/ghost-still-2.jpg', focus: '50% 50%' },
   { id: 'otherly', src: '/projects/skull-and-beau/ghoul-arrives.jpg', focus: '38% 50%' },
-  { id: 'bounce-cal', src: '/projects/bounce-cal/bounce-cal-dig-in.jpg', focus: '30% 40%' },
+  { id: 'tech-literacy-translated', src: '/projects/tech-literacy-translated/cover.jpg', focus: '50% 20%' },
   { id: 'kitty-n-pip', src: '/projects/kitty-n-pip/portrait.jpg', focus: '50% 30%' },
 ]
